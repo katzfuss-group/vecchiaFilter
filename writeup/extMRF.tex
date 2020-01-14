@@ -1,0 +1,183 @@
+\documentclass[12pt,letterpaper]{article}
+
+%\usepackage[doublespacing]{setspace}
+
+
+\usepackage{natbib}
+%\usepackage[hidelinks]{hyperref}
+\usepackage[ left=1in, top=1in, right=1in, bottom=1in]{geometry}
+\usepackage{xcolor,graphicx,bm,colonequals,amsmath,amssymb,url}
+\usepackage{array,tabularx,multirow}
+\usepackage{enumitem,algpseudocode}
+\usepackage[font={footnotesize}]{caption,subcaption}
+
+\setlength{\bibsep}{2pt}
+
+\bibpunct[, ]{(}{)}{;}{a}{,}{,}
+
+% define and specify proposition environment
+\usepackage{amsthm}
+\newtheoremstyle{propstyle} % name
+    {2mm}                    % Space above
+    {1mm}                    % Space below
+    {\itshape}                   % Body font
+    {}                           % Indent amount
+    {\scshape}                   % Theorem head font
+    {.}                          % Punctuation after theorem head
+    {.5em}                       % Space after theorem head
+    {}  % Theorem head spec (can be left empty, meaning ‘normal’)
+\theoremstyle{propstyle}
+\newtheorem{prop}{Proposition}
+\theoremstyle{propstyle}
+\newtheorem{definition}{Definition}
+
+\newcommand{\eq}[1]{\begin{equation}  #1 \end{equation}}
+
+\newcommand{\evol}{\mathcal{E}}
+\newcommand{\levol}{\mathbf{E}}
+\newcommand{\bh}{\mathbf{h}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bc}{\mathbf{c}}
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\bg}{\mathbf{g}}
+\newcommand{\bs}{\mathbf{s}}
+\newcommand{\bp}{\mathbf{p}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bq}{\mathbf{q}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bS}{\mathbf{S}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\bZ}{\mathbf{Z}}
+\newcommand{\bF}{\mathbf{F}}
+\newcommand{\bO}{\mathbf{O}}
+\newcommand{\bP}{\mathbf{P}}
+\newcommand{\bA}{\mathbf{A}}
+\newcommand{\bY}{\mathbf{Y}}
+\newcommand{\bJ}{\mathbf{J}}
+\newcommand{\bW}{\mathbf{W}}
+\newcommand{\bG}{\mathbf{G}}
+\newcommand{\bL}{\mathbf{L}}
+\newcommand{\bI}{\mathbf{I}}
+\newcommand{\bD}{\mathbf{D}}
+\newcommand{\bH}{\mathbf{H}}
+\newcommand{\bU}{\mathbf{U}}
+\newcommand{\bV}{\mathbf{V}}
+\newcommand{\bK}{\mathbf{K}}
+\newcommand{\bX}{\mathbf{X}}
+\newcommand{\bQ}{\mathbf{Q}}
+\newcommand{\bB}{\mathbf{B}}
+\newcommand{\bC}{\mathbf{C}}
+\newcommand{\bM}{\mathbf{M}}
+\newcommand{\bR}{\mathbf{R}}
+
+
+\newcommand{\bfzero}{\mathbf{0}}
+\newcommand{\bfalpha}{\bm{\alpha}}
+\newcommand{\bfgamma}{\bm{\gamma}}
+\newcommand{\bfmu}{\bm{\mu}}
+\newcommand{\bfxi}{\bm{\xi}}
+\newcommand{\bftheta}{\bm{\theta}}
+\newcommand{\bfeta}{\bm{\eta}}
+\newcommand{\bfnu}{\bm{\nu}}
+\newcommand{\bfdelta}{\bm{\delta}}
+\newcommand{\bfkappa}{\bm{\kappa}}
+\newcommand{\bfbeta}{\bm{\beta}}
+\newcommand{\bfepsilon}{\bm{\epsilon}}
+\newcommand{\bftau}{\bm{\tau}}
+\newcommand{\bfomega}{\bm{\omega}}
+\newcommand{\bfpi}{\bm{\pi}}
+\newcommand{\bfpsi}{\bm{\psi}}
+\newcommand{\bfSigma}{\bm{\Sigma}}
+\newcommand{\bfGamma}{\bm{\Gamma}}
+\newcommand{\bfLambda}{\bm{\Lambda}}
+\newcommand{\bfPsi}{\bm{\Psi}}
+\newcommand{\bfOmega}{\bm{\Omega}}
+
+\newcommand{\im}{{i_1,\ldots,i_m}}
+\newcommand{\jm}{{j_1,\ldots,j_m}}
+\newcommand{\jmp}{{j_1,\ldots,j_{m+1}}}
+\newcommand{\jmm}{{j_1,\ldots,j_{m-1}}}
+\newcommand{\jk}{{j_1,\ldots,j_k}}
+\newcommand{\jl}{{j_1,\ldots,j_l}}
+\newcommand{\jlp}{{j_1,\ldots,j_{l+1}}}
+\newcommand{\jM}{{j_1,\ldots,j_M}}
+\newcommand{\etaset}{\mathcal{E}}
+
+\newcommand{\var}{var}
+\newcommand{\cov}{cov}
+\newcommand{\diag}{diag}
+\newcommand{\tr}{tr}
+\newcommand{\GP}{GP}
+\newcommand{\avg}{avg}
+\newcommand{\trace}{trace}
+\newcommand{\blockdiag}{blockdiag}
+\newcommand{\sign}{sign}
+\newcommand{\knots}{\mathcal{Q}}
+\newcommand{\knot}{\mathbf{q}}
+\newcommand{\node}{\mathcal{N}}
+\newcommand{\order}{\mathcal{O}}
+\newcommand{\modu}{\mathcal{T}}
+\renewcommand{\prec}{\bm{\Lambda}}
+\newcommand{\pprec}{\widetilde{\bm{\Lambda}}}
+\newcommand{\domain}{\mathcal{D}}
+\newcommand{\pp}{\tau}
+\newcommand{\locs}{\mathcal{S}}
+\newcommand{\kronecker}{\raisebox{1pt}{\ensuremath{\:\otimes\:}}}
+
+\newcommand{\footprint}{\mathcal{F}}
+\newcommand{\grid}{\mathcal{G}}
+
+\newcommand{\dg}{\mbox{$^{\circ}$}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+%%%%
+
+\title{Multi-resolution approximations for large spatial datasets}
+
+\author{Matthias Katzfuss\thanks{Department of Statistics, Texas A\&M University. \texttt{katzfuss@gmail.com}} \and Marcin Jurek\thanks{Department of Statistics, Texas A\&M University.}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+
+
+\end{abstract}
+
+\subsection*{Keywords}
+Basis functions; Full-scale approximation; Gaussian process; Kriging; Satellite data; Sparse matrices; Tapering.
+
+
+\section{MR particle filter}
+Remember about Approximate Smoothing and Parameter Estimation in High Dimensional State Space Models by Finke and Singh. They draw heavily from Rebeschini, Handel and extend their work from filtering to smoothing. Their ideas might lead to something like multi-resolution particle filter.
+
+
+
+%%%%%%%%%%%%%
+\section{The extended multi-resolution filter (EMRF) \label{sec:emrf}} 
+
+In many applications, the evolution operator $\evol_t(\cdot)$ in \eqref{eq:evol} is complex and nonlinear, and its Jacobian is unavailable or a poor approximation. In these situations, the MRF and EMRF in Section \ref{sec:mrf} are not applicable. In such situations, one could envision an ensemble multi-resolution filter (EnMRF), which combines the MRF update with the ensemble representation and propagation of the EnKF. This allows \emph{better and more flexible covariance regularization}, and does not require restrictions on the evolution-error covariance matrix $\bQ_t$.
+
+If the evolution operator $\evol_t$ is nonlinear, the MRF cannot be directly applied anymore. However, similar inference is still possible as long as the evolution is not too far from linear. This approximation is generally reasonable if the time steps are short, or if the measurements at time $t$ are highly informative. In this case, we propose the extended multi-resolution filter (EMRF), which approximates the extended Kalman filter \citep[e.g.,][Ch.~5]{Grewal1993} using the MRA. For the forecast step, the EMRF computes the forecast mean as $\bfmu_{t|t-1} = \evol_t(\bfmu_{t-1|t-1})$. The forecast covariance matrix $\bfSigma_{t|t-1}$ can be obtained as in \eqref{eq:mrfforecast}, by setting $\levol_t = \frac{\partial \evol_t(\by_{t-1})}{\partial \by_{t-1}} \big|_{\by_{t-1} = \bfmu_{t-1|t-1} }$, the Jacobian matrix of $\evol_t(\bfmu_{t-1|t-1})$.  Errors in the forecast covariance matrix due to this linear approximation can be captured in the innovation covariance, $\bQ_t$.
+
+If the Jacobian matrix cannot be computed, it is sometimes possible to build a statistical emulator \citep[e.g.][]{Kaufman2011} instead, which approximates the true evolution operator.
+
+Once $\bfmu_{t|t-1}$ and $\bfSigma_{t|t-1}$ have been obtained, the update step of the EMRF proceeds exactly as in the MRF in \ref{sec:mrfupdate} by assuming the forecast distribution is Gaussian.
+
+
+
+
+
+%%%%%%%%%%%
+\footnotesize
+\bibliographystyle{apalike}
+\bibliography{library}
+
+\end{document}
+
