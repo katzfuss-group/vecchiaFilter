@@ -29,6 +29,8 @@ getLtt = function(vecchia.approx, preds){
 
 
 
+
+
 ######### simulate and plot the data #########
 ## define the temporal evolution function
 evol = function(state, adv=0, diff=0){
@@ -41,17 +43,34 @@ evol = function(state, adv=0, diff=0){
   diags = list(rep(c2, 1), rep(c3, Nx-1), rep(c1, Nx), rep(c2, Nx-1), rep(c3,1) )
   E = Matrix::bandSparse(Nx, k=c(-(Nx-1), -1, 0, 1, Nx-1), diag=diags)
   
-  # f = 5
-  # diags = list(rep(f, 1), rep(-f, Nx-2), rep(-1, Nx), rep(f, Nx-1), rep(-f, 2))
-  # EL = Matrix::bandSparse(Nx, k=c(-Nx-1), -2, 0, 1, Nx-2)
-  # 
-  
-  
   if(dim(state)[2]>1) return( E %*% state )
   else as.numeric(E %*% as.matrix(state))
 }
 
 
+
+getX0 = function(N, Force, K, dt, dir = '~/HVLF/models/'){
+  
+  fileName = paste("init_Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep="_")
+  filePath = paste(dir, fileName, sep="")
+  
+  generateInit = !file.exists(filePath)
+
+  if( generateInit ){
+    message("Initial state for these parameters has not yet been generated. Generating now.")
+    X0 = rnorm(N)  
+    X1 = Lorenz04M2Sim(X0, Force, K, dt, M, iter=100, burn=0, order=1)
+    x0 = X1[,100]
+    write(x0, file=filePath)  
+  } else {
+    x0 = scan(filePath, quiet = TRUE)  
+  }
+  if(class(x0)=='numeric'){
+    x0 = matrix(x0, ncol=1)
+  }
+  return(x0)
+
+}
 
 
 

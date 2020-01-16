@@ -3,16 +3,20 @@ library(VEnKF)
 library(rootSolve)
 setwd("~/HVLF/models")
 
-generateInit = F
+generateInit = T
 
 N = 120
-Force = 10
+Force = 8
 dt = 0.005
 M = 40
 K = 32
-Tmax = 100
+Tmax = 500
 seed = 1988
-fileName = paste("init_Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep="_")
+fileName.init = paste("init_Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep="_")
+fileName.all = paste("Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep="_")
+
+
+
 
 
 #### generate solutions ####
@@ -24,14 +28,25 @@ if( generateInit ){
   X0 = scan(fileName, quiet = TRUE)  
 }
 
-X1 = Lorenz04M2Sim(X0, Force, K, dt, M, iter=Tmax, burn=0, order=1)
+
+X1 = Lorenz04M2Sim(X0, Force, K, dt, M, iter=Tmax, order=4)
+#X1 = Lorenz04M2Sim(X0, Force, K, dt, M, iter=Tmax, burn=0, order=1)
+
+
 
 if( generateInit ){
-  last = X1[,Tmax]
-  write(last, file=fileName)  
+  #last = X1[,Tmax]
+  #write(last, file=fileName)
+  write(X1, file=fileName.all)  
+  quit()
 } 
 
+
+
 X4 = Lorenz04M2Sim(X0, Force, K, dt, M, iter=Tmax, burn=0, order=4)
+
+
+
 
 
 
@@ -57,11 +72,9 @@ const4 = -Jf4 %*% taylor_x0_vec + f4(taylor_x0_vec)
 
 Xl1 = matrix(rep(NA, N*Tmax), ncol=Tmax)
 Xl4 = matrix(rep(NA, N*Tmax), ncol=Tmax)
-Xl1[,1] = X0
-Xl4[,1] = X0
 oldXl1 = X0
 oldXl4 = X0
-for(t in 2:(Tmax*M)){
+for(t in 1:(Tmax*M)){
 
   newXl1 = E1 %*% oldXl1 + const1
   oldXl1 = newXl1
@@ -82,13 +95,13 @@ for(t in 2:(Tmax*M)){
 
 #### plot results ####
 for(t in 1:Tmax){
-  m = min(min(X1), min(X4)); M = max(max(X1), max(X4))
-  #m = min(min(X1), min(Xl1), min(X4), min(Xl4)); M = max(max(X1), max(Xl1), max(X4), max(Xl4))
+  #m = min(min(X1), min(X4)); M = max(max(X1), max(X4))
+  m = min(min(X1), min(Xl1), min(X4), min(Xl4)); M = max(max(X1), max(Xl1), max(X4), max(Xl4))
   plot(X1[,t], type="l", main=paste("t=", t, sep=""), col="black", ylim=c(m, M))
-  #lines(Xl1[,t], type="l", lty=2, col="black")
+  lines(Xl1[,t], type="l", lty=2, col="black")
   
   lines(X4[,t], col="red", type="l")
-  #lines(Xl4[,t], col="red", type="l", lty=2)
+  lines(Xl4[,t], col="red", type="l", lty=2)
   
   legend("topright", c("order 1", "order 4", "linear order 1", "linear order 4"),
          col=c("black", "red", "black", "red"), lty=c(1, 1, 2, 2))

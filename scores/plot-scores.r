@@ -1,9 +1,9 @@
 rm(list=ls())
-
+setwd("~/HVLF")
 
 models = c("gauss", "poisson", "logistic", "gamma")
 scores = list()
-ms = c(1, 2, 5, 10, 20, 40, 60)
+ms = c(1, 2, 5, 10, 20, 40, 60, 80, 100)
 defpar = par(mfrow=c(1, 4), oma=c(0, 0, 0, 0), mar=c(4, 4, 2, 1))
 m = M = 1.5
 for( model in models) {
