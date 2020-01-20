@@ -1,8 +1,8 @@
 ## define the temporal evolution function
-evol2 = function(state, adv=0, diff=0){
+evolAdvDiff = function(state, adv=0, diff=0){
+  
   # we assume that there is the same number of grid points
   # along each dimension
-
   N = dim(as.matrix(state))[1]
   Ny = Nx = sqrt(N)
   
@@ -22,22 +22,52 @@ evol2 = function(state, adv=0, diff=0){
 
 
 
+filter = function(approx.name){
+  
+  approx = approximations[[approx.name]]
+  
+  preds = list()
+  L.tt = getL00(approx, Sig0, locs)
+  mu.tt = x0
+  preds[[1]] = list(state=x0, L = L.tt)
+  
+  for(t in 2:Tmax){
+    obs.aux = as.numeric(XY$y[[t]])
+    
+    forecast = evolFun(mu.tt)
+    Fmat = evolFun(L.tt) 
+    covmodel = GPvecchia::getMatCov(approx, Fmat %*% Matrix::t(Fmat) + Q)
+    
+    preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast, likelihood_model = data.model, covmodel = covmodel, covparms = covparms, likparms = lik.params, return_all = TRUE)
+    L.tt = getLtt(approx, preds.aux)
+    mu.tt = matrix(preds.aux$mean, ncol=1)
+    preds[[t]] = list(state=mu.tt, L = L.tt)
+  }
+  return( preds )
+}
+
+
+
+
+
+
 
 setwd("~/HVLF")
 source('aux-functions.r')
 resultsDir="simulations-linear"
 library(doParallel)
 registerDoParallel(cores=5)
+
 ######### set parameters #########
 set.seed(1988)
 spatial.dim=2
 n=34**2
 m=50
 frac.obs = 0.3
-Tmax = 10
+Tmax = 3
 diffusion = 0.00004
 advection = 0.01
-evolFun = function(X) evol2(X, adv=advection, diff=diffusion)
+evolFun = function(X) evolAdvDiff(X, adv=advection, diff=diffusion)
 max.iter = 5
 
 ## covariance parameters
@@ -52,13 +82,11 @@ lik.params = list(data.model = data.model, me.var=me.var)
 
 
 
-
-
-
-
 ## generate grid of pred.locs
 grid.oneside=seq(0,1,length=round(sqrt(n)))
 locs=as.matrix(expand.grid(grid.oneside,grid.oneside)) 
+save(locs, file=paste(resultsDir, "/locs", sep=""))
+
 
 ## set initial state
 Q = covfun(locs)
@@ -67,82 +95,25 @@ x0 = t(chol(Sig0)) %*% matrix(rnorm(n), ncol=1);
 
 
 ## define Vecchia approximation
-mra=GPvecchia::vecchia_specify(locs, m, conditioning='mra')#, verbose=TRUE)#, mra.options=list(r=c(32)))
-low.rank=GPvecchia::vecchia_specify(locs, m, conditioning='firstm')#, verbose=TRUE)#, mra.options=list(r=c(32)))
-exact = GPvecchia::vecchia_specify(locs, conditioning='mra', verbose=TRUE, mra.options = list(r=c(n, 0)))#
-vecchia = GPvecchia::vecchia_specify(locs, m, verbose=TRUE)
+mra=GPvecchia::vecchia_specify(locs, m, conditioning='mra')
+low.rank=GPvecchia::vecchia_specify(locs, m, conditioning='firstm')
+exact = GPvecchia::vecchia_specify(locs, n-1, conditioning='firstm')
+approximations = list(mra=mra, low.rank = low.rank, exact=exact)
 
-data=list()
 
 foreach( iter=1:max.iter) %dopar% {
 #for( iter in 1:max.iter) {  
 
   XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
   
-  ########## filtering ##########
   print(paste("iteration: ", iter, ", MRA", sep=""))
-  predsMRA = list()
-  L.tt = getL00(mra, Sig0, locs)
-  mu.tt = x0
-  predsMRA[[1]] = list(state=x0, L=L.tt)
-  
-  for(t in 2:Tmax){
-    #cat(paste("filtering: t=", t, "\n", sep=""))
-    forecast = evolFun(mu.tt)
-    Fmat = evolFun(L.tt) 
-    covmodel = GPvecchia::getMatCov(mra, Fmat %*% Matrix::t(Fmat) + Q)
-    obs.aux = as.numeric(XY$y[[t]])
-    
-    preds.aux.vl = GPvecchia::calculate_posterior_VL( obs.aux, mra, prior_mean=forecast, likelihood_model = data.model, covmodel = covmodel, covparms = covparms, likparms = lik.params, return_all = TRUE)
-    L.tt = getLtt(mra, preds.aux.vl)
-    mu.tt = matrix(preds.aux.vl$mean, ncol=1)
-    predsMRA[[t]] = list(state=mu.tt, L = L.tt)
-    
-  }
-  
-  print(paste("iteration: ", iter, ", low-rank", sep=""))
-  predsLR = list()
-  L.tt = getL00(low.rank, Sig0, locs)
-  mu.tt = x0
-  predsLR[[1]] = list(state=x0, L = L.tt)
-
-  for(t in 2:Tmax){
-    #cat(paste("filtering: t=", t, "\n", sep=""))
-    forecast = evolFun(mu.tt)
-    Fmat = evolFun(L.tt)
-    covmodel = GPvecchia::getMatCov(low.rank, Fmat %*% Matrix::t(Fmat) + Q)
-    obs.aux = as.numeric(XY$y[[t]])
-
-    preds.aux.lr = GPvecchia::calculate_posterior_VL( obs.aux, low.rank, prior_mean=forecast, likelihood_model = data.model, covmodel = covmodel, covparms = covparms, likparms = lik.params, return_all = TRUE)
-    L.tt = getLtt(low.rank, preds.aux.lr)
-    mu.tt = matrix(preds.aux.lr$mean, ncol=1)
-    predsLR[[t]] = list(state=mu.tt, L = L.tt)
-  }
-  
-
+  predsMRA = filter('mra')
+  print(paste("iteration: ", iter, ", LR", sep=""))
+  predsLR  = filter('low.rank')
   print(paste("iteration: ", iter, ", exact", sep=""))
-  predsE = list()
-  L.tt = getL00(exact, Sig0, locs)
-  mu.tt = x0
-  predsE[[1]] = list(state=x0, L = L.tt)
-  
-  for(t in 2:Tmax){
-    #cat(paste("filtering: t=", t, "\n", sep=""))
-    obs.aux = as.numeric(XY$y[[t]])
-    
-    forecast = evolFun(mu.tt)
-    Fmat = evolFun(L.tt) 
-    covmodel = GPvecchia::getMatCov(exact, Fmat %*% Matrix::t(Fmat) + Q)
-    
-    preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, exact, prior_mean = forecast, likelihood_model = data.model, covmodel = covmodel, covparms = covparms, likparms = lik.params, return_all = TRUE)
-    L.tt = getLtt(exact, preds.aux)
-    mu.tt = matrix(preds.aux$mean, ncol=1)
-    predsE[[t]] = list(state=mu.tt, L = L.tt)
-  }   
-  
+  predsE   = filter('exact')
   
   data = list(XY=XY, predsMRA=predsMRA, predsE=predsE, predsLR=predsLR)
-  save(data, file=paste(resultsDir, "/", data.model, ".", iter, sep=""))
+  save(data, file=paste(resultsDir, "/", data.model, ".", iter, ".new", sep=""))
   
 }
-#save(data, file=paste(data.model, "data", sep="."))
