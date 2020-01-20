@@ -22,7 +22,7 @@ evolAdvDiff = function(state, adv=0, diff=0){
 
 
 
-filter = function(approx.name){
+filter = function(approx.name, XY){
   
   approx = approximations[[approx.name]]
   
@@ -107,11 +107,11 @@ foreach( iter=1:max.iter) %dopar% {
   XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
   
   print(paste("iteration: ", iter, ", MRA", sep=""))
-  predsMRA = filter('mra')
+  predsMRA = filter('mra', XY)
   print(paste("iteration: ", iter, ", LR", sep=""))
-  predsLR  = filter('low.rank')
+  predsLR  = filter('low.rank', XY)
   print(paste("iteration: ", iter, ", exact", sep=""))
-  predsE   = filter('exact')
+  predsE   = filter('exact', XY)
   
   data = list(XY=XY, predsMRA=predsMRA, predsE=predsE, predsLR=predsLR)
   save(data, file=paste(resultsDir, "/", data.model, ".", iter, ".new", sep=""))
