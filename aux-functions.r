@@ -34,16 +34,24 @@ getLtt = function(vecchia.approx, preds){
 ######### simulate and plot the data #########
 ## define the temporal evolution function
 evol = function(state, adv=0, diff=0){
-  Nx = dim(as.matrix(state))[1]
+  # we assume that there is the same number of grid points
+  # along each dimension
   
-  c1 = 1 - 2*diff*(Nx**2)
-  c2 = 0.5*adv*Nx + diff*(Nx**2)
-  c3 = -0.5*adv*Nx + diff*(Nx**2)
+  N = dim(as.matrix(state))[1]
+  Ny = Nx = sqrt(N)
   
-  diags = list(rep(c2, 1), rep(c3, Nx-1), rep(c1, Nx), rep(c2, Nx-1), rep(c3,1) )
-  E = Matrix::bandSparse(Nx, k=c(-(Nx-1), -1, 0, 1, Nx-1), diag=diags)
+  dx = dy = 1/Nx
+  d = diff/(dx**2)
+
   
-  if(dim(state)[2]>1) return( E %*% state )
+  c1 = 1 + 2*(d + d) - adv*(1/dx + 1/dy)
+  c2 = - d + advection*(1/dy)
+  c3 = - d
+  
+  diags = list(rep(c2, N-Nx), rep(c2, N-1), rep(c1, N), rep(c3, N-1), rep(c3,N-Nx) )
+  E = Matrix::bandSparse(N, k=c(-Nx, -1, 0, 1, Nx), diag=diags)
+  
+  if(class(state)=='matrix' || class(state)=='dgCMatrix') return( E %*% state )
   else as.numeric(E %*% as.matrix(state))
 }
 
@@ -74,15 +82,16 @@ getX0 = function(N, Force, K, dt, dir = '~/HVLF/models/'){
 
 
 
-lorenz98 = function(state, f){
-  N = dim(as.matrix(state))[1]
+
+diffAdvVec2d = function(nx, ny=nx, height=1, rnge=4){
+  v = matrix(rep(0, nx*ny), ncol=ny)
+  if((nx %% 2)==0) mid_x = nx/2 else mid_x = nx/2+1
+  if((ny %% 2)==0) mid_y = ny/2 else mid_y = ny/2+1
+  v[round(mid_x-rnge/2):round(mid_x+rnge/2), round(mid_y-rnge/2):round(mid_y+rnge/2)] = height
   
-  diags = list(rep(f, 1), rep(-f, N-2), rep(-1, N), rep(f, N-1), rep(-f, 2))
-  EL = Matrix::bandSparse(N, k=c(-N-1), -2, 0, 1, N-2)
-  
-  if(dim(state)[2]>1) return( E %*% state )
-  else as.numeric(E %*% as.matrix(state))
+  return(matrix(as.numeric(v), ncol=1))
 }
+
 
 
 
@@ -127,7 +136,7 @@ simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL){
     Qc = chol(Q)
     
     for(t in 2:Tmax){
-      x[[t]] = E(x[[t-1]]) + t(Qc) %*% matrix(rnorm(n), ncol=1)
+      x[[t]] = E(x[[t-1]]) #+ t(Qc) %*% matrix(rnorm(n), ncol=1)
       y[[t]] = simulate.y(x[[t]], frac.obs, lik.params)
     } 
   }
