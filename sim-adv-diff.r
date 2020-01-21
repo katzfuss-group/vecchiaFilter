@@ -50,7 +50,7 @@ filter = function(approx.name, XY){
 
 setwd("~/HVLF")
 source('aux-functions.r')
-source('score-adv-diff.r')
+source('scores.r')
 resultsDir="simulations-linear"
 library(doParallel)
 registerDoParallel(cores=5)
@@ -74,7 +74,12 @@ covfun <- function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
 ## likelihood settings
 me.var=0.1;
-data.model = "poisson"
+args = commandArgs(trailingOnly=TRUE)
+if(length(args)!=1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))){
+    stop("One of the models has to be passed as argument")
+} else {
+    data.model = args[1]
+}
 lik.params = list(data.model = data.model, me.var=me.var)
 
 
