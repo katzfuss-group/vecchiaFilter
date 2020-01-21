@@ -104,8 +104,8 @@ approximations = list(mra=mra, low.rank = low.rank, exact=exact)
 
 
 RRMSPE = list(); LogSc = list()
-#foreach( iter=1:max.iter) %dopar% {
-for( iter in 1:max.iter) {  
+foreach( iter=1:max.iter) %dopar% {
+#for( iter in 1:max.iter) {  
 
   XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
   
@@ -119,8 +119,7 @@ for( iter in 1:max.iter) {
   RRMSPE[[iter]] = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
   LogSc[[iter]] = calculateLSs(predsMRA, predsLR, predsE, XY$x)
   
-  data = list(RRMSPE=RRMSPE, LogScore=LogSc)
-  save(data, file=paste(resultsDir, "/", data.model, ".scores.", iter, sep=""))
+  scores = list(RRMSPE=RRMSPE, LogScore=LogSc)
+  save(scores, file=paste(resultsDir, "/", data.model, ".scores.", iter, sep=""))
   
 }
-print(data)
