@@ -41,19 +41,16 @@ filter = function(approx.name, XY){
     preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast, likelihood_model = data.model, covmodel = covmodel, covparms = covparms, likparms = lik.params, return_all = TRUE)
     L.tt = getLtt(approx, preds.aux)
     mu.tt = matrix(preds.aux$mean, ncol=1)
-    preds[[t]] = list(state=mu.tt, L = L.tt)
+    preds[[t]] = list(state=mu.tt, W = preds.aux$W)
   }
   return( preds )
 }
 
 
 
-
-
-
-
 setwd("~/HVLF")
 source('aux-functions.r')
+source('score-adv-diff.r')
 resultsDir="simulations-linear"
 library(doParallel)
 registerDoParallel(cores=5)
@@ -61,14 +58,14 @@ registerDoParallel(cores=5)
 ######### set parameters #########
 set.seed(1988)
 spatial.dim=2
-n=34**2
+n=20**2
 m=50
 frac.obs = 0.3
 Tmax = 3
 diffusion = 0.00004
 advection = 0.01
 evolFun = function(X) evolAdvDiff(X, adv=advection, diff=diffusion)
-max.iter = 5
+max.iter = 2
 
 ## covariance parameters
 sig2=0.5; range=.15; smooth=0.5; 
@@ -101,8 +98,9 @@ exact = GPvecchia::vecchia_specify(locs, n-1, conditioning='firstm')
 approximations = list(mra=mra, low.rank = low.rank, exact=exact)
 
 
-foreach( iter=1:max.iter) %dopar% {
-#for( iter in 1:max.iter) {  
+RRMSPE = list(); LogSc = list()
+#foreach( iter=1:max.iter) %dopar% {
+for( iter in 1:max.iter) {  
 
   XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
   
@@ -111,9 +109,13 @@ foreach( iter=1:max.iter) %dopar% {
   print(paste("iteration: ", iter, ", LR", sep=""))
   predsLR  = filter('low.rank', XY)
   print(paste("iteration: ", iter, ", exact", sep=""))
-  predsE   = filter('exact', XY)
+  predsE = filter('exact', XY)
+ 
+  RRMSPE[[iter]] = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
+  LogSc[[iter]] = calculateLSs(predsMRA, predsLR, predsE, XY$x)
   
-  data = list(XY=XY, predsMRA=predsMRA, predsE=predsE, predsLR=predsLR)
-  save(data, file=paste(resultsDir, "/", data.model, ".", iter, ".new", sep=""))
+  data = list(RRMSPE=RRMSPE, LogScore=LogSc)
+  save(data, file=paste(resultsDir, "/", data.model, ".scores.", iter, sep=""))
   
 }
+print(data)

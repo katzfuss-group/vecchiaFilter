@@ -1,9 +1,6 @@
 ########## Auxiliary functions ########## 
 
 
-RMSPE = function(pred, truth) sqrt(mean((pred - truth**2)))
-
-
 
 ### This function is used mainly for testing.
 ### It takes the entire covariance matrix and creates
