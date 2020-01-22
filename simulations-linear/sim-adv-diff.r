@@ -61,7 +61,7 @@ spatial.dim=2
 n=20**2
 m=50
 frac.obs = 0.3
-Tmax = 3
+Tmax = 4
 diffusion = 0.00004
 advection = 0.01
 evolFun = function(X) evolAdvDiff(X, adv=advection, diff=diffusion)
@@ -75,11 +75,12 @@ covfun <- function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 ## likelihood settings
 me.var=0.1;
 args = commandArgs(trailingOnly=TRUE)
-if(length(args)!=1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))){
-    stop("One of the models has to be passed as argument")
-} else {
-    data.model = args[1]
-}
+# if(length(args)!=1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))){
+#     stop("One of the models has to be passed as argument")
+# } else {
+#     data.model = args[1]
+# }
+data.model = "gauss"
 lik.params = list(data.model = data.model, me.var=me.var)
 
 
@@ -104,8 +105,8 @@ approximations = list(mra=mra, low.rank = low.rank, exact=exact)
 
 
 RRMSPE = list(); LogSc = list()
-foreach( iter=1:max.iter) %dopar% {
-#for( iter in 1:max.iter) {  
+#foreach( iter=1:max.iter) %dopar% {
+for( iter in 1:max.iter) {  
 
   XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
   
@@ -116,10 +117,10 @@ foreach( iter=1:max.iter) %dopar% {
   print(paste("iteration: ", iter, ", exact", sep=""))
   predsE = filter('exact', XY)
  
-  RRMSPE[[iter]] = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
-  LogSc[[iter]] = calculateLSs(predsMRA, predsLR, predsE, XY$x)
+  RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
+  LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
   
-  scores = list(RRMSPE=RRMSPE, LogScore=LogSc)
-  save(scores, file=paste(resultsDir, "/", data.model, ".scores.", iter, sep=""))
-  
+  write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, ".RRMSPE.", iter, sep=""))
+  write.csv(LogSc, file = paste(resultsDir, "/", data.model, ".LogSc.", iter, sep=""))
+
 }

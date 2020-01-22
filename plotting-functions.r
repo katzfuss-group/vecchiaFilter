@@ -5,14 +5,19 @@ plotScores = function(resultsDir, data.models){
     RRMSPE = 0 
     LogS = 0
     iter = 1
-    filePath = paste(resultsDir, "/", model, ".scores.", iter, sep="")
+    fileRRMSPE = paste(resultsDir, "/", model, ".RRMSPE.", iter, sep="")
+    fileLogSc = paste(resultsDir, "/", model, ".LogSc.", iter, sep="")
     
-    while(file.exists(filePath)){
-      load(filePath)
-      RRMSPE = ((iter-1)/iter)*RRMSPE + data$RRMSPE[[iter]]/iter
-      LogS = ((iter-1)/iter)*LogS + data$LogS[[iter]]/iter
+    while(file.exists(fileRRMSPE)){
+
+      RRMSPEit = read.csv(fileRRMSPE, header=TRUE)
+      LogSit = read.csv(fileLogSc, header=TRUE)
+
+      RRMSPE = ((iter-1)/iter)*RRMSPE + RRMSPEit/iter
+      LogS = ((iter-1)/iter)*LogS + LogSit/iter
       iter = iter+1
-      filePath = paste(resultsDir, "/", model, ".", iter, sep="")
+      fileRRMSPE = paste(resultsDir, "/", model, ".RRMSPE.", iter, sep="")
+      fileLogSc = paste(resultsDir, "/", model, ".LogSc.", iter, sep="")
       
     }
     
