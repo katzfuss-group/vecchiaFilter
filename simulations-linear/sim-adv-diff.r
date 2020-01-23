@@ -33,7 +33,7 @@ filter = function(approx.name, XY){
 
   for(t in 2:Tmax){
 
-      cat(paste("\tfiltering: t=",t, "\n", sep=""))
+      #cat(paste("\tfiltering: t=",t, "\n", sep=""))
       obs.aux = as.numeric(XY$y[[t]])
       
       forecast = evolFun(mu.tt)
@@ -79,12 +79,11 @@ covfun <- function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 ## likelihood settings
 me.var=0.25;
 args = commandArgs(trailingOnly=TRUE)
-# if(length(args)!=1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))){
-#     stop("One of the models has to be passed as argument")
-# } else {
-#     data.model = args[1]
-# }
-data.model="gauss"
+if(length(args)!=1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))){
+    stop("One of the models has to be passed as argument")
+} else {
+    data.model = args[1]
+}
 lik.params = list(data.model = data.model, me.var=me.var)
 
 
