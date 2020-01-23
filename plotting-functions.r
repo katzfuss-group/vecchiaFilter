@@ -6,8 +6,8 @@ plotScores = function(resultsDir, data.models){
     RRMSPE = 0 
     LogS = 0
     iter = 1
-    fileRRMSPE = paste(resultsDir, "/", model, ".RRMSPE.", iter, sep="")
-    fileLogSc = paste(resultsDir, "/", model, ".LogSc.", iter, sep="")
+    fileRRMSPE = paste(resultsDir, "/", model, "/RRMSPE.", iter, sep="")
+    fileLogSc = paste(resultsDir, "/", model, "/LogSc.", iter, sep="")
     
     while(file.exists(fileRRMSPE)){
 
@@ -18,8 +18,8 @@ plotScores = function(resultsDir, data.models){
       LogS = ((iter-1)/iter)*LogS + LogSit/iter
       iter = iter+1
       
-      fileRRMSPE = paste(resultsDir, "/", model, ".RRMSPE.", iter, sep="")
-      fileLogSc = paste(resultsDir, "/", model, ".LogSc.", iter, sep="")
+      fileRRMSPE = paste(resultsDir, "/", model, "/RRMSPE.", iter, sep="")
+      fileLogSc = paste(resultsDir, "/", model, "/LogSc.", iter, sep="")
       
     }
     
@@ -27,7 +27,7 @@ plotScores = function(resultsDir, data.models){
     plot(RRMSPE[,"time"], RRMSPE[,"MRA"], type="l", lwd=2, col="#500000", main="RRMSPE", 
          ylab="RRMSPE", xlab="time", ylim=range(RRMSPE[,c("MRA", "LR")]))
     lines(RRMSPE[,"time"], RRMSPE[,"LR"], col="black", lwd=2)
-    legend("topright", c("MRA", "low-rank"), col=c("#500000", "black"), lty=c(1, 1), lwd=c(2, 2))
+    legend("topleft", c("MRA", "low-rank"), col=c("#500000", "black"), lty=c(1, 1), lwd=c(2, 2))
     
     plot(LogS[,"time"], LogS[,"MRA"], type="l", lwd=2, col="#500000", main="Log Score", 
          ylab="Log score", xlab="time", ylim=range(LogS[,c("MRA", "LR")]))
