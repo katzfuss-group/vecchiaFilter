@@ -133,7 +133,7 @@ simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL){
     Qc = chol(Q)
     
     for(t in 2:Tmax){
-      x[[t]] = E(x[[t-1]]) #+ t(Qc) %*% matrix(rnorm(n), ncol=1)
+      x[[t]] = E(x[[t-1]]) + t(Qc) %*% matrix(rnorm(n), ncol=1)
       y[[t]] = simulate.y(x[[t]], frac.obs, lik.params)
     } 
   }

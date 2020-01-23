@@ -1,3 +1,4 @@
+library(Matrix)
 plotScores = function(resultsDir, data.models){
   
   for( model in data.models ){
@@ -42,32 +43,38 @@ plotScores = function(resultsDir, data.models){
 
 plotSims = function(resultsDir, lik.model, iteration){
 
-  dataPath = paste(resultsDir, "/", lik.model, ".", iteration, sep="")
+  dataPath = paste(resultsDir, "/", lik.model, "/sim.", iteration, sep="")
   locsPath = paste(resultsDir, "/locs", sep="")
   load(dataPath)
   load(locsPath)
   Tmax = length(data$XY$x)
   n = nrow(locs)
 
-
+  zrange=c(0, 0)
+  for(t in 1:Tmax){
+    Xt = as.numeric(data$XY$x[[t]])
+    pMRA = as.numeric(data$predsMRA[[t]]$state)
+    pE = as.numeric(data$predsE[[t]]$state)
+    pLR = as.numeric(data$predsLR[[t]]$state)
+    zrange = range(c(range(pE), range(pLR), range(pMRA), range(Xt)), zrange)
+  }
+  
   ########## plot results ##########
   for(t in 1:Tmax){
 
-    X = as.numeric(data$XY$x[[t]])
-    MRA = data$predsMRA[[t]]$state
-    exact = data$predsE[[t]]$state
-    LR = data$predsLR[[t]]$state
-
-    zrange = range(c(data$predsE[[t]][["state"]], data$predsVL[[t]][["state"]], unlist(lapply(data$XY$x, function(t) range(t, na.rm=TRUE)))))
+    Xt = as.numeric(data$XY$x[[t]])
+    pMRA = as.numeric(data$predsMRA[[t]]$state)
+    pE = as.numeric(data$predsE[[t]]$state)
+    pLR = as.numeric(data$predsLR[[t]]$state)
 
     defpar <- par(mfrow = c(2,2),
                   oma = c(5,4,2,0) + 0.1,
                   mar = c(1,1,3,3) + 0.1)
 
-    fields::quilt.plot( locs, X, main="truth", zlim=zrange, nx=sqrt(n), ny=sqrt(n) )
-    fields::quilt.plot( locs, exact-MRA, main="MRA", nx=sqrt(n), ny=sqrt(n))#, zlim=zrange )
-    fields::quilt.plot( locs, exact, main="exact", nx=sqrt(n), ny=sqrt(n), zlim=zrange )
-    fields::quilt.plot( locs, exact-LR, main="low rank", nx=sqrt(n), ny=sqrt(n))#, zlim=zrange)
+    fields::quilt.plot( locs, Xt, main="truth", nx=sqrt(n), ny=sqrt(n), zlim=zrange )
+    fields::quilt.plot( locs, pMRA, main="MRA", nx=sqrt(n), ny=sqrt(n), zlim=zrange )
+    fields::quilt.plot( locs, pE, main="exact", nx=sqrt(n), ny=sqrt(n), zlim=zrange )
+    fields::quilt.plot( locs, pLR, main="low rank", nx=sqrt(n), ny=sqrt(n), zlim=zrange)
     mtext(paste("t=", t, sep=""), outer = TRUE, cex = 1.5)
     par(defpar)
   }
