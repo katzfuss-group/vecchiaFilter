@@ -4,24 +4,28 @@ source("aux-functions.r")
 
 
 ######### set parameters #########
-set.seed(1988)
-spatial.dim=2
-n=34**2
-m=50
-diffusion = 0.00004
+set.seed(1996)
+n=4**2
+m=3
+diffusion = 0.0000
 advection = 0.01
-frac.obs = 0.3
-Tmax = 10
+frac.obs = 0.1
+Tmax = 2
 
 
 ## covariance parameters
-sig2=0.000001; range=.15; smooth=1.5; 
+sig2=0.5; range=.15; smooth=0.5; 
 covparms =c(sig2,range,smooth)
 covfun <- function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
 ## likelihood settings
-me.var=1e-8;
-data.model = "gauss"
+me.var=0.1;
+args = commandArgs(trailingOnly=TRUE)
+if(length(args)!=1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))){
+    stop("One of the models has to be passed as argument")
+} else {
+    data.model = args[1]
+}
 lik.params = list(data.model = data.model, me.var=me.var)
 
 
@@ -33,8 +37,11 @@ locs=as.matrix(expand.grid(grid,grid))
 
 ## set initial state
 Q = covfun(locs)
-x0 = matrix(rep(0, n), ncol=1); Sig0 = covfun(locs)
-XY = simulate.xy(x0, function(x) evol(x, diff=diffusion, adv=advection), Q, frac.obs, lik.params, Tmax)
+#x0 = diffAdvVec2d(sqrt(n))
+#fields::quilt.plot(locs, x0, nx=sqrt(n), ny=sqrt(n))
+x0 = t(chol(Q)) %*% matrix(rnorm(n), ncol=1);
+evolFun = function(x) evol(x, diff=diffusion, adv=advection)
+XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
 
 ## define Vecchia approximation
 vecchia.approx=GPvecchia::vecchia_specify(locs, m, conditioning='mra')#, mra.options=list(r=c(32)))
@@ -48,34 +55,39 @@ mu.tt = x0
 predsVL[[1]] = list(state=x0, L=L.tt)
 
 
-for(t in 1:Tmax){
+for(t in 2:Tmax){
 
   cat(paste("filtering: t=", t, "\n", sep=""))
   obs.aux = as.numeric(XY$y[[t]])
-  
-  Fmat = evol(L.tt)
+
+  E = evol(diag(n))
+  Fmat = E %*% L.tt
   covmodel = GPvecchia::getMatCov(vecchia.approx, Fmat %*% Matrix::t(Fmat) + Q)
-  mu.tt1 = evol(mu.tt)
-  
+  mu.tt1 = E %*% mu.tt
+
   preds.aux.vl = GPvecchia::calculate_posterior_VL( obs.aux, vecchia.approx, prior_mean = mu.tt1, likelihood_model = data.model, covmodel = covmodel, covparms = covparms, likparms = lik.params, return_all = TRUE)
-  
+
   L.tt = getLtt(vecchia.approx, preds.aux.vl)
   mu.tt = matrix(preds.aux.vl$mean, ncol=1)
-  
+
   predsVL[[t]] = list(state=mu.tt, L=L.tt)
 
 }
 
 
 ########## plot results ########## 
-for(t in 1:Tmax){
+m = M = 0
+for( t in 1:Tmax ){
   zrange = range(c(predsVL[[t]][["state"]], unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm=TRUE)))))
-  #zrange = range(c(predsE[[t]][["state"]], predsVL[[t]][["state"]], unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm=TRUE)))))
-  defpar = par(mfrow=c(2, 2), oma=c(0, 0, 2, 0))
+  #zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm=TRUE)))))
+  m = min(m, zrange[1])
+  M = max(M, zrange[2])
+}
+for(t in 1:Tmax){
+  defpar = par(mfrow=c(1, 3), oma=c(0, 0, 2, 0))
   nna.obs = which(!is.na(XY$y[[t]]))
-  fields::quilt.plot( locs[nna.obs,], XY$y[[t]][nna.obs], zlim=zrange, nx=sqrt(n), ny=sqrt(n) )
-  fields::quilt.plot( locs, as.numeric(XY$x[[t]]), zlim=zrange, nx=sqrt(n), ny=sqrt(n) )
-  #fields::quilt.plot( locs, predsVL[[t]]$state, zlim=zrange, nx=sqrt(n), ny=sqrt(n) )
-
+  fields::quilt.plot( locs[nna.obs,], XY$y[[t]][nna.obs], zlim=c(m, M), nx=sqrt(n), ny=sqrt(n), main="obs" )
+  fields::quilt.plot( locs, as.numeric(XY$x[[t]]), zlim=c(m, M), nx=sqrt(n), ny=sqrt(n), main="truth" )
+  fields::quilt.plot( locs, predsVL[[t]]$state, zlim=zrange, nx=sqrt(n), ny=sqrt(n), main="prediction" )
   par(defpar)
 }

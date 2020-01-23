@@ -16,26 +16,26 @@ plotScores = function(resultsDir, data.models){
       RRMSPE = ((iter-1)/iter)*RRMSPE + RRMSPEit/iter
       LogS = ((iter-1)/iter)*LogS + LogSit/iter
       iter = iter+1
+      
       fileRRMSPE = paste(resultsDir, "/", model, ".RRMSPE.", iter, sep="")
       fileLogSc = paste(resultsDir, "/", model, ".LogSc.", iter, sep="")
       
     }
     
     defpar = par(mfrow=c(2, 1))
-    plot(RRMSPE[,1], RRMSPE[,2], type="l", lwd=2, col="#500000", main="RRMSPE", 
-         ylab="RRMSPE", xlab="time", ylim=range(RRMSPE[,-1]))
-    lines(RRMSPE[,1], RRMSPE[,3], col="black", lwd=2)
-    legend("topright", c("MRA", "low-rank"), col=c("#500000", "black"))
+    plot(RRMSPE[,"time"], RRMSPE[,"MRA"], type="l", lwd=2, col="#500000", main="RRMSPE", 
+         ylab="RRMSPE", xlab="time", ylim=range(RRMSPE[,c("MRA", "LR")]))
+    lines(RRMSPE[,"time"], RRMSPE[,"LR"], col="black", lwd=2)
+    legend("topright", c("MRA", "low-rank"), col=c("#500000", "black"), lty=c(1, 1), lwd=c(2, 2))
     
-    plot(LogS[,1], LogS[,2], type="l", lwd=2, col="#500000", main="Log Score", 
-         ylab="Log score", xlab="time", ylim=range(LogS[,-1]))
-    lines(LogS[,1], LogS[,3], col="black", lwd=2)
-    legend("topright", c("MRA", "low-rank"), col=c("#500000", "black"))
-    
-    
-    print(RRMSPE)
+    plot(LogS[,"time"], LogS[,"MRA"], type="l", lwd=2, col="#500000", main="Log Score", 
+         ylab="Log score", xlab="time", ylim=range(LogS[,c("MRA", "LR")]))
+    lines(LogS[,"time"], LogS[,"LR"], col="black", lwd=2)
+    legend("topright", c("MRA", "low-rank"), col=c("#500000", "black"), lty=c(1, 1), lwd=c(2, 2))
+
   } 
   
+  print(paste("Loaded ", iter, " files."))
 }
 
 
