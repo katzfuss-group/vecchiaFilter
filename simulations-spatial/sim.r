@@ -63,13 +63,13 @@ registerDoParallel(cores=5)
 set.seed(1988)
 spatial.dim=2
 n=20**2
-ms=c(25,50)
+ms=c(1, 2, 5, 10, 20, 50, 60)
 frac.obs = 0.1
 Tmax = 2
 diffusion = 0.0000
 advection = 0.0
-evolFun = function(X) evolAdvDiff(X, adv=advection, diff=diffusion)
-max.iter = 2
+evolFun = function(X) X
+max.iter = 3
 
 ## covariance parameters
 sig2=0.5; range=.15; smooth=0.5; 
@@ -79,19 +79,18 @@ covfun <- function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 ## likelihood settings
 me.var=0.25;
 args = commandArgs(trailingOnly=TRUE)
-# if(length(args)!=1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))){
-#     stop("One of the models has to be passed as argument")
-# } else {
-#     data.model = args[1]
-# }
-data.model="gauss"
+if(length(args)!=1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))){
+    stop("One of the models has to be passed as argument")
+} else {
+    data.model = args[1]
+}
 lik.params = list(data.model = data.model, me.var=me.var, alpha=2)
 
 
 ## generate grid of pred.locs
 grid.oneside=seq(0,1,length=round(sqrt(n)))
 locs=as.matrix(expand.grid(grid.oneside,grid.oneside)) 
-save(locs, file=paste(resultsDir, "/locs", sep=""))
+
 
 
 ## set initial state
@@ -101,7 +100,7 @@ x0 = t(chol(Sig0)) %*% Matrix::Matrix(rnorm(n), ncol=1);
 
 
 ## define Vecchia approximation
-exact = GPvecchia::vecchia_specify(locs, n-1, conditioning='firstm', verbose=TRUE)
+exact = GPvecchia::vecchia_specify(locs, n-1, conditioning='firstm')
 approximations = list(exact=exact)
 
 RRMSPE = list(); LogSc = list()
@@ -115,8 +114,8 @@ for( iter in 1:max.iter) {
     RRMSPE = matrix(,ncol=3); LogSc = matrix(,ncol=3)
     
     for(m in ms){
-      approximations[["mra"]] = GPvecchia::vecchia_specify(locs, m, conditioning='mra', verbose=TRUE)
-      approximations[["low.rank"]] = GPvecchia::vecchia_specify(locs, ncol(approximations[["mra"]]$U.prep$revNNarray), conditioning='firstm', verbose=TRUE)
+      approximations[["mra"]] = GPvecchia::vecchia_specify(locs, m, conditioning='mra')
+      approximations[["low.rank"]] = GPvecchia::vecchia_specify(locs, ncol(approximations[["mra"]]$U.prep$revNNarray)-1, conditioning='firstm', verbose=TRUE)
     
       cat(paste("iteration: ", iter, ", MRA(", m, ")\n", sep=""))
       predsMRA = filter('mra', XY)
@@ -133,8 +132,8 @@ for( iter in 1:max.iter) {
     colnames(RRMSPE) = c("m", "MRA", "LR"); RRMSPE[-1,"m"] = ms
     colnames(LogSc)  = c("m", "MRA", "LR"); LogSc[-1,"m"] = ms; row.names(LogSc) = c()
     
-    write.csv(RRMSPE[-1,], file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, ".", m, sep=""))
-    write.csv(LogSc[-1,], file = paste(resultsDir, "/", data.model, "/LogSc.", iter, ".", m, sep=""))
+    write.csv(RRMSPE[-1,], file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep=""))
+    write.csv(LogSc[-1,], file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep=""))
     
     print(RRMSPE); print(LogSc)
     #data = list(XY=XY, predsMRA=predsMRA, predsE=predsE, predsLR=predsLR)
