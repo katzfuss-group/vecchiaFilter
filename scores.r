@@ -61,7 +61,7 @@ calculateLSs = function(predsMRA, predsLR, predsE, x){
   LS.LR = LogS(predsLR, x)
   LS.E = LogS(predsE, x)
   time = seq(1:length(LS.MRA))
-  results = cbind(time, LS.MRA-LS.E, LS.LR-LS.E)
+  results = cbind(time, LS.E-LS.MRA, LS.E - LS.LR)
   colnames(results) = c("time", "MRA", "LR")
   return(results)
 }

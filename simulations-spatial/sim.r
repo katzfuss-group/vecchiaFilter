@@ -116,6 +116,7 @@ for( iter in 1:max.iter) {
     for(m in ms){
       approximations[["mra"]] = GPvecchia::vecchia_specify(locs, m, conditioning='mra')
       approximations[["low.rank"]] = GPvecchia::vecchia_specify(locs, ncol(approximations[["mra"]]$U.prep$revNNarray)-1, conditioning='firstm', verbose=TRUE)
+
     
       cat(paste("iteration: ", iter, ", MRA(", m, ")\n", sep=""))
       predsMRA = filter('mra', XY)
@@ -129,11 +130,17 @@ for( iter in 1:max.iter) {
       
     }
     
-    colnames(RRMSPE) = c("m", "MRA", "LR"); RRMSPE[-1,"m"] = ms
-    colnames(LogSc)  = c("m", "MRA", "LR"); LogSc[-1,"m"] = ms; row.names(LogSc) = c()
+    RRMSPE = RRMSPE[-1,-1]
+    RRMSPE = cbind(ms, RRMSPE)
+    colnames(RRMSPE) = c("m", "MRA", "LR")
     
-    write.csv(RRMSPE[-1,], file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep=""))
-    write.csv(LogSc[-1,], file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep=""))
+
+    LogSc = LogSc[-1,-1]
+    LogSc = cbind(ms, LogSc)
+    colnames(LogSc) = c("m", "MRA", "LR")
+    
+    write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep=""))
+    write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep=""))
     
     print(RRMSPE); print(LogSc)
     #data = list(XY=XY, predsMRA=predsMRA, predsE=predsE, predsLR=predsLR)

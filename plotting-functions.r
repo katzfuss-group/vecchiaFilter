@@ -8,31 +8,33 @@ plotScores = function(resultsDir, data.models){
     iter = 1
     fileRRMSPE = paste(resultsDir, "/", model, "/RRMSPE.", iter, sep="")
     fileLogSc = paste(resultsDir, "/", model, "/LogSc.", iter, sep="")
+
     
     while(file.exists(fileRRMSPE)){
 
-      RRMSPEit = read.csv(fileRRMSPE, header=TRUE)
-      LogSit = read.csv(fileLogSc, header=TRUE)
-
+      RRMSPEit = read.csv(fileRRMSPE, header=TRUE)[,-1]
+      LogSit = read.csv(fileLogSc, header=TRUE)[,-1]
+      
       RRMSPE = ((iter-1)/iter)*RRMSPE + RRMSPEit/iter
       LogS = ((iter-1)/iter)*LogS + LogSit/iter
       iter = iter+1
-      
+       
       fileRRMSPE = paste(resultsDir, "/", model, "/RRMSPE.", iter, sep="")
       fileLogSc = paste(resultsDir, "/", model, "/LogSc.", iter, sep="")
       
     }
-    
+        
     defpar = par(mfrow=c(2, 1))
-    plot(RRMSPE[,"time"], RRMSPE[,"MRA"], type="l", lwd=2, col="#500000", main="RRMSPE", 
-         ylab="RRMSPE", xlab="time", ylim=range(RRMSPE[,c("MRA", "LR")]))
-    lines(RRMSPE[,"time"], RRMSPE[,"LR"], col="black", lwd=2)
-    legend("topleft", c("MRA", "low-rank"), col=c("#500000", "black"), lty=c(1, 1), lwd=c(2, 2))
     
-    plot(LogS[,"time"], LogS[,"MRA"], type="l", lwd=2, col="#500000", main="Log Score", 
-         ylab="Log score", xlab="time", ylim=range(LogS[,c("MRA", "LR")]))
-    lines(LogS[,"time"], LogS[,"LR"], col="black", lwd=2)
-    legend("topright", c("MRA", "low-rank"), col=c("#500000", "black"), lty=c(1, 1), lwd=c(2, 2))
+    plot(RRMSPE[,1], RRMSPE[,"MRA"], type="l", lwd=2, col="#500000", main="RRMSPE", 
+         ylab="RRMSPE", xlab=colnames(RRMSPE)[2], ylim=range(RRMSPE[,c("MRA", "LR")]))
+    lines(RRMSPE[,1], RRMSPE[,"LR"], col="black", lwd=2, lty=2)
+    legend("topright", c("MRA", "low-rank"), col=c("#500000", "black"), lty=c(1, 2), lwd=c(2, 2))
+    
+    plot(LogS[,1], LogS[,"MRA"], type="l", lwd=2, col="#500000", main="Log Score", 
+         ylab="Log score", xlab=colnames(LogS)[2], ylim=range(LogS[,c("MRA", "LR")]))
+    lines(LogS[,1], LogS[,"LR"], col="black", lwd=2, lty=2)
+    legend("topright", c("MRA", "low-rank"), col=c("#500000", "black"), lty=c(1, 2), lwd=c(2, 2))
 
   } 
   
