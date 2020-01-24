@@ -101,7 +101,7 @@ x0 = t(chol(Sig0)) %*% Matrix::Matrix(rnorm(n), ncol=1);
 
 
 ## define Vecchia approximation
-exact = GPvecchia::vecchia_specify(locs, n-1, conditioning='firstm', verbose=TRUE)
+exact = GPvecchia::vecchia_specify(locs, n-1, conditioning='firstm')
 approximations = list(exact=exact)
 
 RRMSPE = list(); LogSc = list()
@@ -115,8 +115,8 @@ for( iter in 1:max.iter) {
     RRMSPE = matrix(,ncol=3); LogSc = matrix(,ncol=3)
     
     for(m in ms){
-      approximations[["mra"]] = GPvecchia::vecchia_specify(locs, m, conditioning='mra', verbose=TRUE)
-      approximations[["low.rank"]] = GPvecchia::vecchia_specify(locs, ncol(approximations[["mra"]]$U.prep$revNNarray), conditioning='firstm', verbose=TRUE)
+      approximations[["mra"]] = GPvecchia::vecchia_specify(locs, m, conditioning='mra')
+      approximations[["low.rank"]] = GPvecchia::vecchia_specify(locs, ncol(approximations[["mra"]]$U.prep$revNNarray), conditioning='firstm')
     
       cat(paste("iteration: ", iter, ", MRA(", m, ")\n", sep=""))
       predsMRA = filter('mra', XY)
@@ -130,11 +130,16 @@ for( iter in 1:max.iter) {
       
     }
     
-    colnames(RRMSPE) = c("m", "MRA", "LR"); RRMSPE[-1,"m"] = ms
-    colnames(LogSc)  = c("m", "MRA", "LR"); LogSc[-1,"m"] = ms; row.names(LogSc) = c()
+    RRMSPE = RRMSPE[-1,-1]
+    RRMSPE = cbind(ms, RRMSPE)
+    colnames(RRMSPE) = c("m", "MRA", "LR")
     
-    write.csv(RRMSPE[-1,], file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, ".", m, sep=""))
-    write.csv(LogSc[-1,], file = paste(resultsDir, "/", data.model, "/LogSc.", iter, ".", m, sep=""))
+    LogSc = LogSc[-1,-1]
+    LogSc = cbind(ms, LogSc)
+    colnames(LogSc) = c("m", "MRA", "LR")
+    
+    write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep=""))
+    write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep=""))
     
     print(RRMSPE); print(LogSc)
     #data = list(XY=XY, predsMRA=predsMRA, predsE=predsE, predsLR=predsLR)
