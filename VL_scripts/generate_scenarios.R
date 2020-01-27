@@ -1,13 +1,11 @@
 #!/usr/bin/env Rscript
-
 library(GPvecchia)
+source("/home/marcin/HVLF/VL_scripts/run_scenario.R")
 
 filename  = "test"
-use_parallel = "F"
-test_type = "2D"
-niter = 50
+use_parallel = "T"
 
-paste("Running simulation with output to",filename,"and parallel set to",use_parallel, "and test type of",test_type)
+
 
 ##########################################################################
 ##################### Compare models:  MSE and Log score  ########################
@@ -19,7 +17,10 @@ if(use_parallel=="T"){
   library(parallel)
   no_cores <- max(min(detectCores() - 1, 10), 1)
   cl <- makeCluster(no_cores)
-  clusterEvalQ(cl, {source("server/importer.R")})
+  clusterEvalQ(cl, {
+    library(GPvecchia)
+    source("/home/marcin/HVLF/VL_scripts/run_scenario.R")
+    })
 }
 
 ########  Setup Simulations
@@ -27,17 +28,16 @@ if(use_parallel=="T"){
 
 
 
-#vary smoothness and m=1,2,3:  how does approximation accuracy change with m
-## y: approximation , x =m (SGV )  compare to pure lapalce
-# for 2d:  smoothness 1.5 and .5
-if(test_type == "1D" | test_type == "2D"){
-  d_vals = c(1)  # domain, [0,1]
-  s_vals = c(400)
-  seed_vals = 1:niter#
-  smoothness_vals = c(.5) #seq(2.5, 2.8, length.out = 25)
-  nbrs = 50
-  dimen = 2
-}
+niter = 2
+d_vals = c(1)  # domain, [0,1]
+s_vals = c(400)
+seed_vals = 1:niter
+smoothness_vals = .5
+range_vals = .15
+nbrs = c(1, 3, 5, 10, 20, 40, 60)
+dimen = 2 
+models_tested = c(1,2,3,4)
+run_laplace = TRUE
 
 
 
@@ -78,7 +78,6 @@ header = c("Mod", "Domain", "Dimen", "Sample", "C_Smoothness", "C_Range","Neighb
 scen_params =c("seed_r", "domn", "dimen", "samp_size", "neighbors", "smth", "mod_type", "rnge", "show_output", "run_algo")
 
 
-source("/home/marcin/HVLF/VL_scripts/run_scenario.R")
 
 t_start = Sys.time()
 
@@ -87,7 +86,6 @@ if(use_parallel == "F"){
   scenario_runner = create_scenario_tester(header, filename)# filename= "delete_me.csv"
   for (i in 1:length(scenario_table[,1])){
       params = setNames( as.list(scenario_table[i,]), c(scen_params))
-      print(scenario_table[,1])
     aggregated_data=rbind(aggregated_data, do.call(scenario_runner, params))
   }
 }

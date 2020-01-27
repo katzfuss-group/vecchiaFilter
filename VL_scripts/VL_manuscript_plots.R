@@ -3,7 +3,7 @@ require(ggplot2)
 require(directlabels)
 require(reshape)
 require(scales) # transparent plots
-setwd("~/GPvecchia-Laplace")
+setwd("~/HVLF")
 
 #######################################################################################
 #####  Contains all plots that do not involve HMC/MCMC, LGCP, or satellite data  ######
@@ -23,6 +23,7 @@ create_mod_factor = function(agg_df){
 ####### MSE Plot #######
 create_MSE_plot=function(data_df, dim, colScale, shapeScale, exclude_gauss=FALSE, exclude_iw = FALSE){
 
+  browser()
   # aggregate data
   agg_mse_2d = aggregate( cbind(MSE_Laplace, MSE_VL, MSE_VL_z, MSE_LowRank) ~ Mod+Neighbors+C_Smoothness,    data = data_df, mean )
   agg_mse_1d = aggregate( cbind(MSE_Laplace, MSE_VL, MSE_LowRank) ~ Mod+Neighbors+C_Smoothness,    data = data_df, mean )
@@ -60,7 +61,7 @@ create_MSE_plot=function(data_df, dim, colScale, shapeScale, exclude_gauss=FALSE
 }
 
 
-data_df = read.csv("VL_scripts/saved_data/2D_nonpara_VLZY_fdg.csv")
+data_df = read.csv("alt_test")
 colScale_2D <- scale_colour_manual(name = "Algorithm",values = c(1,2,4,3))
 shapeScale_2D <- scale_shape_manual(name = "Algorithm",values = c(NA,0,4,2))
 create_MSE_plot(data_df, dim=2, colScale=colScale_2D, shapeScale=shapeScale_2D, exclude_iw = TRUE, exclude_gauss = TRUE )
