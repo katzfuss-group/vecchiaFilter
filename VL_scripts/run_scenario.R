@@ -112,7 +112,6 @@ create_scenario_tester = function(header, log_file_name){
         message(str(named_output))
       }
 
-
       if(write_to_file) write(results_i, file = filename, ncolumns=num_cols, append=TRUE, sep=",")
       # successful iteration,return will break loop
       return(results_i) # for secondary output; avoids issues with buffered writing?
