@@ -61,7 +61,7 @@ create_scenario_tester = function(header, log_file_name){
       if(mod_type==4)
         ls=gamma_sample(samp_size,covmodel, seed = seed_r , dom = domn, dimen=dimen)
 
-      vecchia.approx   =vecchia_specify(ls$locs, neighbors)
+      vecchia.approx   =vecchia_specify(ls$locs, neighbors, conditioning = 'mra')
       vecchia.approx_z =vecchia_specify(ls$locs, neighbors, cond.yz = "zy")
       vecchia.approx_LR=vecchia_specify(ls$locs, neighbors, conditioning="firstm")
       vecchia.exact    = vecchia_specify(ls$locs, nrow(ls$locs)-1, conditioning='firstm')
