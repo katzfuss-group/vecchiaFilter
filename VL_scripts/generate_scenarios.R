@@ -1,9 +1,9 @@
 #!/usr/bin/env Rscript
 library(GPvecchia)
-source("/home/marcin/HVLF/VL_scripts/run_scenario.R")
+source("~/HVLF/VL_scripts/run_scenario.R")
 
 filename  = "test"
-use_parallel = "T"
+use_parallel = "F"
 
 
 
@@ -13,13 +13,13 @@ use_parallel = "T"
 
 
 ########  Setup parallel
-if(use_parallel=="T"){
+if (use_parallel == "T") {
   library(parallel)
   no_cores <- max(min(detectCores() - 1, 10), 1)
   cl <- makeCluster(no_cores)
   clusterEvalQ(cl, {
     library(GPvecchia)
-    source("/home/marcin/HVLF/VL_scripts/run_scenario.R")
+    source("~/HVLF/VL_scripts/run_scenario.R")
     })
 }
 
@@ -49,14 +49,14 @@ scenario_table = c()
 
 
 # Compare log likelihood of true y for posterior density of approx p(y | z)
-for (seed_r in seed_vals){
-  for (domn in d_vals){
-    for (samp_size in s_vals){
-      for( neighbors in nbrs ){
-        for(smth in smoothness_vals){
-          for(rnge in range_vals){
-              for(mod_type in models_tested){
-              scenario_table= rbind(scenario_table, c(seed_r, domn, dimen, samp_size, neighbors, smth, mod_type, rnge, TRUE, run_laplace))
+for (seed_r in seed_vals) {
+  for (domn in d_vals) {
+    for (samp_size in s_vals) {
+      for (neighbors in nbrs ) {
+        for (smth in smoothness_vals) {
+          for (rnge in range_vals) {
+              for (mod_type in models_tested) {
+              scenario_table = rbind(scenario_table, c(seed_r, domn, dimen, samp_size, neighbors, smth, mod_type, rnge, TRUE, run_laplace))
             }
           }
         }
@@ -75,30 +75,30 @@ header = c("Mod", "Domain", "Dimen", "Sample", "C_Smoothness", "C_Range","Neighb
            "Time_Laplace", "Time_VL", "Time_VL_z",  "Time_LowRank",
            "Iter_Laplace", "Iter_VL", "Iter_VL_z",  "Iter_LowRank")
 
-scen_params =c("seed_r", "domn", "dimen", "samp_size", "neighbors", "smth", "mod_type", "rnge", "show_output", "run_algo")
+scen_params = c("seed_r", "domn", "dimen", "samp_size", "neighbors", "smth", "mod_type", "rnge", "show_output", "run_algo")
 
 
 
 t_start = Sys.time()
 
 ##  Non-parallel
-if(use_parallel == "F"){
+if (use_parallel == "F") {
   scenario_runner = create_scenario_tester(header, filename)# filename= "delete_me.csv"
-  for (i in 1:length(scenario_table[,1])){
+  for (i in 1:length(scenario_table[,1])) {
       params = setNames( as.list(scenario_table[i,]), c(scen_params))
-    aggregated_data=rbind(aggregated_data, do.call(scenario_runner, params))
+    aggregated_data = rbind(aggregated_data, do.call(scenario_runner, params))
   }
 }
 ## Parallel
-if(use_parallel=="T"){
+if (use_parallel == "T") {
   scenario_runner = create_scenario_tester(header, NA) # cant write during parallel
   clusterExport(cl, varlist = c("scenario_runner"))
-  aggregated_data=parApply(cl, scenario_table, 1 , function(x) do.call(scenario_runner, as.list(x)))
+  aggregated_data = parApply(cl, scenario_table, 1 , function(x) do.call(scenario_runner, as.list(x)))
   stopCluster(cl)
   aggregated_data = t(aggregated_data)
 }
 
 t_end = Sys.time()
 
-colnames(aggregated_data)<-header
+colnames(aggregated_data) = header
 write.csv(aggregated_data, file = paste("alt_",filename, sep = ""), row.names = F)
