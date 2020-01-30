@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 library(GPvecchia)
-source("/home/marcin/HVLF/VL_scripts/run_scenario.R")
+source("~/HVLF/VL_scripts/run_scenario.R")
 
 filename  = "test"
 use_parallel = "F"
@@ -19,7 +19,7 @@ if (use_parallel == "T") {
   cl <- makeCluster(no_cores)
   clusterEvalQ(cl, {
     library(GPvecchia)
-    source("/home/marcin/HVLF/VL_scripts/run_scenario.R")
+    source("~/HVLF/VL_scripts/run_scenario.R")
     })
 }
 
