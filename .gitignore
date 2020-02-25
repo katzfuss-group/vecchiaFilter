@@ -2,3 +2,4 @@
 .RData
 /documents/*
 simulations-lorenz/Lorenz*
+simulations-lorenz/init_Lorenz*
