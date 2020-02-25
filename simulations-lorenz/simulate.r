@@ -3,14 +3,14 @@ library(VEnKF)
 library(rootSolve)
 setwd("~/HVLF/simulations-lorenz")
 
-generateInit = F
+generateInit = T
     
-N = 120
-Force = 8
+N = 960
+Force = 10
 dt = 0.005
 M = 40
 K = 32
-Tmax = 2
+Tmax = 1
 seed = 1988
 fileName.init = paste("init_Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep = "_")
 fileName.all = paste("Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep = "_")

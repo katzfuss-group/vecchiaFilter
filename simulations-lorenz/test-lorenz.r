@@ -25,7 +25,7 @@ filter = function(approx.name, XY){
     
     forecast = evolFun(mu.tt)
     Fmat = Et %*% L.tt
-    covmodel = GPvecchia::getMatCov(approx, Fmat %*% Matrix::t(Fmat) + Q)
+    covmodel = GPvecchia::getMatCov(approx, Fmat %*% Matrix::t(Fmat) + sig2*Sig0)
     
     preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
                                                    likelihood_model = data.model, covmodel = covmodel,
@@ -39,10 +39,28 @@ filter = function(approx.name, XY){
 
 
 
+center_operator <- function(x) {
+  n = nrow(x)
+  ones = rep(1, n)
+  H = diag(n) - (1/n) * (ones %*% t(ones))
+  H %*% x
+}
+
+
+getCovariance = function(N, Force, dt, K){
+  fileName.all = paste("simulations-lorenz/Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep = "_")
+  
+  X = Matrix::Matrix(scan(fileName.all, quiet = TRUE), nrow = N) 
+  X = center_operator(X)
+  S = (X %*% Matrix::t(X)) / (ncol(X) - 1)
+}
+
+
+
 ######### set parameters #########
 set.seed(1988)
 spatial.dim = 2
-n = 120
+n = 960
 m = 20
 frac.obs = 0.1
 Tmax = 20
@@ -53,7 +71,7 @@ Force = 10
 K = 32
 dt = 0.005
 M = 1
-evolFun = function(X) Lorenz04M2Sim(as.numeric(X), Force, K, dt, M, iter = 1, burn = 1, order = 4)
+evolFun = function(X) Lorenz04M2Sim(as.numeric(X), Force, K, dt, M, iter = 1, burn = 0, order = 4)
 max.iter = 1
 
 
@@ -74,12 +92,8 @@ grid.oneside = seq(0,1,length = round(n))
 locs = matrix(grid.oneside, ncol = 1)
 
 ## set initial state
-x0 = matrix(rnorm(n), ncol = 1)#getX0(n, Force, K, dt)
-Q = covfun(locs)
-Sig0 = (1/sig2)*covfun(locs)
-
-
-XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
+Sig0 = getCovariance(n, Force, dt, K)
+x0 = Matrix::t(chol(Sig0)) %*% matrix(rnorm(n), ncol = 1)#getX0(n, Force, K, dt)
 
 ## define Vecchia approximation
 mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra', verbose = TRUE)
@@ -92,14 +106,23 @@ RRMSPE = list(); LogSc = list()
 #foreach( iter=1:max.iter) %dopar% {
 for (iter in 1:max.iter) {  
   
-  XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
+  XY = simulate.xy(x0, evolFun, Sig0, frac.obs, lik.params, Tmax)
   
   cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
+  start = proc.time()
   predsE = filter('exact', XY)
+  d = as.numeric(proc.time() - start)
+  cat(paste("Exact filtering took ", d[3], "s\n", sep = ""))
   cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
+  start = proc.time()
   predsMRA = filter('mra', XY)
+  d = as.numeric(proc.time() - start)
+  cat(paste("MRA filtering took ", d[3], "s\n", sep = ""))
   cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
+  start = proc.time()
   predsLR  = filter('low.rank', XY)
+  d = as.numeric(proc.time() - start)
+  cat(paste("Low-rank filtering took ", d[3], "s\n", sep = ""))
   
   RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
   LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
@@ -113,11 +136,14 @@ for (iter in 1:max.iter) {
 }
 
 
-########## plot results ########## 
-#for (t in 1:Tmax) {
-#  zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm = TRUE)))))
-#  nna.obs = which(!is.na(XY$y[[t]]))
-#  plot( locs, XY$x[[t]], type = "l", xlim = c(0, 1), ylim = zrange, col = "red", main = paste("t =", t))
-#  points( locs[nna.obs,], XY$y[[t]][nna.obs], pch = 16, col = "black")
-#  lines( locs, predsVL[[t]]$state, type = "l", col = "blue")
-#}
+######### plot results ##########
+for (t in 1:Tmax) {
+ #zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm = TRUE)))))
+ zrange = range( unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE))) )
+ nna.obs = which(!is.na(XY$y[[t]]))
+ plot( locs, XY$x[[t]], type = "l", xlim = c(0, 1), ylim = zrange, col = "red", main = paste("t =", t))
+ #points( locs[nna.obs,], XY$y[[t]][nna.obs], pch = 16, col = "black")
+ lines( locs, predsE[[t]]$state, type = "l", col = "black", lty = "dashed")
+ lines( locs, predsMRA[[t]]$state, type = "l", col = "#500000")
+ lines( locs, predsLR[[t]]$state, type = "l", col = "black", lty = "dotted")
+}
