@@ -121,7 +121,7 @@ simulate.y = function(x, frac.obs, lik.params){
 
 
 ## simulate x
-simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL){
+simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL, sig2=1){
   
   if(!is.null(seed)) set.seed(seed)
   n=nrow(x0);
@@ -130,7 +130,7 @@ simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL){
   y[[1]] = simulate.y(x0, frac.obs, lik.params)
   
   if(Tmax>1){
-    Qc = chol(Q)
+    Qc = sqrt(sig2) * chol(Q)
     
     for(t in 2:Tmax){
       x[[t]] = E(x[[t-1]]) + t(Qc) %*% matrix(rnorm(n), ncol=1)
