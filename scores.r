@@ -10,7 +10,7 @@ calculateRRMSPE = function(predsMRA, predsLR, predsE, x){
   Tmax = length(x)
   RRMSPEs = c()
   
-  for(t in 2:Tmax){
+  for(t in 1:Tmax){
     MRA = RMSE(x[[t]], predsMRA[[t]]$state)
     LR = RMSE(x[[t]], predsLR[[t]]$state)
     E  = RMSE(x[[t]], predsE[[t]]$state)
@@ -29,7 +29,7 @@ LogS = function(preds, y){
   
   Tmax = length(preds)
   LS = rep(0, Tmax-1)
-  for( t in 2:Tmax ){
+  for( t in 1:Tmax ){
     LS[t] = dposterior(y[[t]], preds[[t]])
   }
   return(LS)
@@ -37,12 +37,11 @@ LogS = function(preds, y){
 
 
 dposterior = function(y, pred){
-  
   mu = pred$state
   W= pred$W
   # VL calculates V, Laplace calculates W                                                                                                                                                                                        
   if("V" %in% names(pred)){
-    det_term = sum(log(diag(pred$V)))
+    det_term = sum(log(Matrix::diag(pred$V)))
   }else{
     V=t(chol(Matrix::forceSymmetric(pred$W)))
     #V = t(chol((W + t(W))/2))                                                                                                                                                                                                   
