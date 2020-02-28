@@ -63,7 +63,7 @@ create_scenario_tester = function(header, log_file_name){
 
       vecchia.approx   =vecchia_specify(ls$locs, neighbors, conditioning = 'mra')
       vecchia.approx_z =vecchia_specify(ls$locs, neighbors, cond.yz = "zy")
-      vecchia.approx_LR=vecchia_specify(ls$locs, neighbors, conditioning="firstm")
+      vecchia.approx_LR=vecchia_specify(ls$locs, ncol(vecchia.approx$U.prep$revNNarray) - 1, conditioning="firstm")
       vecchia.exact    = vecchia_specify(ls$locs, nrow(ls$locs)-1, conditioning='firstm')
 
       default_out = list("W"=1, "mean" = 0, "runtime" = -1, "iter"=-1, "cnvgd" = TRUE)
