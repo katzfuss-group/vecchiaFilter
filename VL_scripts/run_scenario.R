@@ -61,10 +61,10 @@ create_scenario_tester = function(header, log_file_name){
       if(mod_type==4)
         ls=gamma_sample(samp_size,covmodel, seed = seed_r , dom = domn, dimen=dimen)
 
-      vecchia.approx   = vecchia_specify(ls$locs, neighbors, conditioning = 'mra')
-      vecchia.approx_z = vecchia_specify(ls$locs, neighbors, cond.yz = "zy")
-      vecchia.approx_LR= vecchia_specify(ls$locs, neighbors, conditioning="firstm")
-      vecchia.exact    = vecchia_specify(ls$locs, nrow(ls$locs)-1, conditioning = 'firstm')
+      vecchia.approx   =vecchia_specify(ls$locs, neighbors, conditioning = 'mra')
+      vecchia.approx_z =vecchia_specify(ls$locs, neighbors, cond.yz = "zy")
+      vecchia.approx_LR=vecchia_specify(ls$locs, neighbors, conditioning="firstm")
+      vecchia.exact    = vecchia_specify(ls$locs, nrow(ls$locs)-1, conditioning='firstm')
 
       default_out = list("W"=1, "mean" = 0, "runtime" = -1, "iter"=-1, "cnvgd" = TRUE)
       pred_y_lv =  default_out # SGVecchia Laplace
@@ -74,7 +74,7 @@ create_scenario_tester = function(header, log_file_name){
 
       pred_y_lv   = calculate_posterior_VL(ls$z, vecchia.approx,    ls$type, covparms = covparms, return_all = TRUE)
       pred_y_lr   = calculate_posterior_VL(ls$z, vecchia.approx_LR, ls$type, covparms = covparms, return_all = TRUE)
-      pred_y_lv_z = pred_y_lr#calculate_posterior_VL(ls$z, vecchia.approx_z,  ls$type, covparms = covparms, return_all = TRUE)
+      pred_y_lv_z = calculate_posterior_VL(ls$z, vecchia.approx_z,  ls$type, covparms = covparms, return_all = TRUE)
       pred_y_l    = calculate_posterior_VL(ls$z, vecchia.exact,     ls$type, covparms = covparms, return_all = TRUE)
 
       failed_convergence  = any(!c(pred_y_lv$cnvgd, pred_y_l$cnvgd, pred_y_lv_z$cnvgd, pred_y_lr$cnvgd))
@@ -92,10 +92,10 @@ create_scenario_tester = function(header, log_file_name){
       sim_times = c(pred_y_l$runtime, pred_y_lv$runtime, pred_y_lv_z$runtime, pred_y_lr$runtime)
 
       #print(sim_times)
-      lv_score = dposterior(ls$y, pred_y_lv)
-      lv_z_score = dposterior(ls$y, pred_y_lv_z)
-      lr_score = dposterior(ls$y, pred_y_lr)
-      laplace_score = dposterior(ls$y, pred_y_l)
+      lv_score = 0#dposterior(ls$y, pred_y_lv)
+      lv_z_score = 0#dposterior(ls$y, pred_y_lv_z)
+      lr_score = 0#dposterior(ls$y, pred_y_lr)
+      laplace_score = 0#dposterior(ls$y, pred_y_l)
       log_score_results <-c(laplace_score, lv_score, lv_z_score, lr_score)
 
       mse  =  c(mean((ls$y-pred_y_l$mean)^2), mean((ls$y-pred_y_lv$mean)^2),

@@ -1,42 +1,38 @@
 #!/usr/bin/env Rscript
 library(GPvecchia)
-source("~/HVLF/VL_scripts/run_scenario.R")
-
-filename  = "test"
-use_parallel = "F"
-
-
+source("~/HVLF/simulations-spatial/run_scenario.R")
 
 ##########################################################################
 ##################### Compare models:  MSE and Log score  ########################
 ##########################################################################
 
-
-########  Setup parallel
-if (use_parallel == "T") {
-  library(parallel)
-  no_cores <- max(min(detectCores() - 1, 10), 1)
-  cl <- makeCluster(no_cores)
-  clusterEvalQ(cl, {
-    library(GPvecchia)
-    source("~/HVLF/VL_scripts/run_scenario.R")
-    })
+## likelihood settings
+args = commandArgs(trailingOnly = TRUE)
+if (length(args)==0) {
+    data.model = 'gauss'
+} else if (!(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))) {
+    stop("One of the models has to be passed as argument")
+} else {
+    data.model = args[1]
 }
+
+model_no = which(data.model==c("gauss", "logistic", "poisson", "gamma"))
+filename = paste(data.model, "results", sep=".")
 
 ########  Setup Simulations
 
 
 
 
-niter = 2
+niter = 110
 d_vals = c(1)  # domain, [0,1]
-s_vals = c(400)
+s_vals = c(2500)
 seed_vals = 1:niter
 smoothness_vals = .5
 range_vals = .15
-nbrs = c(1, 3, 5, 10, 20, 40, 60)
+nbrs = c(1, 3, 5, 10, 20, 40, 60, 80, 100)
 dimen = 2 
-models_tested = c(1,2,3,4)
+models_tested = model_no
 run_laplace = TRUE
 
 
@@ -81,24 +77,16 @@ scen_params = c("seed_r", "domn", "dimen", "samp_size", "neighbors", "smth", "mo
 
 t_start = Sys.time()
 
-##  Non-parallel
-if (use_parallel == "F") {
-  scenario_runner = create_scenario_tester(header, filename)# filename= "delete_me.csv"
-  for (i in 1:length(scenario_table[,1])) {
-      params = setNames( as.list(scenario_table[i,]), c(scen_params))
+
+
+scenario_runner = create_scenario_tester(header, filename)# filename= "delete_me.csv"
+for (i in 1:length(scenario_table[,1])) {
+    params = setNames( as.list(scenario_table[i,]), c(scen_params))
     aggregated_data = rbind(aggregated_data, do.call(scenario_runner, params))
-  }
 }
-## Parallel
-if (use_parallel == "T") {
-  scenario_runner = create_scenario_tester(header, NA) # cant write during parallel
-  clusterExport(cl, varlist = c("scenario_runner"))
-  aggregated_data = parApply(cl, scenario_table, 1 , function(x) do.call(scenario_runner, as.list(x)))
-  stopCluster(cl)
-  aggregated_data = t(aggregated_data)
-}
+
 
 t_end = Sys.time()
 
 colnames(aggregated_data) = header
-write.csv(aggregated_data, file = paste("alt_",filename, sep = ""), row.names = F)
+write.csv(aggregated_data, file = filename, row.names = F)

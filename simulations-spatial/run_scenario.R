@@ -63,7 +63,7 @@ create_scenario_tester = function(header, log_file_name){
 
       vecchia.approx   =vecchia_specify(ls$locs, neighbors, conditioning = 'mra')
       vecchia.approx_z =vecchia_specify(ls$locs, neighbors, cond.yz = "zy")
-      vecchia.approx_LR=vecchia_specify(ls$locs, neighbors, conditioning="firstm")
+      vecchia.approx_LR=vecchia_specify(ls$locs, ncol(vecchia.approx$U.prep$revNNarray) - 1, conditioning="firstm")
       vecchia.exact    = vecchia_specify(ls$locs, nrow(ls$locs)-1, conditioning='firstm')
 
       default_out = list("W"=1, "mean" = 0, "runtime" = -1, "iter"=-1, "cnvgd" = TRUE)
@@ -92,12 +92,15 @@ create_scenario_tester = function(header, log_file_name){
       sim_times = c(pred_y_l$runtime, pred_y_lv$runtime, pred_y_lv_z$runtime, pred_y_lr$runtime)
 
       #print(sim_times)
-      lv_score = 0#dposterior(ls$y, pred_y_lv)
-      lv_z_score = 0#dposterior(ls$y, pred_y_lv_z)
-      lr_score = 0#dposterior(ls$y, pred_y_lr)
-      laplace_score = 0#dposterior(ls$y, pred_y_l)
+
+      lv_score = dposterior(ls$y, pred_y_lv)
+      lv_z_score = dposterior(ls$y, pred_y_lv_z)
+      lr_score = dposterior(ls$y, pred_y_lr)
+      laplace_score = dposterior(ls$y, pred_y_l)
       log_score_results <-c(laplace_score, lv_score, lv_z_score, lr_score)
 
+      print(log_score_results)
+        
       mse  =  c(mean((ls$y-pred_y_l$mean)^2), mean((ls$y-pred_y_lv$mean)^2),
                 mean((ls$y-pred_y_lv_z$mean)^2), mean((ls$y-pred_y_lr$mean)^2))
       NR_iters = c(pred_y_l$iter, pred_y_lv$iter, pred_y_lv_z$iter, pred_y_lr$iter)
