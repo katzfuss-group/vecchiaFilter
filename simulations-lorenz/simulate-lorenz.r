@@ -6,6 +6,8 @@ resultsDir = "simulations-lorenz"
 library(VEnKF)
 library(rootSolve)
 library(doParallel)
+library(Matrix)
+library(GPvecchia)
 registerDoParallel(cores = 6)
 
 
@@ -14,35 +16,47 @@ filter = function(approx.name, XY){
   
   approx = approximations[[approx.name]]
   
+  Tmax = length(XY$x)
   preds = list()
-  L.tt = getL00(approx, Sig0, locs)
-  mu.tt = x0
-  preds[[1]] = list(state = x0, L = L.tt)
+  #L.tt = getL00(approx, Sig0, locs)
+  obs.aux = as.numeric(XY$y[[1]])
+  covmodel = getMatCov(approx, Sig0)
+  mu.tt = matrix(rep(0, nrow(XY$x[[1]])), ncol = 1)
   
+  preds.aux = calculate_posterior_VL( obs.aux, approx, prior_mean = b*x0,
+                                      likelihood_model = data.model, covmodel = covmodel,
+                                      covparms = covparms, likparms = lik.params, return_all = TRUE)
+  
+  L.tt  = getLtt(approx, preds.aux)
+  mu.tt = matrix(preds.aux$mean, ncol = 1)/b
+  preds[[1]] = list(state = mu.tt, W = preds.aux$W, V = preds.aux$V)
+  
+  if (Tmax == 1) { 
+    return( preds )
+  } 
   for (t in 2:Tmax) {
     
-    #cat(paste("\tfiltering: t=",t, "\n", sep=""))
+    cat(paste("\tfiltering: t=",t, "\n", sep=""))
     obs.aux = as.numeric(XY$y[[t]])
-    
     Et = Matrix::Matrix(gradient(evolFun, mu.tt, centered = TRUE))
     
     forecast = evolFun(mu.tt)
     Fmat = Et %*% L.tt
-    covmodel = GPvecchia::getMatCov(approx, Fmat %*% Matrix::t(Fmat) + sig2*Sig0)
+    covmodel = getMatCov(approx, Fmat %*% Matrix::t(Fmat) + sig2*Sig0)
     
-    preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
-                                                   likelihood_model = data.model, covmodel = covmodel,
-                                                   covparms = covparms, likparms = lik.params, return_all = TRUE)
-    L.tt = getLtt(approx, preds.aux)
-    mu.tt = matrix(preds.aux$mean, ncol = 1)
-    preds[[t]] = list(state = mu.tt, W = preds.aux$W)
+    preds.aux = calculate_posterior_VL( obs.aux, approx, prior_mean = b*forecast,
+                                        likelihood_model = data.model, covmodel = covmodel,
+                                        covparms = covparms, likparms = lik.params, return_all = TRUE)
+    L.tt = getLtt(approx, preds.aux)/b
+    mu.tt = matrix(preds.aux$mean, ncol = 1)/b
+    preds[[t]] = list(state = mu.tt, W = preds.aux$W, V = preds.aux$V)
   }
   return( preds )
 }
 
 
 
-center_operator <- function(x) {
+center_operator = function(x) {
   n = nrow(x)
   ones = rep(1, n)
   H = diag(n) - (1/n) * (ones %*% t(ones))
@@ -56,6 +70,7 @@ getCovariance = function(N, Force, dt, K){
   X = Matrix::Matrix(scan(fileName.all, quiet = TRUE), nrow = N) 
   X = center_operator(X)
   S = (X %*% Matrix::t(X)) / (ncol(X) - 1)
+  
 }
 
 
@@ -66,7 +81,7 @@ spatial.dim = 2
 n = 960
 m = 50
 frac.obs = 0.1
-Tmax = 20
+Tmax = 1
 
 
 ## evolution function ##
@@ -74,8 +89,9 @@ Force = 10
 K = 32
 dt = 0.005
 M = 1
+b = 0.1
 evolFun = function(X) Lorenz04M2Sim(as.numeric(X), Force, K, dt, M, iter = 1, burn = 0, order = 4)
-max.iter = 100
+max.iter = 1
 
 
 ## covariance function
@@ -86,7 +102,7 @@ covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
 ## likelihood settings
 me.var = 0.2;
-data.model = "gamma"
+data.model = "poisson"
 lik.params = list(data.model = data.model, me.var = me.var, alpha = 2)
 
 
@@ -96,7 +112,7 @@ locs = matrix(grid.oneside, ncol = 1)
 
 ## set initial state
 Sig0 = getCovariance(n, Force, dt, K)
-x0 = Matrix::t(chol(Sig0)) %*% matrix(rnorm(n), ncol = 1)#getX0(n, Force, K, dt)
+x0 = as.matrix(Matrix::t(Matrix::chol(Sig0)) %*% matrix(rnorm(n), ncol = 1))#getX0(n, Force, K, dt)
 
 ## define Vecchia approximation
 mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra', verbose = TRUE)
@@ -106,10 +122,10 @@ approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
 RRMSPE = list(); LogSc = list()
-foreach( iter=1:max.iter) %dopar% {
-#for (iter in 1:max.iter) {  
-  
-  XY = simulate.xy(x0, evolFun, Sig0, frac.obs, lik.params, Tmax)
+#foreach( iter=1:max.iter) %dopar% {
+for (iter in 1:max.iter) {
+
+  XY = simulate.xy(x0, evolFun, Sig0, frac.obs, lik.params, Tmax, b = b)
   
   cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
   start = proc.time()
@@ -134,4 +150,22 @@ foreach( iter=1:max.iter) %dopar% {
   
   #data = list(XY = XY, predsMRA = predsMRA, predsE = predsE, predsLR = predsLR)
   #save(data, file = paste(resultsDir, "/", data.model, "/sim.", iter, sep = ""))
+}
+
+
+######### plot results ##########
+for (t in 1:Tmax) {
+  zrange = c(-20, 20)#range(c(unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm = TRUE)))))
+  #zrange = range( unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE))) )
+  nna.obs = which(!is.na(XY$y[[t]]))
+  
+  plot( NULL, type = "l", xlim = c(0, 1), ylim = zrange, col = "red", main = paste("t =", t), xlab = "locations", ylab = "")
+  ci.mra = getConfInt(predsMRA[[t]], 0.05)
+  polygon(c(rev(locs), locs), c(rev(ci.mra$ub), ci.mra$lb), col = 'grey80', border = NA)
+  lines(locs, XY$x[[t]], col = "red")
+  points( locs[nna.obs,], XY$y[[t]][nna.obs], pch = 16, col = "black")
+  
+  lines( locs, predsE[[t]]$state, type = "l", col = "black", lty = "dashed")
+  lines( locs, predsMRA[[t]]$state, type = "l", col = "#500000")
+  #lines( locs, predsLR[[t]]$state, type = "l", col = "black", lty = "dotted")
 }
