@@ -57,19 +57,23 @@ source('aux-functions.r')
 source('scores.r')
 resultsDir = "simulations-linear"
 library(doParallel)
-registerDoParallel(cores = 5)
+
+registerDoParallel(cores=25)
 
 ######### set parameters #########
-set.seed(1988)
-spatial.dim = 2
-n = 34**2
-m = 50
+set.seed(1996)
+spatial.dim=2
+n=34**2
+m=50
+
 frac.obs = 0.1
-Tmax = 10
+Tmax = 20
 diffusion = 0.00004
 advection = 0.01
-evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
-max.iter = 1
+
+evolFun = function(X) evolAdvDiff(X, adv=advection, diff=diffusion)
+max.iter = 100
+
 
 ## covariance parameters
 sig2 = 0.5; range = .15; smooth = 0.5; 
@@ -84,7 +88,8 @@ if (length(args) != 1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma
 } else {
     data.model = args[1]
 }
-lik.params = list(data.model = data.model, me.var = me.var)
+
+lik.params = list(data.model = data.model, me.var=me.var, alpha=2)
 
 
 ## generate grid of pred.locs
@@ -107,8 +112,11 @@ approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
 RRMSPE = list(); LogSc = list()
-#foreach( iter=1:max.iter) %dopar% {
+
+foreach( iter=1:max.iter) %dopar% {
+#for( iter in 1:max.iter) {  
 for (iter in 1:max.iter) {  
+
 
     XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
 
@@ -122,11 +130,10 @@ for (iter in 1:max.iter) {
     RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
     LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
   
-    write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
-    write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
 
-    data = list(XY = XY, predsMRA = predsMRA, predsE = predsE, predsLR = predsLR)
-    save(data, file = paste(resultsDir, "/", data.model, "/sim.", iter, sep = ""))
+    write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep=""))
+    write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep=""))
     
-    print(RRMSPE)
+    #data = list(XY=XY, predsMRA=predsMRA, predsE=predsE, predsLR=predsLR)
+    #save(data, file=paste(resultsDir, "/", data.model, "/sim.", iter, sep=""))
 }

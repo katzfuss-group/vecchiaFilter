@@ -109,7 +109,7 @@ gamma_sample = function(n, cov_model, seed_val=125, dom=1, dimen=1, alpha = 2 ){
   gamma_score = function(y_o, z) -z*exp(y_o)+ alpha
   #gamma_llh = function(y_o, z) sum(-y_o*z + (alpha-1)*log(z) +log(y_o^alpha)-n*log(gamma(alpha)))
   gamma_llh = function(y_o, z) sum(-exp(y_o)*z + (alpha-1)*log(z) +alpha*y_o-n*log(gamma(alpha))) # log link
-  return(list("type"="gamma", "locs" =  matrix(locs,ncol=dimen), "z"=z, "y"=y_beta, "C" = C, "hess" = gamma_hess, "score"=gamma_score, "alpha"=alpha, "llh" = gamma_llh))
+  return(list("type"="gamma_alt", "locs" =  matrix(locs,ncol=dimen), "z"=z, "y"=y_beta, "C" = C, "hess" = gamma_hess, "score"=gamma_score, "alpha"=alpha, "llh" = gamma_llh))
 }
 
 

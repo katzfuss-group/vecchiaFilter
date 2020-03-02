@@ -140,13 +140,15 @@ simulate.y = function(x.raw, frac.obs, lik.params, b){
 simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL, sig2=1, b=1){
   
   if(!is.null(seed)) set.seed(seed)
-  n=nrow(x0);
+  n = nrow(x0);
   x = list(); y = list()
   x[[1]] = x0
   y[[1]] = simulate.y(x0, frac.obs, lik.params, b)
   
   if(Tmax>1){
-    Qc = sqrt(sig2) * chol(Q + diag(1e-10, n))
+
+    Qc = sqrt(sig2) * Matrix::chol(Q + diag(1e-12, n))
+
     
     for(t in 2:Tmax){
       x[[t]] = E(x[[t-1]]) + t(Qc) %*% matrix(rnorm(n), ncol=1)

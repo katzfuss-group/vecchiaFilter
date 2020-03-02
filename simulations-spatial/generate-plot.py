@@ -16,16 +16,18 @@ for row_id in range(len(data)):
     if data.MSE_Laplace[row_id] != 0:
         MSE = data.MSE_Laplace[row_id]
         dLS = data.LS_Laplace[row_id]
+
     MSE_L[row_id] = MSE
     dLS_L[row_id] = dLS
 
+    
 data["MSE_Laplace"] = MSE_L
 data["LS_Laplace"] = dLS_L
 
 families = ["Gaussian", "logistic", "Poisson", "gamma"]
 
-data["RRMSPE_VL"] = data["MSE_VL"].div(data.MSE_Laplace, axis=0)
-data["RRMSPE_LR"] = data["MSE_LowRank"].div(data.MSE_Laplace, axis=0)
+data["RRMSPE_VL"] =  data["MSE_VL"].div(data.MSE_Laplace, axis=0)
+data["RRMSPE_LR"] =  data["MSE_LowRank"].div(data.MSE_Laplace, axis=0)
 data["dLS_VL"]    = -data["LS_VL"].sub(data.LS_Laplace, axis=0)
 data["dLS_LR"]    = -data["LS_LowRank"].sub(data.LS_Laplace, axis=0)
 
