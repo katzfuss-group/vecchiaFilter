@@ -61,24 +61,31 @@ create_scenario_tester = function(header, log_file_name){
       if(mod_type==4)
         ls=gamma_sample(samp_size,covmodel, seed = seed_r , dom = domn, dimen=dimen)
 
-      vecchia.approx   =vecchia_specify(ls$locs, neighbors, conditioning = 'mra')
-      vecchia.approx_z =vecchia_specify(ls$locs, neighbors, cond.yz = "zy")
-      vecchia.approx_LR=vecchia_specify(ls$locs, ncol(vecchia.approx$U.prep$revNNarray) - 1, conditioning="firstm")
-      vecchia.exact    = vecchia_specify(ls$locs, nrow(ls$locs)-1, conditioning='firstm')
-
+      vecchia.approx    = vecchia_specify(ls$locs, neighbors, conditioning = 'mra')
+      vecchia.approx_z  = vecchia_specify(ls$locs, neighbors, cond.yz = "zy")
+      vecchia.approx_LR = vecchia_specify(ls$locs, ncol(vecchia.approx$U.prep$revNNarray) - 1, conditioning="firstm")
+      vecchia.exact     = vecchia_specify(ls$locs, nrow(ls$locs)-1, conditioning='firstm')
+        
       default_out = list("W"=1, "mean" = 0, "runtime" = -1, "iter"=-1, "cnvgd" = TRUE)
-      pred_y_lv =  default_out # SGVecchia Laplace
+      pred_y_lv   =  default_out # SGVecchia Laplace
       pred_y_lv_z =  default_out # Observed Vecchia Laplace
-      pred_y_l = default_out # Laplace
-      pred_y_lr = default_out # low rank Laplace
+      pred_y_l    = default_out # Laplace
+        pred_y_lr = default_out # low rank Laplace
+        if( !run_algo ){
+            pred_y_l$mean = ls$y
+            }
 
+        
       pred_y_lv   = calculate_posterior_VL(ls$z, vecchia.approx,    ls$type, covparms = covparms, return_all = TRUE)
       pred_y_lr   = calculate_posterior_VL(ls$z, vecchia.approx_LR, ls$type, covparms = covparms, return_all = TRUE)
       pred_y_lv_z = calculate_posterior_VL(ls$z, vecchia.approx_z,  ls$type, covparms = covparms, return_all = TRUE)
-      pred_y_l    = calculate_posterior_VL(ls$z, vecchia.exact,     ls$type, covparms = covparms, return_all = TRUE)
+      if (run_algo) {  
+          pred_y_l    = calculate_posterior_VL(ls$z, vecchia.exact,     ls$type, covparms = covparms, return_all = TRUE)
+      }
 
-      failed_convergence  = any(!c(pred_y_lv$cnvgd, pred_y_l$cnvgd, pred_y_lv_z$cnvgd, pred_y_lr$cnvgd))
-      if(failed_convergence) {
+        failed_convergence  = any(!c(pred_y_lv$cnvgd, pred_y_l$cnvgd, pred_y_lv_z$cnvgd, pred_y_lr$cnvgd))
+        print("hello")
+        if(failed_convergence) {
         message("Failed convergence, check seed")
         if (show_output){
           mod_name = ifelse(mod_type==2, "Logistic", ifelse(mod_type==3, "Poisson", ifelse(mod_type==1, "Gaussian", "Gamma")))
@@ -96,10 +103,13 @@ create_scenario_tester = function(header, log_file_name){
       lv_score = dposterior(ls$y, pred_y_lv)
       lv_z_score = dposterior(ls$y, pred_y_lv_z)
       lr_score = dposterior(ls$y, pred_y_lr)
-      laplace_score = dposterior(ls$y, pred_y_l)
-      log_score_results <-c(laplace_score, lv_score, lv_z_score, lr_score)
+      if (run_algo){
+          laplace_score = dposterior(ls$y, pred_y_l)
+      } else {
+          laplace_score = 1
+      }
+      log_score_results = c(laplace_score, lv_score, lv_z_score, lr_score)
 
-      print(log_score_results)
         
       mse  =  c(mean((ls$y-pred_y_l$mean)^2), mean((ls$y-pred_y_lv$mean)^2),
                 mean((ls$y-pred_y_lv_z$mean)^2), mean((ls$y-pred_y_lr$mean)^2))

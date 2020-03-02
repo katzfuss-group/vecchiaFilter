@@ -52,7 +52,8 @@ for (seed_r in seed_vals) {
         for (smth in smoothness_vals) {
           for (rnge in range_vals) {
               for (mod_type in models_tested) {
-              scenario_table = rbind(scenario_table, c(seed_r, domn, dimen, samp_size, neighbors, smth, mod_type, rnge, TRUE, run_laplace))
+                  run_laplace = neighbors==1
+                  scenario_table = rbind(scenario_table, c(seed_r, domn, dimen, samp_size, neighbors, smth, mod_type, rnge, TRUE, run_laplace))
             }
           }
         }
