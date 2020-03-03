@@ -108,23 +108,23 @@ diffAdvVec2d = function(nx, ny=nx, height=1, rnge=4){
 
 
 ## simulate y given x 
-simulate.y = function(x.raw, frac.obs, lik.params, b){
+simulate.y = function(x, frac.obs, lik.params){
 
-  x.tilde = b*x.raw
+  
   n.obs = round(n*frac.obs)
   obs.inds = sample(1:n, n.obs, replace = FALSE)
   data.model = lik.params["data.model"]
   # simulate data
   if(data.model=='poisson'){
-    y.obs = rpois(n.obs, exp(x.tilde[obs.inds]))
+    y.obs = rpois(n.obs, exp(x[obs.inds]))
   } else if(data.model=='logistic'){
-    y.obs = rbinom(n.obs,1,prob = exp(x.tilde[obs.inds])/(1+exp(x.tilde[obs.inds])))
+    y.obs = rbinom(n.obs,1,prob = exp(x[obs.inds])/(1+exp(x[obs.inds])))
   } else if(data.model=='gamma'){
     #default_lh_params = list("alpha"=2, "sigma"=sqrt(.1), "beta"=.9, "phi"=1.5)
     #z = rgamma(n.obs, shape = default_lh_params$alpha, rate = default_lh_params$alpha*exp(-y[obs.inds]))
-    y.obs = rgamma(n.obs, shape = lik.params[["alpha"]], rate = lik.params[["alpha"]]*exp(-x.tilde[obs.inds]))
-  } else if(data.model=='gauss'){
-    y.obs = rnorm(n.obs, mean=x.tilde[obs.inds], sd=lik.params[["sigma"]])
+    y.obs = rgamma(n.obs, shape = lik.params[["alpha"]], rate = lik.params[["alpha"]]*exp(-x[obs.inds]))
+  } else if(data.model == 'gauss'){
+    y.obs = rnorm(n.obs, mean = x[obs.inds], sd=lik.params[["sigma"]])
   } else {
     print('Error: Distribution not implemented yet.')
   }
@@ -137,24 +137,35 @@ simulate.y = function(x.raw, frac.obs, lik.params, b){
 
 
 ## simulate x
-simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL, sig2=1, b=1){
+simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL, sig2=1, smooth = 0.5, range = 1, locs = NULL){
   
-  if(!is.null(seed)) set.seed(seed)
+  if (!is.null(seed)) set.seed(seed)
   n = nrow(x0);
   x = list(); y = list()
   x[[1]] = x0
-  y[[1]] = simulate.y(x0, frac.obs, lik.params, b)
+  y[[1]] = simulate.y(x0, frac.obs, lik.params)
   
-  if(Tmax>1){
+  if (Tmax > 1) { 
 
-    Qc = sqrt(sig2) * Matrix::chol(Q + diag(1e-12, n))
-
+    if (!is.null(Q)) {
+      Qc = sqrt(sig2) * Matrix::chol(Q)
+    } 
     
-    for(t in 2:Tmax){
-      x[[t]] = E(x[[t-1]]) + t(Qc) %*% matrix(rnorm(n), ncol=1)
-      y[[t]] = simulate.y(x[[t]], frac.obs, lik.params, b)
+    for (t in 2:Tmax) {
+      if (sig2 > 0) {
+        if (!is.null(Q)) {
+          w =  t(Qc) %*% matrix(rnorm(n), ncol = 1)
+        } else {
+          w = sig2*RandomFields::RFsimulate(model = RMmatern(nu = smooth, scale = range),
+                                            x = locs[,1], y = locs[,2])[[1]]
+        } 
+      } else {
+        w = rep(0, n)
+      }
+      x[[t]] = E(x[[t - 1]]) + w
+      y[[t]] = simulate.y(x[[t]], frac.obs, lik.params)
     } 
   }
   
-  return(list(x=x, y=y))
+  return(list(x = x, y = y))
 }
