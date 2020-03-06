@@ -69,7 +69,7 @@ evol = function(state, adv=0, diff=0){
 
 
 
-getX0 = function(N, Force, K, dt, dir = '~/HVLF/models/'){
+getX0 = function(N, Force, K, dt, dir = '~/HVLF/simulations-lorenz/'){
   
   fileName = paste("init_Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep="_")
   filePath = paste(dir, fileName, sep="")
