@@ -5,6 +5,26 @@ RMSE = function(x, y){
 }
 
 
+
+calculateRMSPE = function(predsMRA, predsLR, x){
+
+  Tmax = length(x)
+  RMSPEs = c()
+  
+  for(t in 1:Tmax){
+    MRA = RMSE(x[[t]], predsMRA[[t]]$state)
+    LR = RMSE(x[[t]], predsLR[[t]]$state)
+    RMSPEs.t = c(t, MRA, LR)
+    RMSPEs = c(RMSPEs, RMSPEs.t)
+  }
+  RMSPEs = matrix( RMSPEs, ncol=3, byrow=TRUE)
+  colnames(RMSPEs) = c("time", "MRA", "LR")
+  return( RMSPEs )
+    
+}
+
+
+
 calculateRRMSPE = function(predsMRA, predsLR, predsE, x){
   
   Tmax = length(x)
