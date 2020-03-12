@@ -18,6 +18,7 @@ getL00 = function(vecchia.approx, covfun, locs){
 
 
 getLtt = function(vecchia.approx, preds){
+  n = nrow(vecchia.approx$locsord)
   orig.order=order(vecchia.approx$ord)
   V = preds$V
   L.tt = (Matrix::solve(Matrix::t(V), sparse=TRUE)[seq(n, 1), ])[orig.order,]
@@ -57,19 +58,19 @@ evol = function(state, adv=0, diff=0){
 
   
   c1 = 1 + 2*(d + d) - adv*(1/dx + 1/dy)
-  c2 = - d + advection*(1/dy)
+  c2 = - d + adv*(1/dy)
   c3 = - d
   
   diags = list(rep(c2, N-Nx), rep(c2, N-1), rep(c1, N), rep(c3, N-1), rep(c3,N-Nx) )
   E = Matrix::bandSparse(N, k=c(-Nx, -1, 0, 1, Nx), diag=diags)
   
-  if(class(state)=='matrix' || class(state)=='dgCMatrix') return( E %*% state )
+  if(class(state) == 'matrix' || methods::is(state, 'sparseMatrix')) return( E %*% state )
   else as.numeric(E %*% as.matrix(state))
 }
 
 
 
-getX0 = function(N, Force, K, dt, dir = '~/HVLF/models/'){
+getX0 = function(N, Force, K, dt, dir = '~/HVLF/simulations-lorenz/'){
   
   fileName = paste("init_Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep="_")
   filePath = paste(dir, fileName, sep="")
@@ -110,7 +111,7 @@ diffAdvVec2d = function(nx, ny=nx, height=1, rnge=4){
 ## simulate y given x 
 simulate.y = function(x, frac.obs, lik.params){
 
-  
+  n = nrow(x)
   n.obs = round(n*frac.obs)
   obs.inds = sample(1:n, n.obs, replace = FALSE)
   data.model = lik.params["data.model"]
@@ -146,22 +147,23 @@ simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL, sig2=1, 
   y[[1]] = simulate.y(x0, frac.obs, lik.params)
   
   if (Tmax > 1) { 
-
-    if (!is.null(Q)) {
-      Qc = sqrt(sig2) * Matrix::chol(Q)
+    
+    if (!is.null(Q) && any(Q)) {
+      Qc = Matrix::chol(Q)
     } 
     
     for (t in 2:Tmax) {
-      if (sig2 > 0) {
+      if (sig2 > 0 && any(Q)) {
         if (!is.null(Q)) {
           w =  t(Qc) %*% matrix(rnorm(n), ncol = 1)
         } else {
-          w = sig2*RandomFields::RFsimulate(model = RMmatern(nu = smooth, scale = range),
-                                            x = locs[,1], y = locs[,2])[[1]]
+          w = sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
+                                            x = locs[,1], y = locs[,2], spConform = FALSE)
         } 
       } else {
         w = rep(0, n)
       }
+
       x[[t]] = E(x[[t - 1]]) + w
       y[[t]] = simulate.y(x[[t]], frac.obs, lik.params)
     } 
