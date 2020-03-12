@@ -86,7 +86,7 @@ advection = 0.001
 #diffusion = 0.00004
 #advection = 0.01
 frac.obs = 0.1
-Tmax = 20
+Tmax = 10
 max.iter = 2
 
 ## covariance parameters
@@ -109,7 +109,7 @@ if (length(args) == 1) {
   data.model = "gauss"  
 }
 
-lik.params = list(data.model = data.model, sigma = sqrt(me.var))
+lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha = 2)
 
 
 
@@ -128,7 +128,7 @@ XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smo
 
 ## define Vecchia approximation
 mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra')
-low.rank = GPvecchia::vecchia_specify(locs, 41, conditioning = 'firstm', verbose = TRUE)
+low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, conditioning = 'firstm')
 approximations = list(mra = mra, low.rank = low.rank)#, exact = exact)
 
 
