@@ -46,7 +46,7 @@ getConfInt = function(preds, alpha){
 
 ######### simulate and plot the data #########
 ## define the temporal evolution function
-evol = function(state, adv=0, diff=0){
+evolAdvDiff = function(state, adv=0, diff=0){
   # we assume that there is the same number of grid points
   # along each dimension
   
@@ -64,7 +64,7 @@ evol = function(state, adv=0, diff=0){
   diags = list(rep(c2, N-Nx), rep(c2, N-1), rep(c1, N), rep(c3, N-1), rep(c3,N-Nx) )
   E = Matrix::bandSparse(N, k=c(-Nx, -1, 0, 1, Nx), diag=diags)
   
-  if(class(state) == 'matrix' || methods::is(state, 'sparseMatrix')) return( E %*% state )
+  if (class(state) == 'matrix' || methods::is(state, 'sparseMatrix')) return( E %*% state )
   else as.numeric(E %*% as.matrix(state))
 }
 
@@ -110,7 +110,6 @@ diffAdvVec2d = function(nx, ny=nx, height=1, rnge=4){
 
 ## simulate y given x 
 simulate.y = function(x, frac.obs, lik.params){
-
   n = nrow(x)
   n.obs = round(n*frac.obs)
   obs.inds = sample(1:n, n.obs, replace = FALSE)
@@ -157,13 +156,13 @@ simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL, sig2=1, 
         if (!is.null(Q)) {
           w =  t(Qc) %*% matrix(rnorm(n), ncol = 1)
         } else {
-          w = sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
-                                            x = locs[,1], y = locs[,2], spConform = FALSE)
+          w = matrix(sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
+                                            x = locs[,1], y = locs[,2], spConform = FALSE), ncol=1)
         } 
       } else {
-        w = rep(0, n)
+        w = matrix(rep(0, n), ncol=1)
       }
-
+      
       x[[t]] = E(x[[t - 1]]) + w
       y[[t]] = simulate.y(x[[t]], frac.obs, lik.params)
     } 
