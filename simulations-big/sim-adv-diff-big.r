@@ -8,7 +8,6 @@ resultsDir = "~/HVLF/simulations-big"
 filter = function(approx.name, XY){
   
   approx = approximations[[approx.name]]
-  
   preds = list()
   cat(paste("filtering: t=1\n", sep = ""))
   cat("\tCalculate covariance elements from function: ")
@@ -31,45 +30,48 @@ filter = function(approx.name, XY){
   mu.tt = matrix(preds.aux.vl$mean, ncol = 1)
   preds[[1]] = list(state = mu.tt, L = L.tt)
   
-  
-  for (t in 2:Tmax) {
+  if ( Tmax > 1 ) {
     
-    cat(paste("filtering: t=", t, "\n", sep = ""))
-    obs.aux = as.numeric(XY$y[[t]])
-    
-    cat("\tevolve the L.tt matrix: ")
-    t0 = proc.time()
-    E = evolFun(Matrix::Diagonal(n))
-    Fmat = E %*% L.tt
-    t1 = proc.time()
-    cat(paste((t1 - t0)[3], "\n"))
-    
-    
-    cat("\tCalculate covariance elements from factor: ")
-    t0 = proc.time()
-    M1 = GPvecchia::getMatCov(approx, Matrix::t(Fmat), factor = TRUE)
-    t1 = proc.time()
-    cat(paste((t1 - t0)[3], "\n"))
-    cat("\t... from function: ")
-    t0 = proc.time()
-    M2 = GPvecchia::getMatCov(approx, covfun.d)
-    t1 = proc.time()
-    cat(paste((t1 - t0)[3], "\n"))
-    covmodel = M1 + M2
-    
-    mu.tt1 = E %*% mu.tt
-    
-    cat("\tcalculate posterior: ")
-    t0 = proc.time()
-    preds.aux.vl = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = mu.tt1, likelihood_model = data.model, covmodel = covmodel, covparms = covparms, likparms = lik.params, return_all = TRUE)
-    t1 = proc.time()
-    cat(paste((t1 - t0)[3], "\n"))
-    
-    cat("\tstore results\n")
-    L.tt = getLtt(approx, preds.aux.vl)
-    mu.tt = matrix(preds.aux.vl$mean, ncol = 1)
-    
-    preds[[t]] = list(state = mu.tt, L = L.tt)
+    for (t in 2:Tmax) {
+      
+      cat(paste("filtering: t=", t, "\n", sep = ""))
+      obs.aux = as.numeric(XY$y[[t]])
+      
+      cat("\tevolve the L.tt matrix: ")
+      t0 = proc.time()
+      E = evolFun(Matrix::Diagonal(n))
+      Fmat = E %*% L.tt
+      t1 = proc.time()
+      cat(paste((t1 - t0)[3], "\n"))
+      
+      
+      cat("\tCalculate covariance elements from factor: ")
+      t0 = proc.time()
+      M1 = GPvecchia::getMatCov(approx, Matrix::t(Fmat), factor = TRUE)
+      t1 = proc.time()
+      cat(paste((t1 - t0)[3], "\n"))
+      cat("\t... from function: ")
+      t0 = proc.time()
+      M2 = GPvecchia::getMatCov(approx, covfun.d)
+      t1 = proc.time()
+      cat(paste((t1 - t0)[3], "\n"))
+      covmodel = M1 + M2
+      
+      mu.tt1 = E %*% mu.tt
+      
+      cat("\tcalculate posterior: ")
+      t0 = proc.time()
+      preds.aux.vl = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = mu.tt1, likelihood_model = data.model, covmodel = covmodel, covparms = covparms, likparms = lik.params, return_all = TRUE)
+      t1 = proc.time()
+      cat(paste((t1 - t0)[3], "\n"))
+      
+      cat("\tstore results\n")
+      L.tt = getLtt(approx, preds.aux.vl)
+      mu.tt = matrix(preds.aux.vl$mean, ncol = 1)
+      
+      preds[[t]] = list(state = mu.tt, L = L.tt)
+      
+    }
     
   }
   return( preds )
@@ -79,15 +81,15 @@ filter = function(approx.name, XY){
 
 ######### set parameters #########
 set.seed(1996)
-n = 50**2
-m = 50
+n = 100**2
+m = 100
 diffusion = 0.0000001
 advection = 0.001
 #diffusion = 0.00004
 #advection = 0.01
 frac.obs = 0.1
-Tmax = 10
-max.iter = 2
+Tmax = 1
+max.iter = 25
 
 ## covariance parameters
 sig2 = 0.5; range = .15; smooth = 0.5; 
@@ -123,7 +125,6 @@ locs = as.matrix(expand.grid(grid,grid))
 x0 = matrix(sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
                                    x = locs[,1], y = locs[,2], spConform = FALSE), ncol = 1)
 evolFun = function(x) evolAdvDiff(x, diff = diffusion, adv = advection)
-XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
 
 
 ## define Vecchia approximation
