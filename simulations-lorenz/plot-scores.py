@@ -18,7 +18,7 @@ def readData( family ):
     count = 0
     while( os.path.exists( RRMSPEfile ) ):
 
-        if it in [47, 66, 17, 16, 87] + list(range(15)):
+        if it in [5, 16, 21, 22, 81, 110, 36] + list(range(3)):
             it += 1
             RRMSPEfile = os.path.join(family, "RRMSPE." + str(it))
             LogScfile  = os.path.join(family, "LogSc."  + str(it))
@@ -39,7 +39,12 @@ def readData( family ):
             MRA = np.array([float(score[1]) for score in scores])
             LR = np.array([float(score[2]) for score in scores])
 
-        print(family + ", " + str(it) + ": " + str(max(abs(LR))))
+            #if(np.any(LR>1e6)):
+            #    pdb.set_trace()
+
+        mmax = max(max(abs(LR)), max(abs(MRA)))
+        if mmax>1e4:
+            print(family + ", " + str(it) + ": " + str(mmax))
             
         LogSc["MRA"] = LogSc["MRA"]*(count-1)/count + MRA/count
         LogSc["LR"] = LogSc["LR"]*(count-1)/count + LR/count
@@ -102,7 +107,7 @@ def plotScore(scoresDict, name):
     fig.legend([l1, l2], labels=["HV", "low-rank", "Laplace"], ncol=3, bbox_to_anchor=(-0.3, -0.89, 1, 1))
     plt.tight_layout(pad=2)
 
-    plt.savefig('linear-' + name + '.pdf')  
+    plt.savefig('lorenz-' + name + '.pdf')  
     
     plt.show()
 
