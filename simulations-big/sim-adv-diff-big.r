@@ -2,6 +2,8 @@ rm(list = ls())
 source("~/HVLF/aux-functions.r")
 source("~/HVLF/scores.r")
 resultsDir = "~/HVLF/simulations-big"
+library(doParallel)
+registerDoParallel(cores=25)
 
 
 ########## filtering ##########
@@ -81,15 +83,15 @@ filter = function(approx.name, XY){
 
 ######### set parameters #########
 set.seed(1996)
-n = 100**2
-m = 100
+n = 300**2
+m = 10
 diffusion = 0.0000001
 advection = 0.001
 #diffusion = 0.00004
 #advection = 0.01
 frac.obs = 0.1
 Tmax = 1
-max.iter = 25
+max.iter = 1
 
 ## covariance parameters
 sig2 = 0.5; range = .15; smooth = 0.5; 
@@ -135,50 +137,35 @@ approximations = list(mra = mra, low.rank = low.rank)#, exact = exact)
 
 RRMSPE = list(); LogSc = list()
 
-#foreach( iter=1:max.iter) %dopar% {
-for (iter in 1:max.iter) {  
+foreach( iter=1:max.iter) %dopar% {
+#for (iter in 1:max.iter) {  
   
-  XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
-  
-  #cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
-  #predsE = filter('exact', XY)
-  cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
-  predsMRA = filter('mra', XY)
-  cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
-  predsLR  = filter('low.rank', XY)
-  
-  
-  
-  RMSPE = calculateRMSPE(predsMRA, predsLR, XY$x)
-  #LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
-  
-  write.csv(RMSPE, file = paste(resultsDir, "/", data.model, "/RMSPE.", iter, sep=""))
-  #write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep=""))
-  
-  #data = list(XY=XY, predsMRA=predsMRA, predsE=predsE, predsLR=predsLR)
-  #save(data, file=paste(resultsDir, "/", data.model, "/sim.", iter, sep=""))
-}
-
-
-
-
-
-
-########## plot results ########## 
-m = M = 0
-for (t in 1:Tmax) {
-  #zrange = range(c(predsVL[[t]][["state"]], unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm = TRUE)))))
-  zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm=TRUE)))))
-  m = min(m, zrange[1])
-  M = max(M, zrange[2])
-}
-for (t in 1:Tmax) {
-  #pdf(paste("~/HVLF/simulations-linear/plots/", t, ".pdf", sep=""))
-  defpar = par(mfrow = c(1, 3), oma = c(0, 0, 2, 0))
-  nna.obs = which(!is.na(XY$y[[t]]))
-  fields::quilt.plot( locs[nna.obs,], XY$y[[t]][nna.obs], zlim = c(m, M), nx = sqrt(n), ny = sqrt(n), main = "obs" )
-  fields::quilt.plot( locs, as.numeric(XY$x[[t]]), zlim = c(m, M), nx = sqrt(n), ny = sqrt(n), main = "truth" )
-  fields::quilt.plot( locs, predsMRA[[t]]$state, zlim = zrange, nx = sqrt(n), ny = sqrt(n), main = "prediction" )
-  par(defpar)
-  #dev.off()
+    XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
+    
+    cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
+    predsMRA = filter('mra', XY)
+    cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
+    predsLR  = filter('low.rank', XY)
+   
+    RMSPE = calculateRMSPE(predsMRA, predsLR, XY$x)
+    
+    write.csv(RMSPE, file = paste(resultsDir, "/", data.model, "/RMSPE.", iter, sep=""))
+    
+    m = M = 0
+    for (t in 1:Tmax) {
+                                        
+        zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm=TRUE)))))
+        m = min(m, zrange[1])
+        M = max(M, zrange[2])
+    }
+    for (t in 1:Tmax) {
+        #pdf(paste("~/HVLF/simulations-big/", data.model, "/", t, ".pdf", sep=""))
+        defpar = par(mfrow = c(1, 3), oma = c(0, 0, 2, 0))
+        nna.obs = which(!is.na(XY$y[[t]]))
+        fields::quilt.plot( locs[nna.obs,], XY$y[[t]][nna.obs], zlim = c(m, M), nx = sqrt(n), ny = sqrt(n), main = "obs" )
+        fields::quilt.plot( locs, as.numeric(XY$x[[t]]), zlim = c(m, M), nx = sqrt(n), ny = sqrt(n), main = "truth" )
+        fields::quilt.plot( locs, predsMRA[[t]]$state, zlim = zrange, nx = sqrt(n), ny = sqrt(n), main = "prediction" )
+        par(defpar)
+        #dev.off()
+    }
 }
