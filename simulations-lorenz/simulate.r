@@ -3,12 +3,12 @@ library(VEnKF)
 library(rootSolve)
 setwd("~/HVLF/simulations-lorenz")
 
-generateInit = T
+generateInit = F
     
 N = 960
 Force = 10
 dt = 0.005
-M = 40
+M = 1
 K = 32
 Tmax = 1
 seed = 1988
@@ -27,13 +27,11 @@ if (generateInit) {
 } else {
   X0 = scan(fileName.init, quiet = TRUE)  
 }
-
-
-
-X = Lorenz04M2Sim(X0, Force, K, dt, M, iter = Tmax, order = 4)
+X0 = rep(0, N)
+X = Lorenz04M2Sim(X0, Force, K, dt, M, iter = Tmax, burn = 1, order = 4)
 #X1 = Lorenz04M2Sim(X0, Force, K, dt, M, iter=Tmax, burn=0, order=1)
 
-
+browser()
 
 if ( generateInit ) {
   Xlast = X[,Tmax]
