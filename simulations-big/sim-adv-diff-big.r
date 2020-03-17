@@ -28,7 +28,9 @@ filter = function(approx.name, XY){
   cat(paste((t1 - t0)[3], "\n"))
   
   cat("\tstore results\n")
+  cat("\t\textract L.tt matrix\n")
   L.tt = getLtt(approx, preds.aux.vl)
+  cat("\t\textract mean vector\n")
   mu.tt = matrix(preds.aux.vl$mean, ncol = 1)
   preds[[1]] = list(state = mu.tt, L = L.tt)
   
@@ -39,12 +41,14 @@ filter = function(approx.name, XY){
       cat(paste("filtering: t=", t, "\n", sep = ""))
       obs.aux = as.numeric(XY$y[[t]])
       
-      cat("\tevolve the L.tt matrix: ")
+      cat("\tevolve the L.tt matrix:\n")
       t0 = proc.time()
+      cat("\t\tbuild the evolution matrix\n")
       E = evolFun(Matrix::Diagonal(n))
+      cat("\t\tmultpily E by L\n")
       Fmat = E %*% L.tt
       t1 = proc.time()
-      cat(paste((t1 - t0)[3], "\n"))
+      #cat(paste((t1 - t0)[3], "\n"))
       
       
       cat("\tCalculate covariance elements from factor: ")
@@ -68,7 +72,9 @@ filter = function(approx.name, XY){
       cat(paste((t1 - t0)[3], "\n"))
       
       cat("\tstore results\n")
+      cat("\t\textract L.tt matrix\n")
       L.tt = getLtt(approx, preds.aux.vl)
+      cat("\t\textract mean vector\n")
       mu.tt = matrix(preds.aux.vl$mean, ncol = 1)
       
       preds[[t]] = list(state = mu.tt, L = L.tt)
@@ -83,15 +89,15 @@ filter = function(approx.name, XY){
 
 ######### set parameters #########
 set.seed(1996)
-n = 300**2
+n = 50**2
 m = 10
 diffusion = 0.0000001
 advection = 0.001
 #diffusion = 0.00004
 #advection = 0.01
 frac.obs = 0.1
-Tmax = 1
-max.iter = 1
+Tmax = 2
+max.iter = 2
 
 ## covariance parameters
 sig2 = 0.5; range = .15; smooth = 0.5; 
@@ -137,8 +143,8 @@ approximations = list(mra = mra, low.rank = low.rank)#, exact = exact)
 
 RRMSPE = list(); LogSc = list()
 
-foreach( iter=1:max.iter) %dopar% {
-#for (iter in 1:max.iter) {  
+#foreach( iter=1:max.iter) %dopar% {
+for (iter in 1:max.iter) {  
   
     XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
     
