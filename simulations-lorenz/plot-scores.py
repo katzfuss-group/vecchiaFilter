@@ -70,7 +70,7 @@ def plotScore(scoresDict, name):
             pdb.set_trace()
         M = max(max(score['MRA']), max(score['LR']), M)
 
-
+    pdb.set_trace()
     
 
     fig = plt.figure(figsize=(9, 3))
@@ -85,17 +85,17 @@ def plotScore(scoresDict, name):
             
         score = scoresDict[family]
         Tmax = score['MRA'].shape[0]
-        time = np.arange(3,Tmax)
+        time = np.arange(Tmax)
 
         ax = fig.add_subplot(1, 4, idx+1)
-        l1, = ax.plot(time, score['MRA'][3:], color="#500000", linestyle="solid", label="HV")
-        l2, = ax.plot(time, score['LR'][3:], color="black", linestyle=":", label="low-rank")
+        l1, = ax.plot(time, score['MRA'], color="#500000", linestyle="solid", label="HV")
+        l2, = ax.plot(time, score['LR'], color="black", linestyle=":", label="low-rank")
         ax.set_title(familyName)
         if(name=="dLS"):
-            ax.set_ylim(-10, 1.05*M)
+            ax.set_ylim(m, 1.05*M)
             l3 = ax.axhline(y=0, color="black", linestyle="dashed")
         elif(name=="RRMSPE"):
-            ax.set_ylim(0.95, 1.05*M)
+            ax.set_ylim(0.95*m, 1.05*M)
             l3 = ax.axhline(y=1.0, color="black", linestyle="dashed")
 
         if(idx==0):
@@ -123,6 +123,8 @@ for family in families:
 
     RRMSPE[family], LogSc[family] = readData(family)
 
+pdb.set_trace()
+    
 plotScore(RRMSPE, "RRMSPE")
 plotScore(LogSc, "dLS")
 

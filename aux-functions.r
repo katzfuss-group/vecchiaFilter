@@ -68,7 +68,7 @@ evolAdvDiff = function(state, adv=0, diff=0){
   else as.numeric(E %*% as.matrix(state))
 }
 
-
+  
 
 getX0 = function(N, Force, K, dt, dir = '~/HVLF/simulations-lorenz/'){
   
