@@ -96,7 +96,7 @@ spatial.dim = 2
 n = 960
 m = 50
 frac.obs = 0.01
-Tmax = 20
+Tmax = 3
 
 
 ## evolution function ##
@@ -104,13 +104,13 @@ Force = 10
 K = 32
 dt = 0.005
 M = 5
-b = 0.33
+b = 1
 evolFun = function(X) b*VEnKF::Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
 max.iter = 1
 
 
 ## covariance function
-sig2 = 1e-6
+sig2 = 1e-12
 range = .15; smooth = 1.5; 
 covparms = c(sig2,range,smooth)
 covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
@@ -134,7 +134,6 @@ mu = b*moments[["mu"]]
 #Sig0 = (b**2)*getCovariance(n, Force, dt, K) + diag(1e-10, n)
 x0 = b*getX0(n, Force, K, dt)
 Sigt = sig2*Sig0
-
 
 
 ## define Vecchia approximation

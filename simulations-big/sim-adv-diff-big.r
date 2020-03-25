@@ -1,5 +1,6 @@
 rm(list = ls())
 source("~/HVLF/aux-functions.r")
+source("~/HVLF/getMatCov.r")
 source("~/HVLF/scores.r")
 resultsDir = "~/HVLF/simulations-big"
 library(doParallel)
@@ -14,7 +15,7 @@ filter = function(approx.name, XY){
   cat(paste("filtering: t=1\n", sep = ""))
   cat("\tCalculate covariance elements from function: ")
   t0 = proc.time()
-  covmodel = GPvecchia::getMatCov(approx, covfun.d)
+  covmodel = getMatCov(approx, covfun.d)
   t1 = proc.time()
   cat(paste((t1 - t0)[3], "\n"))
   
@@ -58,7 +59,7 @@ filter = function(approx.name, XY){
       cat(paste((t1 - t0)[3], "\n"))
       cat("\t... from function: ")
       t0 = proc.time()
-      M2 = GPvecchia::getMatCov(approx, covfun.d)
+      M2 = getMatCov(approx, covfun.d)
       t1 = proc.time()
       cat(paste((t1 - t0)[3], "\n"))
       covmodel = M1 + M2
