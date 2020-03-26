@@ -1,6 +1,7 @@
 rm(list = ls())
 source("~/HVLF/aux-functions.r")
 source("~/HVLF/getMatCov.r")
+Rcpp::sourceCpp("~/HVLF/src/getMatCovFromFactor.cpp")
 source("~/HVLF/scores.r")
 resultsDir = "~/HVLF/simulations-big"
 library(doParallel)
@@ -54,7 +55,7 @@ filter = function(approx.name, XY){
       
       cat("\tCalculate covariance elements from factor: ")
       t0 = proc.time()
-      M1 = GPvecchia::getMatCov(approx, Matrix::t(Fmat), factor = TRUE)
+      M1 = getMatCov(approx, Matrix::t(Fmat), factor = TRUE)
       t1 = proc.time()
       cat(paste((t1 - t0)[3], "\n"))
       cat("\t... from function: ")
@@ -90,15 +91,15 @@ filter = function(approx.name, XY){
 
 ######### set parameters #########
 set.seed(1996)
-n = 50**2
-m = 10
+n = 300**2
+m = 100
 diffusion = 0.0000001
 advection = 0.001
 #diffusion = 0.00004
 #advection = 0.01
 frac.obs = 0.1
 Tmax = 2
-max.iter = 2
+max.iter = 1
 
 ## covariance parameters
 sig2 = 0.5; range = .15; smooth = 0.5; 
