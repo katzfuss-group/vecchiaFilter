@@ -5,7 +5,7 @@ getMatCov = function(V, covariances, factor=FALSE){
       L = methods::as(covariances, "CsparseMatrix")[V$ord, V$ord]
       NNarray = V$U.prep$revNNarray
       NNarray[is.na(NNarray)] = 0
-      M = getMatCovFromFactorCpp(L, NNarray)
+      M = getMatCovFromFactorCppOld(L, NNarray)
       M[ M==0 ] = NA
       return(M)
     } else {
@@ -22,27 +22,30 @@ getMatCov = function(V, covariances, factor=FALSE){
 
 
 getMatCovFromFunction = function(V, covfun){
+  
   revNNarray = V$U.prep$revNNarray
   rows = c()
   cols = c()
-  for(i in 1:nrow(revNNarray)){
-    r = revNNarray[i,];
-    newrows = rep(i, sum(!is.na(r)))
-    newcols = r[!is.na(r)]
-    rows = c(rows, newrows)
-    cols = c(cols, newcols)
-  }
-  n = nrow(V$locsord)
+  n = nrow(revNNarray)
+  m = ncol(revNNarray)-1
   
-  Sig.sel = matrix(rep(NA, length(revNNarray)), nrow=ncol(revNNarray))
-  inds_to_fill=which(!is.na(t(revNNarray)))
-
-  d = matrix(sqrt(rowSums((V$locsord[rows,] - V$locsord[cols,])**2)))
-  vals = as.numeric(covfun(d))
-
-  Sig.sel[inds_to_fill] = vals
-  Sig.sel = t(Sig.sel)
-  return(Sig.sel)
+  mats = list()
+  ndim = length(dim(V$locsord))
+  
+  mat.self = matrix(rep(1, n*(m+1)), ncol=m+1)
+  mat.self[is.na(revNNarray)] = NA
+  mat.self = Matrix::Diagonal(x=seq(n)) %*% mat.self
+  
+  for(d in 1:ndim){
+    parents = apply(revNNarray, 2, function(r) V$locsord[r,d])
+    self = apply(mat.self, 2, function(r) V$locsord[r,d])
+    D = (self - parents)**2
+    mats[[d]] = D
+  }
+  d = sqrt(Reduce("+", mats))
+  vals = covfun(d)
+  
+  return(vals)
 }
 
 

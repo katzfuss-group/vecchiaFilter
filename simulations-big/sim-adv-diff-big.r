@@ -55,6 +55,7 @@ filter = function(approx.name, XY){
       
       cat("\tCalculate covariance elements from factor: ")
       t0 = proc.time()
+      
       M1 = getMatCov(approx, Matrix::t(Fmat), factor = TRUE)
       t1 = proc.time()
       cat(paste((t1 - t0)[3], "\n"))
@@ -92,7 +93,7 @@ filter = function(approx.name, XY){
 ######### set parameters #########
 set.seed(1996)
 n = 300**2
-m = 100
+m = 50
 diffusion = 0.0000001
 advection = 0.001
 #diffusion = 0.00004
