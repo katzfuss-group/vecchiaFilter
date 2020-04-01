@@ -7,7 +7,8 @@ resultsDir = "simulations-lorenz"
 library(rootSolve)
 library(Matrix)
 library(GPvecchia)
-
+library(doParallel)
+registerDoParallel(cores=25)
 
 
 filter = function(approx.name, XY){
@@ -20,7 +21,7 @@ filter = function(approx.name, XY){
   preds = list()
   obs.aux = as.numeric(XY$y[[1]])
   covmodel = getMatCov(approx, Sig0)
-  mu.tt1 = mu#matrix(rep(0, nrow(XY$x[[1]])), ncol = 1)
+  mu.tt1 = mu
   
   preds.aux = calculate_posterior_VL( obs.aux, approx, prior_mean = mu.tt1,
                                       likelihood_model = data.model, covmodel = covmodel,
@@ -96,7 +97,7 @@ spatial.dim = 2
 n = 960
 m = 50
 frac.obs = 0.01
-Tmax = 3
+Tmax = 2
 
 
 ## evolution function ##
@@ -104,9 +105,9 @@ Force = 10
 K = 32
 dt = 0.005
 M = 5
-b = 1
+b = 0.33
 evolFun = function(X) b*VEnKF::Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
-max.iter = 1
+max.iter = 2
 
 
 ## covariance function
@@ -117,7 +118,7 @@ covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
 
 ## likelihood settings
-me.var = 1;
+me.var = (b**2)*1;
 data.model = "gauss"
 lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha = 6)
 
@@ -126,12 +127,11 @@ lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha = 6)
 grid.oneside = seq(0,1,length = round(n))
 locs = matrix(grid.oneside, ncol = 1)
 
+
 ## set initial state
 moments = getLRMuCovariance(n, Force, dt, K)
 Sig0 = (b**2)*moments[["Sigma"]] + diag(1e-10, n)
 mu = b*moments[["mu"]]
-#x0 = chol(Sig0) %*% matrix(rnorm(n), ncol=1) + mu
-#Sig0 = (b**2)*getCovariance(n, Force, dt, K) + diag(1e-10, n)
 x0 = b*getX0(n, Force, K, dt)
 Sigt = sig2*Sig0
 
@@ -144,60 +144,58 @@ approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
 RRMSPE = list(); LogSc = list()
-#foreach( iter=1:max.iter) %dopar% {
-for (iter in 1:max.iter) {
+foreach( iter=1:max.iter) %dopar% {
 
-  XY = simulate.xy(x0, evolFun, Sigt, frac.obs, lik.params, Tmax)
-  
-  cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
-  start = proc.time()
-  predsE = filter('exact', XY)
-  d = as.numeric(proc.time() - start)
-  cat(paste("Exact filtering took ", d[3], "s\n", sep = ""))
-  cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
-  start = proc.time()
-  predsMRA = filter('mra', XY)
-  d = as.numeric(proc.time() - start)
-  cat(paste("MRA filtering took ", d[3], "s\n", sep = ""))
-  cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
-  start = proc.time()
-  predsLR  = filter('low.rank', XY)
-  d = as.numeric(proc.time() - start)
-  cat(paste("Low-rank filtering took ", d[3], "s\n", sep = ""))
+    XY = simulate.xy(x0, evolFun, Sigt, frac.obs, lik.params, Tmax)
+    
+    cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
+    start = proc.time()
+    predsE = filter('exact', XY)
+    d = as.numeric(proc.time() - start)
+    cat(paste("Exact filtering took ", d[3], "s\n", sep = ""))
+    cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
+    start = proc.time()
+    predsMRA = filter('mra', XY)
+    d = as.numeric(proc.time() - start)
+    cat(paste("MRA filtering took ", d[3], "s\n", sep = ""))
+    cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
+    start = proc.time()
+    predsLR  = filter('low.rank', XY)
+    d = as.numeric(proc.time() - start)
+    cat(paste("Low-rank filtering took ", d[3], "s\n", sep = ""))
 
-  RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
-  LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
-  write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
-  write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
+    RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
+    LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
+    write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
+    write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
   
-  # data = list(XY = XY, predsMRA = predsMRA, predsE = predsE, predsLR = predsLR)
-  # save(data, file = paste(resultsDir, "/", data.model, "/sim.", iter, sep = ""))
+    #data = list(XY = XY, predsMRA = predsMRA, predsE = predsE, predsLR = predsLR)
+    #save(data, file = paste(resultsDir, "/", data.model, "/sim.", iter, sep = ""))
+    
+    ## plot results for the first iteration
+    if( iter==1 ){
+        for (t in 1:Tmax) {
+            if(t<10){
+                number = paste("0", t, sep="")  
+            } else {
+                number = t
+            }
+            pdf(paste(resultsDir, "/", data.model, "/lorenz-", number, ".pdf",sep=""), width=8, height=3.5)
+            zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm = TRUE)))))
+            nna.obs = which(!is.na(XY$y[[t]]))
+            
+            plot( NULL, type = "l", xlim = c(0, 1), ylim = zrange, col = "red", main = paste("t =", t), xlab = "", ylab = "")
+            ci.mra = getConfInt(predsMRA[[t]], 0.05)
+            polygon(c(rev(locs), locs), c(rev(ci.mra$ub), ci.mra$lb), col = 'grey80', border = NA)
+            lines(locs, XY$x[[t]], col = "red")
+            points( locs[nna.obs,], XY$y[[t]][nna.obs], pch = 16, col = "black")
+            
+            lines( locs, predsE[[t]]$state, type = "l", col = "black", lty = "dashed")
+            lines( locs, predsMRA[[t]]$state, type = "l", col = "#500000")
+            lines( locs, predsLR[[t]]$state, type = "l", col = "black", lty = "dotted")
+            dev.off()
+        }
+    }
 }
 
-print(LogSc)
-print(RRMSPE)
 
-
-######### plot results ##########
-for (t in 1:Tmax) {
-  if(t<10){
-    number = paste("0", t, sep="")  
-  } else {
-    number = t
-  }
-  pdf(paste(resultsDir, "/", data.model, "/", number, ".pdf",sep=""), width=16, height=9)
-  zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm = TRUE)))))
-  #zrange = range( unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE))) )
-  nna.obs = which(!is.na(XY$y[[t]]))
-  
-  plot( NULL, type = "l", xlim = c(0, 1), ylim = zrange, col = "red", main = paste("t =", t), xlab = "locations", ylab = "")
-  ci.mra = getConfInt(predsMRA[[t]], 0.05)
-  polygon(c(rev(locs), locs), c(rev(ci.mra$ub), ci.mra$lb), col = 'grey80', border = NA)
-  lines(locs, XY$x[[t]], col = "red")
-  points( locs[nna.obs,], XY$y[[t]][nna.obs], pch = 16, col = "black")
-  
-  lines( locs, predsE[[t]]$state, type = "l", col = "black", lty = "dashed")
-  lines( locs, predsMRA[[t]]$state, type = "l", col = "#500000")
-  lines( locs, predsLR[[t]]$state, type = "l", col = "black", lty = "dotted")
-  dev.off()
-}
