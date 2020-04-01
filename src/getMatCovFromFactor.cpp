@@ -48,8 +48,12 @@ arma::mat getMatCovFromFactorCpp(S4 F, arma::Mat<arma::uword> revNNarray){
   
   arma::mat sigSel = arma::zeros<arma::mat>(revNNarray.n_rows, revNNarray.n_cols);
   
-  for( uword i = 0; i < revNNarray.n_rows; i++ ){
-    for( uword j = 0; j < revNNarray.n_cols; j++ ){
+  
+  
+  
+  
+  for( uword j = 0; j < revNNarray.n_rows; j++ ){
+    for( uword i = 0; i < revNNarray.n_cols; i++ ){
       if( revNNarray(i, j) > 0 ){
         sigSel(i, j) = multiply(p, inds, x, i, revNNarray(i,j) - 1);
       }
@@ -60,23 +64,27 @@ arma::mat getMatCovFromFactorCpp(S4 F, arma::Mat<arma::uword> revNNarray){
   return sigSel;
 }
 
+
 // [[Rcpp::export]]
-arma::mat getMatCovFromFactorCppOld(arma::sp_mat F, arma::umat revNNarray){
+arma::mat getMatCovFromFactorCppOld(const arma::sp_mat F, const arma::umat revNNarray){
   
   arma::mat sigSel = arma::zeros<arma::mat>(revNNarray.n_rows, revNNarray.n_cols);
   
-  for(int i=0; i < revNNarray.n_rows; i++) {
+  for(uword i=0; i < revNNarray.n_rows; i++) {
     
-    arma::uvec r = revNNarray.row( i ).t();
+    arma::uvec r = revNNarray.row( i );
     arma::uvec inds = find( r );
     arma::uvec cols = r.elem( inds ) - 1;
     arma::sp_mat thisCol = F.col( i ).t();
     
-    for(int colnum=0; colnum<cols.n_rows; colnum++){
+    for(uword colnum=0; colnum<cols.n_rows; colnum++){
       arma::sp_mat cl = F.col( cols(colnum) ); 
       arma::sp_mat val = thisCol * cl;
       sigSel( i, inds(colnum) ) = val( 0, 0 );
     }
+    
+    
+    
   }
   return sigSel;
 }
