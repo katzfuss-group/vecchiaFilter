@@ -3,3 +3,8 @@
 /documents/*
 simulations-lorenz/Lorenz*
 simulations-lorenz/init_Lorenz*
+poisson/
+logistic/
+gamma/
+gauss/
+
