@@ -7,4 +7,4 @@ poisson/
 logistic/
 gamma/
 gauss/
-
+*.log
