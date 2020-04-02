@@ -72,12 +72,13 @@ arma::mat getMatCovFromFactorCppOld(const arma::sp_mat F, const arma::umat revNN
   
   for(uword i=0; i < revNNarray.n_rows; i++) {
     
-    arma::uvec r = revNNarray.row( i );
+    arma::uvec r = revNNarray.row( i ).t();
     arma::uvec inds = find( r );
     arma::uvec cols = r.elem( inds ) - 1;
     arma::sp_mat thisCol = F.col( i ).t();
     
     for(uword colnum=0; colnum<cols.n_rows; colnum++){
+      
       arma::sp_mat cl = F.col( cols(colnum) ); 
       arma::sp_mat val = thisCol * cl;
       sigSel( i, inds(colnum) ) = val( 0, 0 );
