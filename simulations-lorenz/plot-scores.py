@@ -14,15 +14,9 @@ def readData( family ):
 
     RRMSPE = {"MRA" : 0, "LR" : 0}
     LogSc = {"MRA" : 0, "LR" : 0}
-
+    
     count = 0
     while( os.path.exists( RRMSPEfile ) ):
-
-        if it in [5, 16, 21, 22, 81, 110, 36] + list(range(3)):
-            it += 1
-            RRMSPEfile = os.path.join(family, "RRMSPE." + str(it))
-            LogScfile  = os.path.join(family, "LogSc."  + str(it))
-            continue
 
         count += 1
         with open(RRMSPEfile, "r") as ipFile:
@@ -38,9 +32,6 @@ def readData( family ):
             scores = [l.strip().split(',')[1:] for l in ipFile.readlines()][2:]
             MRA = np.array([float(score[1]) for score in scores])
             LR = np.array([float(score[2]) for score in scores])
-
-            #if(np.any(LR>1e6)):
-            #    pdb.set_trace()
 
         mmax = max(max(abs(LR)), max(abs(MRA)))
         if mmax>1e4:
@@ -67,10 +58,8 @@ def plotScore(scoresDict, name):
         try:
             m = min(min(score['MRA']), min(score['LR']), m)
         except:
-            pdb.set_trace()
+            print("something is wrong with the score format")
         M = max(max(score['MRA']), max(score['LR']), M)
-
-    pdb.set_trace()
     
 
     fig = plt.figure(figsize=(9, 3))
@@ -123,8 +112,6 @@ for family in families:
 
     RRMSPE[family], LogSc[family] = readData(family)
 
-pdb.set_trace()
-    
 plotScore(RRMSPE, "RRMSPE")
 plotScore(LogSc, "dLS")
 
