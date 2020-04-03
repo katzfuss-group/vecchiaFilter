@@ -97,7 +97,7 @@ spatial.dim = 2
 n = 960
 m = 50
 frac.obs = 0.01
-Tmax = 2
+Tmax = 20
 
 
 ## evolution function ##
@@ -107,7 +107,7 @@ dt = 0.005
 M = 5
 b = 0.33
 evolFun = function(X) b*VEnKF::Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
-max.iter = 2
+max.iter = 100
 
 
 ## covariance function
@@ -119,7 +119,7 @@ covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
 ## likelihood settings
 me.var = (b**2)*1;
-data.model = "gauss"
+data.model = "poisson"
 lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha = 6)
 
 
