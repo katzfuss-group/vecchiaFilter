@@ -37,9 +37,9 @@ filter = function(approx.name, XY){
       obs.aux = as.numeric(XY$y[[t]])
       
       forecast = evolFun(mu.tt)
-      Fmat = evolFun(L.tt) 
-      covmodel = GPvecchia::getMatCov(approx, Fmat %*% Matrix::t(Fmat) + Q)
-    
+      Fmat = evolFun(L.tt)
+      M = as.matrix(Fmat %*% Matrix::t(Fmat) + Q)
+      covmodel = GPvecchia::getMatCov(approx, M)
       preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
                                                   likelihood_model = data.model, covmodel = covmodel,
                                                   covparms = covparms, likparms = lik.params, return_all = TRUE)
@@ -79,11 +79,12 @@ covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 ## likelihood settings
 me.var = 0.25;
 args = commandArgs(trailingOnly = TRUE)
-if (length(args) != 1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))) {
-    stop("One of the models has to be passed as argument")
-} else {
-    data.model = args[1]
-}
+# if (length(args) != 1 || !(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))) {
+#     stop("One of the models has to be passed as argument")
+# } else {
+#     data.model = args[1]
+# }
+data.model = 'gauss'
 lik.params = list(data.model = data.model, me.var = me.var)
 
 
@@ -125,8 +126,8 @@ for (iter in 1:max.iter) {
     write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
     write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
 
-    data = list(XY = XY, predsMRA = predsMRA, predsE = predsE, predsLR = predsLR)
-    save(data, file = paste(resultsDir, "/", data.model, "/sim.", iter, sep = ""))
+    #data = list(XY = XY, predsMRA = predsMRA, predsE = predsE, predsLR = predsLR)
+    #save(data, file = paste(resultsDir, "/", data.model, "/sim.", iter, sep = ""))
     
     print(RRMSPE)
 }
