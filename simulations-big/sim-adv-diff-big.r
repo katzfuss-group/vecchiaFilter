@@ -1,11 +1,61 @@
-rm(list = ls())
-source("~/HVLF/aux-functions.r")
-source("~/HVLF/getMatCov.r")
-Rcpp::sourceCpp("~/HVLF/src/getMatCovFromFactor.cpp")
-source("~/HVLF/scores.r")
-resultsDir = "~/HVLF/simulations-big"
-library(doParallel)
-registerDoParallel(cores=25)
+## define the temporal evolution function
+evolAdvDiff = function(state, adv=0, diff=0){
+  
+  # we assume that there is the same number of grid points
+  # along each dimension
+  N = dim(as.matrix(state))[1]
+  Ny = Nx = sqrt(N)
+  
+  dx = dy = 1/Nx
+  d = diff/(dx**2)
+  
+  c1 = 1 + 2*(d + d) - adv*(1/dx + 1/dy)
+  c2 = - d + adv*(1/dy)
+  c3 = - d
+  
+  diags = list(rep(c2, N-Nx), rep(c2, N-1), rep(c1, N), rep(c3, N-1), rep(c3,N-Nx) )
+  E = Matrix::bandSparse(N, k=c(-Nx, -1, 0, 1, Nx), diag=diags)
+
+  if (class(state) == 'matrix' || methods::is(state, 'sparseMatrix')){
+    return( E %*% state )
+  } else {
+    return( as.numeric(E %*% as.matrix(state)) )
+  }
+    
+  #if(class(state)=='matrix' || class(state)=='dgCMatrix') return( E %*% state )
+  #else as.numeric(E %*% as.matrix(state))
+}
+
+
+
+filter.old = function(approx.name, XY){
+  
+  approx = approximations[[approx.name]]
+  
+  preds = list()
+  L.tt = getL00(approx, Sig0, locs)
+  mu.tt = x0
+  preds[[1]] = list(state=x0, L = L.tt)
+
+  for(t in 2:Tmax){
+
+      #cat(paste("\tfiltering: t=",t, "\n", sep=""))
+      obs.aux = as.numeric(XY$y[[t]])
+      
+      forecast = evolFun(mu.tt)
+      Fmat = evolFun(L.tt)
+      M = as.matrix(Fmat %*% Matrix::t(Fmat) + Q)
+      covmodel = GPvecchia::getMatCov(approx, M)
+      preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
+                                                  likelihood_model = data.model, covmodel = covmodel,
+                                                  covparms = covparms, likparms = lik.params, return_all = TRUE)
+      L.tt = getLtt(approx, preds.aux)
+      mu.tt = matrix(preds.aux$mean, ncol=1)
+      preds[[t]] = list(state=mu.tt, W = preds.aux$W)
+  }
+  return( preds )
+}
+
 
 
 ########## filtering ##########
@@ -79,7 +129,7 @@ filter = function(approx.name, XY){
       L.tt = getLtt(approx, preds.aux.vl)
       cat("\t\textract mean vector\n")
       mu.tt = matrix(preds.aux.vl$mean, ncol = 1)
-      
+
       preds[[t]] = list(state = mu.tt, L = L.tt)
       
     }
@@ -90,27 +140,42 @@ filter = function(approx.name, XY){
 
 
 
+
+
+
+setwd("~/HVLF")
+source('aux-functions.r')
+source('getMatCov.r')
+Rcpp::sourceCpp('src/getMatCovFromFactor.cpp')
+source('scores.r')
+resultsDir = "simulations-linear"
+library(doParallel)
+library(Matrix)
+registerDoParallel(cores = 5)
+
 ######### set parameters #########
-set.seed(1996)
-n = 300**2
+set.seed(1988)
+spatial.dim = 2
+n = 100**2
 m = 50
+frac.obs = 0.1
+Tmax = 20
 diffusion = 0.0000001
 advection = 0.001
 #diffusion = 0.00004
 #advection = 0.01
-frac.obs = 0.1
-Tmax = 2
+evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
 max.iter = 1
 
 ## covariance parameters
-sig2 = 0.5; range = .15; smooth = 0.5; 
+sig2 = 1.0; range = .15; smooth = 0.5; 
 covparms = c(sig2,range,smooth)
+covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
-covfun <- function(locs) covfun.d(fields::rdist(locs))
 
 
 ## likelihood settings
-me.var = 1e-8;
+me.var = 0.25;
 args = commandArgs(trailingOnly = TRUE)
 if (length(args) == 1) {
   if (!(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))) {
@@ -121,60 +186,47 @@ if (length(args) == 1) {
 } else {
   data.model = "gauss"  
 }
-
-lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha = 2)
-
-
+lik.params = list(data.model = data.model, me.var = me.var)
 
 
 ## generate grid of pred.locs
-grid = seq(0,1,length = sqrt(n))
-locs = as.matrix(expand.grid(grid,grid)) 
+grid.oneside = seq(0,1,length = round(sqrt(n)))
+locs = as.matrix(expand.grid(grid.oneside,grid.oneside)) 
+save(locs, file = paste(resultsDir, "/locs", sep = ""))
+
 
 ## set initial state
-#Q = covfun(locs)
-x0 = matrix(sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
-                                   x = locs[,1], y = locs[,2], spConform = FALSE), ncol = 1)
-evolFun = function(x) evolAdvDiff(x, diff = diffusion, adv = advection)
+Q = covfun(locs)
+Sig0 = (1/sig2)*covfun(locs)
+x0 = t(chol(Sig0)) %*% Matrix::Matrix(rnorm(n), ncol = 1); 
 
 
 ## define Vecchia approximation
-mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra')
-low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, conditioning = 'firstm')
+#exact = GPvecchia::vecchia_specify(locs, n - 1, conditioning = 'firstm', verbose = TRUE)
+mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra', verbose = TRUE)
+low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, conditioning = 'firstm', verbose = TRUE)
 approximations = list(mra = mra, low.rank = low.rank)#, exact = exact)
 
 
 RRMSPE = list(); LogSc = list()
-
 #foreach( iter=1:max.iter) %dopar% {
 for (iter in 1:max.iter) {  
-  
-    XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
-    
+
+    XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
+
+    #cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
+    #predsE = filter('exact', XY)
     cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
     predsMRA = filter('mra', XY)
     cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
     predsLR  = filter('low.rank', XY)
-   
+    
     RMSPE = calculateRMSPE(predsMRA, predsLR, XY$x)
+  
+    write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
+
+    #data = list(XY = XY, predsMRA = predsMRA, predsE = predsE, predsLR = predsLR)
+    #save(data, file = paste(resultsDir, "/", data.model, "/sim.", iter, sep = ""))
     
-    write.csv(RMSPE, file = paste(resultsDir, "/", data.model, "/RMSPE.", iter, sep=""))
-    
-    m = M = 0
-    for (t in 1:Tmax) {
-                                        
-        zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE))), unlist(lapply(XY$y, function(t) range(t, na.rm=TRUE)))))
-        m = min(m, zrange[1])
-        M = max(M, zrange[2])
-    }
-    for (t in 1:Tmax) {
-        #pdf(paste("~/HVLF/simulations-big/", data.model, "/", t, ".pdf", sep=""))
-        defpar = par(mfrow = c(1, 3), oma = c(0, 0, 2, 0))
-        nna.obs = which(!is.na(XY$y[[t]]))
-        fields::quilt.plot( locs[nna.obs,], XY$y[[t]][nna.obs], zlim = c(m, M), nx = sqrt(n), ny = sqrt(n), main = "obs" )
-        fields::quilt.plot( locs, as.numeric(XY$x[[t]]), zlim = c(m, M), nx = sqrt(n), ny = sqrt(n), main = "truth" )
-        fields::quilt.plot( locs, predsMRA[[t]]$state, zlim = zrange, nx = sqrt(n), ny = sqrt(n), main = "prediction" )
-        par(defpar)
-        #dev.off()
-    }
+    print(RMSPE)
 }
