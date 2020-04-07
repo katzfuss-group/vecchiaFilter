@@ -18,6 +18,7 @@ getL00 = function(vecchia.approx, covfun, locs){
 
 
 getLtt = function(vecchia.approx, preds){
+  n = nrow(vecchia.approx$locsord)
   orig.order=order(vecchia.approx$ord)
   V = preds$V
   L.tt = (Matrix::solve(Matrix::t(V), sparse=TRUE)[seq(n, 1), ])[orig.order,]
@@ -27,34 +28,51 @@ getLtt = function(vecchia.approx, preds){
 
 
 
+getConfInt = function(preds, alpha){
+  
+  D = Matrix::diag(Matrix::solve(preds$W))
+  mu = preds$state
+  z = qnorm(1 - alpha/2)
+  #browser()
+  ub = mu + z*sqrt(D)
+  lb = mu - z*sqrt(D)
+  
+  return(list(ub = ub, lb = lb))
+}
+
+
+
+
 
 ######### simulate and plot the data #########
 ## define the temporal evolution function
-evol = function(state, adv=0, diff=0){
+evolAdvDiff = function(state, adv=0, diff=0){
   # we assume that there is the same number of grid points
   # along each dimension
   
-  N = dim(as.matrix(state))[1]
+  N = dim(state)[1]
   Ny = Nx = sqrt(N)
   
   dx = dy = 1/Nx
   d = diff/(dx**2)
-
   
   c1 = 1 + 2*(d + d) - adv*(1/dx + 1/dy)
-  c2 = - d + advection*(1/dy)
+  c2 = - d + adv*(1/dy)
   c3 = - d
   
   diags = list(rep(c2, N-Nx), rep(c2, N-1), rep(c1, N), rep(c3, N-1), rep(c3,N-Nx) )
   E = Matrix::bandSparse(N, k=c(-Nx, -1, 0, 1, Nx), diag=diags)
   
-  if(class(state)=='matrix' || class(state)=='dgCMatrix') return( E %*% state )
-  else as.numeric(E %*% as.matrix(state))
+  if (class(state) == 'matrix' || methods::is(state, 'sparseMatrix')){
+    return( E %*% state )
+  } else {
+    return( as.numeric(E %*% as.matrix(state)) )
+  }
 }
 
+  
 
-
-getX0 = function(N, Force, K, dt, dir = '~/HVLF/models/'){
+getX0 = function(N, Force, K, dt, dir = '~/HVLF/simulations-lorenz/'){
   
   fileName = paste("init_Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep="_")
   filePath = paste(dir, fileName, sep="")
@@ -95,6 +113,7 @@ diffAdvVec2d = function(nx, ny=nx, height=1, rnge=4){
 ## simulate y given x 
 simulate.y = function(x, frac.obs, lik.params){
   
+  n = nrow(x)
   n.obs = round(n*frac.obs)
   obs.inds = sample(1:n, n.obs, replace = FALSE)
   data.model = lik.params["data.model"]
@@ -107,8 +126,8 @@ simulate.y = function(x, frac.obs, lik.params){
     #default_lh_params = list("alpha"=2, "sigma"=sqrt(.1), "beta"=.9, "phi"=1.5)
     #z = rgamma(n.obs, shape = default_lh_params$alpha, rate = default_lh_params$alpha*exp(-y[obs.inds]))
     y.obs = rgamma(n.obs, shape = lik.params[["alpha"]], rate = lik.params[["alpha"]]*exp(-x[obs.inds]))
-  } else if(data.model=='gauss'){
-    y.obs = rnorm(n.obs, mean=x[obs.inds], sd=sqrt(lik.params[["me.var"]]))
+  } else if(data.model == 'gauss'){
+    y.obs = rnorm(n.obs, mean = x[obs.inds], sd=lik.params[["sigma"]])
   } else {
     print('Error: Distribution not implemented yet.')
   }
@@ -121,22 +140,36 @@ simulate.y = function(x, frac.obs, lik.params){
 
 
 ## simulate x
-simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL){
+simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL, sig2=1, smooth = 0.5, range = 1, locs = NULL){
   
-  if(!is.null(seed)) set.seed(seed)
-  n=nrow(x0);
+  if (!is.null(seed)) set.seed(seed)
+  n = nrow(x0);
   x = list(); y = list()
   x[[1]] = x0
   y[[1]] = simulate.y(x0, frac.obs, lik.params)
   
-  if(Tmax>1){
-    Qc = chol(Q)
+  if (Tmax > 1) { 
     
-    for(t in 2:Tmax){
-      x[[t]] = E(x[[t-1]]) + t(Qc) %*% matrix(rnorm(n), ncol=1)
+    if (!is.null(Q) && any(Q)) {
+      Qc = Matrix::chol(Q)
+    } 
+    
+    for (t in 2:Tmax) {
+      if (sig2 > 0 || (!is.null(Q) && sum(abs(Q))>0)) {
+        if (!is.null(Q)) {
+          w =  t(Qc) %*% matrix(rnorm(n), ncol = 1)
+        } else {
+          w = matrix(sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
+                                            x = locs[,1], y = locs[,2], spConform = FALSE), ncol=1)
+        } 
+      } else {
+        w = matrix(rep(0, n), ncol=1)
+      }
+      
+      x[[t]] = E(x[[t - 1]]) + w
       y[[t]] = simulate.y(x[[t]], frac.obs, lik.params)
     } 
   }
   
-  return(list(x=x, y=y))
+  return(list(x = x, y = y))
 }
