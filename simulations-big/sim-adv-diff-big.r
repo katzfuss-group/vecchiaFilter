@@ -156,7 +156,7 @@ registerDoParallel(cores = 5)
 ######### set parameters #########
 set.seed(1988)
 spatial.dim = 2
-n = 100**2
+n = 300**2
 m = 50
 frac.obs = 0.1
 Tmax = 20
@@ -168,7 +168,7 @@ evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
 max.iter = 1
 
 ## covariance parameters
-sig2 = 1.0; range = .15; smooth = 0.5; 
+sig2 = 0.5; range = .15; smooth = 0.5; 
 covparms = c(sig2,range,smooth)
 covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
@@ -186,7 +186,7 @@ if (length(args) == 1) {
 } else {
   data.model = "gauss"  
 }
-lik.params = list(data.model = data.model, me.var = me.var)
+lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha=2)
 
 
 ## generate grid of pred.locs
@@ -196,9 +196,11 @@ save(locs, file = paste(resultsDir, "/locs", sep = ""))
 
 
 ## set initial state
-Q = covfun(locs)
-Sig0 = (1/sig2)*covfun(locs)
-x0 = t(chol(Sig0)) %*% Matrix::Matrix(rnorm(n), ncol = 1); 
+#Q = covfun(locs)
+#Sig0 = (1/sig2)*covfun(locs)
+#x0 = t(chol(Sig0)) %*% Matrix::Matrix(rnorm(n), ncol = 1); 
+x0 = matrix(sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
+                                          x = locs[,1], y = locs[,2], spConform = FALSE), ncol = 1)
 
 
 ## define Vecchia approximation
@@ -212,8 +214,8 @@ RRMSPE = list(); LogSc = list()
 #foreach( iter=1:max.iter) %dopar% {
 for (iter in 1:max.iter) {  
 
-    XY = simulate.xy(x0, evolFun, Q, frac.obs, lik.params, Tmax)
-
+    XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
+    
     #cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
     #predsE = filter('exact', XY)
     cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
