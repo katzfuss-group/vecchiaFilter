@@ -148,15 +148,15 @@ source('aux-functions.r')
 source('getMatCov.r')
 Rcpp::sourceCpp('src/getMatCovFromFactor.cpp')
 source('scores.r')
-resultsDir = "simulations-linear"
+resultsDir = "simulations-big"
 library(doParallel)
 library(Matrix)
-registerDoParallel(cores = 5)
+registerDoParallel(cores = 25)
 
 ######### set parameters #########
 set.seed(1988)
 spatial.dim = 2
-n = 300**2
+n = 100**2
 m = 50
 frac.obs = 0.1
 Tmax = 20
@@ -165,7 +165,7 @@ advection = 0.001
 #diffusion = 0.00004
 #advection = 0.01
 evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
-max.iter = 1
+max.iter = 25
 
 ## covariance parameters
 sig2 = 0.5; range = .15; smooth = 0.5; 
@@ -210,9 +210,9 @@ low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, con
 approximations = list(mra = mra, low.rank = low.rank)#, exact = exact)
 
 
-RRMSPE = list(); LogSc = list()
-#foreach( iter=1:max.iter) %dopar% {
-for (iter in 1:max.iter) {  
+RMSPE = list(); LogSc = list()
+foreach( iter=1:max.iter) %dopar% {
+#for (iter in 1:max.iter) {  
 
     XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
     
@@ -224,8 +224,8 @@ for (iter in 1:max.iter) {
     predsLR  = filter('low.rank', XY)
     
     RMSPE = calculateRMSPE(predsMRA, predsLR, XY$x)
-  
-    write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
+
+    write.csv(RMSPE, file = paste(resultsDir, "/", data.model, "/RMSPE.", iter, sep = ""))
 
     #data = list(XY = XY, predsMRA = predsMRA, predsE = predsE, predsLR = predsLR)
     #save(data, file = paste(resultsDir, "/", data.model, "/sim.", iter, sep = ""))
