@@ -9,35 +9,29 @@ def readData( family ):
 
     it = 1
     
-    RRMSPEfile = os.path.join(family, "RMSPE." + str(it))
+    RMSPEfile = os.path.join(family, "RMSPE." + str(it))
 
-    RRMSPE = {"MRA" : 0, "LR" : 0}
+    RMSPE = {"MRA" : 0, "LR" : 0}
 
     count = 0
 
-    while( os.path.exists( RRMSPEfile ) ):
-
-
-        #if it in [47, 66, 17, 16, 87] + list(range(15)):
-        #    it += 1
-        #    RRMSPEfile = os.path.join(family, "RRMSPE." + str(it))
-        #    continue
+    while( os.path.exists( RMSPEfile ) ):
 
         count += 1
-        with open(RRMSPEfile, "r") as ipFile:
+        with open(RMSPEfile, "r") as ipFile:
             scores = [l.strip().split(',')[1:] for l in ipFile.readlines()][2:]
             MRA = np.array([float(score[1]) for score in scores])
             LR = np.array([float(score[2]) for score in scores])
 
 
-        RRMSPE["MRA"] = RRMSPE["MRA"]*(count-1)/count + MRA/count
-        RRMSPE["LR"] = RRMSPE["LR"]*(count-1)/count + LR/count
+        RMSPE["MRA"] = RMSPE["MRA"]*(count-1)/count + MRA/count
+        RMSPE["LR"] = RMSPE["LR"]*(count-1)/count + LR/count
 
         it += 1
-        RRMSPEfile = os.path.join(family, "RRMSPE." + str(it))
+        RMSPEfile = os.path.join(family, "RMSPE." + str(it))
 
 
-    return RRMSPE
+    return RMSPE
 
 
 
@@ -95,13 +89,12 @@ def plotScore(scoresDict, name):
 os.chdir("/home/marcin/HVLF/simulations-big")
 
 families = ["gauss", "logistic", "poisson", "gamma"]
-RRMSPE = {}
-LogSc = {}
+RMSPE = {}
 
 for family in families:
 
-    RRMSPE[family] = readData(family)
+    RMSPE[family] = readData(family)
 
-plotScore(RRMSPE, "RRMSPE")
+plotScore(RMSPE, "RMSPE")
 
 
