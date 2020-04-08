@@ -22,39 +22,8 @@ evolAdvDiff = function(state, adv=0, diff=0){
     return( as.numeric(E %*% as.matrix(state)) )
   }
     
-  #if(class(state)=='matrix' || class(state)=='dgCMatrix') return( E %*% state )
-  #else as.numeric(E %*% as.matrix(state))
 }
 
-
-
-filter.old = function(approx.name, XY){
-  
-  approx = approximations[[approx.name]]
-  
-  preds = list()
-  L.tt = getL00(approx, Sig0, locs)
-  mu.tt = x0
-  preds[[1]] = list(state=x0, L = L.tt)
-
-  for(t in 2:Tmax){
-
-      #cat(paste("\tfiltering: t=",t, "\n", sep=""))
-      obs.aux = as.numeric(XY$y[[t]])
-      
-      forecast = evolFun(mu.tt)
-      Fmat = evolFun(L.tt)
-      M = as.matrix(Fmat %*% Matrix::t(Fmat) + Q)
-      covmodel = GPvecchia::getMatCov(approx, M)
-      preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
-                                                  likelihood_model = data.model, covmodel = covmodel,
-                                                  covparms = covparms, likparms = lik.params, return_all = TRUE)
-      L.tt = getLtt(approx, preds.aux)
-      mu.tt = matrix(preds.aux$mean, ncol=1)
-      preds[[t]] = list(state=mu.tt, W = preds.aux$W)
-  }
-  return( preds )
-}
 
 
 
@@ -100,7 +69,6 @@ filter = function(approx.name, XY){
       cat("\t\tmultpily E by L\n")
       Fmat = E %*% L.tt
       t1 = proc.time()
-      #cat(paste((t1 - t0)[3], "\n"))
       
       
       cat("\tCalculate covariance elements from factor: ")
@@ -165,17 +133,17 @@ advection = 0.001
 #diffusion = 0.00004
 #advection = 0.01
 evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
-max.iter = 25
+max.iter = 1
 
 ## covariance parameters
-sig2 = 0.5; range = .15; smooth = 0.5; 
+sig2 = 0.2; range = .15; smooth = 0.5; 
 covparms = c(sig2,range,smooth)
 covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
 
 
 ## likelihood settings
-me.var = 0.25;
+me.var = 0.1;
 args = commandArgs(trailingOnly = TRUE)
 if (length(args) == 1) {
   if (!(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))) {
@@ -196,28 +164,22 @@ save(locs, file = paste(resultsDir, "/locs", sep = ""))
 
 
 ## set initial state
-#Q = covfun(locs)
-#Sig0 = (1/sig2)*covfun(locs)
-#x0 = t(chol(Sig0)) %*% Matrix::Matrix(rnorm(n), ncol = 1); 
 x0 = matrix(sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
                                           x = locs[,1], y = locs[,2], spConform = FALSE), ncol = 1)
 
 
 ## define Vecchia approximation
-#exact = GPvecchia::vecchia_specify(locs, n - 1, conditioning = 'firstm', verbose = TRUE)
 mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra', verbose = TRUE)
 low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, conditioning = 'firstm', verbose = TRUE)
-approximations = list(mra = mra, low.rank = low.rank)#, exact = exact)
+approximations = list(mra = mra, low.rank = low.rank)
 
 
 RMSPE = list(); LogSc = list()
-foreach( iter=1:max.iter) %dopar% {
-#for (iter in 1:max.iter) {  
+#foreach( iter=1:max.iter) %dopar% {
+for (iter in 1:max.iter) {  
 
     XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
     
-    #cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
-    #predsE = filter('exact', XY)
     cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
     predsMRA = filter('mra', XY)
     cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
@@ -226,9 +188,34 @@ foreach( iter=1:max.iter) %dopar% {
     RMSPE = calculateRMSPE(predsMRA, predsLR, XY$x)
 
     write.csv(RMSPE, file = paste(resultsDir, "/", data.model, "/RMSPE.", iter, sep = ""))
-
-    #data = list(XY = XY, predsMRA = predsMRA, predsE = predsE, predsLR = predsLR)
-    #save(data, file = paste(resultsDir, "/", data.model, "/sim.", iter, sep = ""))
     
     print(RMSPE)
+
+    m = M = 0
+    for (t in 1:Tmax) {
+        zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE)))))
+        m = min(m, zrange[1])
+        M = max(M, zrange[2])
+    }
+    for (t in 1:Tmax) {
+
+        if(t<10){
+            number = paste("0", t, sep="")  
+        } else {
+            number = t
+        }
+        pdf(paste(resultsDir, "/", data.model, "/", number, ".pdf",sep=""), width=8, height=8)
+        defpar = par(mfrow = c(2, 2), mar = c(2, 2, 2, 2), oma = c(0, 0, 0, 0))
+        nna.obs = which(!is.na(XY$y[[t]]))
+        fields::quilt.plot( locs[nna.obs,], XY$y[[t]][nna.obs], nx = sqrt(n), ny = sqrt(n), main = "obs" )
+        fields::quilt.plot( locs, as.numeric(XY$x[[t]]), zlim = c(m, M), nx = sqrt(n), ny = sqrt(n), main = "truth" )
+        fields::quilt.plot( locs, predsMRA[[t]]$state, zlim = zrange, nx = sqrt(n), ny = sqrt(n), main = "prediction MRA" )
+        fields::quilt.plot( locs, predsLR[[t]]$state, zlim = zrange, nx = sqrt(n), ny = sqrt(n), main = "prediction LR" )
+        par(defpar)
+        dev.off()
+    }
+
+    
 }
+
+
