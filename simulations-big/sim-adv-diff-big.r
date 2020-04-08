@@ -124,7 +124,7 @@ registerDoParallel(cores = 25)
 ######### set parameters #########
 set.seed(1988)
 spatial.dim = 2
-n = 100**2
+n = 300**2
 m = 50
 frac.obs = 0.1
 Tmax = 20
@@ -133,7 +133,7 @@ advection = 0.001
 #diffusion = 0.00004
 #advection = 0.01
 evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
-max.iter = 1
+max.iter = 25
 
 ## covariance parameters
 sig2 = 0.2; range = .15; smooth = 0.5; 
@@ -143,7 +143,7 @@ covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
 
 
 ## likelihood settings
-me.var = 0.1;
+me.var = 0.05;
 args = commandArgs(trailingOnly = TRUE)
 if (length(args) == 1) {
   if (!(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))) {
@@ -164,7 +164,7 @@ save(locs, file = paste(resultsDir, "/locs", sep = ""))
 
 
 ## set initial state
-x0 = matrix(sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
+x0 = matrix(0.5*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
                                           x = locs[,1], y = locs[,2], spConform = FALSE), ncol = 1)
 
 
@@ -176,7 +176,7 @@ approximations = list(mra = mra, low.rank = low.rank)
 
 RMSPE = list(); LogSc = list()
 #foreach( iter=1:max.iter) %dopar% {
-for (iter in 1:max.iter) {  
+#for (iter in 1:max.iter) {  
 
     XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
     
