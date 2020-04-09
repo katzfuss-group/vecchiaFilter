@@ -14,21 +14,36 @@ filter = function(approx.name, XY){
   
   approx = approximations[[approx.name]]
   
-  preds = list()
-  L.tt = getL00(approx, Sig0, locs)
-  mu.tt = x0
-  preds[[1]] = list(state = x0, L = L.tt)
+  MSigt = GPvecchia::getMatCov(approx, as.matrix(Sigt))
   
+  Tmax = length(XY$x)
+  preds = list()
+  obs.aux = as.numeric(XY$y[[1]])
+  covmodel = GPvecchia::getMatCov(approx, as.matrix(Sig0))
+  mu.tt1 = mu
+  
+  preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = mu.tt1,
+                                      likelihood_model = data.model, covmodel = covmodel,
+                                      covparms = covparms, likparms = lik.params, return_all = TRUE)
+  
+  L.tt  = getLtt(approx, preds.aux)
+  mu.tt = matrix(preds.aux$mean, ncol = 1)
+  preds[[1]] = list(state = mu.tt, W = preds.aux$W, V = preds.aux$V)
+  
+  if (Tmax == 1) { 
+    return( preds )
+  } 
+    
   for (t in 2:Tmax) {
     
-    #cat(paste("\tfiltering: t=",t, "\n", sep=""))
+    cat(paste("\tfiltering: t=",t, "\n", sep=""))
     obs.aux = as.numeric(XY$y[[t]])
     
     Et = Matrix::Matrix(gradient(evolFun, mu.tt, centered = TRUE))
     
     forecast = evolFun(mu.tt)
     Fmat = Et %*% L.tt
-    covmodel = GPvecchia::getMatCov(approx, Fmat %*% Matrix::t(Fmat) + sig2*Sig0)
+    covmodel = GPvecchia::getMatCov(approx, as.matrix(Fmat %*% Matrix::t(Fmat) + sig2*Sig0))
     
     preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
                                                    likelihood_model = data.model, covmodel = covmodel,
@@ -42,7 +57,7 @@ filter = function(approx.name, XY){
 
 
 
-center_operator <- function(x) {
+center_operator = function(x) {
   n = nrow(x)
   ones = rep(1, n)
   H = diag(n) - (1/n) * (ones %*% t(ones))
@@ -50,13 +65,16 @@ center_operator <- function(x) {
 }
 
 
-getCovariance = function(N, Force, dt, K){
+
+getLRMuCovariance = function(N, Force, dt, K){
   fileName.all = paste("simulations-lorenz/Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep = "_")
-  
   X = Matrix::Matrix(scan(fileName.all, quiet = TRUE), nrow = N) 
+  Xbar = matrix(rowMeans(as.matrix(X)), ncol=1)
   X = center_operator(X)
-  S = (X %*% Matrix::t(X)) / (ncol(X) - 1)
+  S = matrix((X %*% Matrix::t(X)) / (ncol(X) - 1), ncol=N)
+  return(list(mu = Xbar, Sigma = S))
 }
+
 
 
 
@@ -74,9 +92,9 @@ Force = 10
 K = 32
 dt = 0.005
 M = 1
-evolFun = function(X) Lorenz04M2Sim(as.numeric(X), Force, K, dt, M, iter = 1, burn = 0, order = 4)
-max.iter = 100
-
+b = 1
+evolFun = function(X) b*Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
+max.iter = 1
 
 ## covariance function
 sig2 = 0.1; range = .15; smooth = 1.5; 
@@ -86,7 +104,7 @@ covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
 ## likelihood settings
 me.var = 0.2;
-data.model = "gamma"
+data.model = "gauss"
 lik.params = list(data.model = data.model, me.var = me.var, alpha = 2)
 
 
@@ -95,8 +113,11 @@ grid.oneside = seq(0,1,length = round(n))
 locs = matrix(grid.oneside, ncol = 1)
 
 ## set initial state
-Sig0 = getCovariance(n, Force, dt, K)
-x0 = Matrix::t(chol(Sig0)) %*% matrix(rnorm(n), ncol = 1)#getX0(n, Force, K, dt)
+moments = getLRMuCovariance(n, Force, dt, K)
+Sig0 = (b**2)*moments[["Sigma"]] + diag(1e-10, n)
+mu = b*moments[["mu"]]
+x0 = b*getX0(n, Force, K, dt)
+Sigt = sig2*Sig0
 
 ## define Vecchia approximation
 mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra', verbose = TRUE)
@@ -128,10 +149,9 @@ foreach( iter=1:max.iter) %dopar% {
   cat(paste("Low-rank filtering took ", d[3], "s\n", sep = ""))
   
   RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
-  LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
-  write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
-  write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
-  
-  #data = list(XY = XY, predsMRA = predsMRA, predsE = predsE, predsLR = predsLR)
-  #save(data, file = paste(resultsDir, "/", data.model, "/sim.", iter, sep = ""))
+  #LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
+  #write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
+  #write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
+
+  print(RRMSPE)
 }

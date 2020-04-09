@@ -26,6 +26,20 @@ getLtt = function(vecchia.approx, preds){
 
 
 
+getConfInt = function(preds, alpha){
+  
+  D = Matrix::diag(Matrix::solve(preds$W))
+  mu = preds$state
+  z = qnorm(1 - alpha/2)
+  #browser()
+  ub = mu + z*sqrt(D)
+  lb = mu - z*sqrt(D)
+  
+  return(list(ub = ub, lb = lb))
+}
+
+
+
 
 
 ######### simulate and plot the data #########
@@ -54,7 +68,7 @@ evol = function(state, adv=0, diff=0){
 
 
 
-getX0 = function(N, Force, K, dt, dir = '~/HVLF/models/'){
+getX0 = function(N, Force, K, dt, dir = '~/HVLF/simulations-lorenz/'){
   
   fileName = paste("init_Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep="_")
   filePath = paste(dir, fileName, sep="")
