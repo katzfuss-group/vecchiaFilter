@@ -1,3 +1,4 @@
+from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pdb
@@ -44,8 +45,8 @@ def plotScore(scoresDict, name):
         M = max(max(score['MRA']), max(score['LR']), M)
 
 
-    
-    pdb.set_trace()
+    print("min = %f, max = %f" % (m, M))
+
     fig = plt.figure(figsize=(9, 3))
     for idx, family in enumerate(families):
 
@@ -70,14 +71,17 @@ def plotScore(scoresDict, name):
         elif(name=="RRMSPE"):
             ax.set_ylim(0.95*m, 1.05*M)
             l3 = ax.axhline(y=1.0, color="black", linestyle="dashed")
+        elif(name=="RMSPE"):
+            ax.set_ylim(0.95*m, 1.05*M)
 
+            
         if(idx==0):
             ax.set_ylabel(name)
         else:
             ax.get_yaxis().set_visible(False)
 
 
-    fig.legend([l1, l2], labels=["HV", "low-rank", "Laplace"], ncol=3, bbox_to_anchor=(-0.3, -0.89, 1, 1))
+    fig.legend([l1, l2], labels=["HV", "low-rank"], ncol=3, bbox_to_anchor=(-0.3, -0.89, 1, 1))
     plt.tight_layout(pad=2)
     
     plt.savefig('linear-' + name + '.pdf')  
@@ -85,8 +89,8 @@ def plotScore(scoresDict, name):
     plt.show()
 
 
-
-os.chdir("/home/marcin/HVLF/simulations-big")
+HOME = Path.home()
+os.chdir(os.path.join(HOME, "HVLF/simulations-big"))
 
 families = ["gauss", "logistic", "poisson", "gamma"]
 RMSPE = {}

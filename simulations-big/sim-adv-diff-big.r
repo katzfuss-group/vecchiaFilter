@@ -133,7 +133,7 @@ advection = 0.001
 #diffusion = 0.00004
 #advection = 0.01
 evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
-max.iter = 25
+max.iter = 10
 
 ## covariance parameters
 sig2 = 0.2; range = .15; smooth = 0.5; 
@@ -175,7 +175,7 @@ approximations = list(mra = mra, low.rank = low.rank)
 
 
 RMSPE = list(); LogSc = list()
-#foreach( iter=1:max.iter) %dopar% {
+foreach( iter=1:max.iter) %dopar% {
 #for (iter in 1:max.iter) {  
 
     XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
@@ -191,28 +191,30 @@ RMSPE = list(); LogSc = list()
     
     print(RMSPE)
 
-    m = M = 0
-    for (t in 1:Tmax) {
-        zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE)))))
-        m = min(m, zrange[1])
-        M = max(M, zrange[2])
-    }
-    for (t in 1:Tmax) {
-
-        if(t<10){
-            number = paste("0", t, sep="")  
-        } else {
-            number = t
+    if(iter==1){
+        m = M = 0
+        for (t in 1:Tmax) {
+            zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE)))))
+            m = min(m, zrange[1])
+            M = max(M, zrange[2])
         }
-        pdf(paste(resultsDir, "/", data.model, "/", number, ".pdf",sep=""), width=8, height=8)
-        defpar = par(mfrow = c(2, 2), mar = c(2, 2, 2, 2), oma = c(0, 0, 0, 0))
-        nna.obs = which(!is.na(XY$y[[t]]))
-        fields::quilt.plot( locs[nna.obs,], XY$y[[t]][nna.obs], nx = sqrt(n), ny = sqrt(n), main = "obs" )
-        fields::quilt.plot( locs, as.numeric(XY$x[[t]]), zlim = c(m, M), nx = sqrt(n), ny = sqrt(n), main = "truth" )
-        fields::quilt.plot( locs, predsMRA[[t]]$state, zlim = zrange, nx = sqrt(n), ny = sqrt(n), main = "prediction MRA" )
-        fields::quilt.plot( locs, predsLR[[t]]$state, zlim = zrange, nx = sqrt(n), ny = sqrt(n), main = "prediction LR" )
-        par(defpar)
-        dev.off()
+        for (t in 1:Tmax) {
+            
+            if(t<10){
+                number = paste("0", t, sep="")  
+            } else {
+                number = t
+            }
+            pdf(paste(resultsDir, "/", data.model, "/", number, ".pdf",sep=""), width=8, height=8)
+            defpar = par(mfrow = c(2, 2), mar = c(2, 2, 2, 2), oma = c(0, 0, 0, 0))
+            nna.obs = which(!is.na(XY$y[[t]]))
+            fields::quilt.plot( locs[nna.obs,], XY$y[[t]][nna.obs], nx = sqrt(n), ny = sqrt(n), main = "obs" )
+            fields::quilt.plot( locs, as.numeric(XY$x[[t]]), zlim = c(m, M), nx = sqrt(n), ny = sqrt(n), main = "truth" )
+            fields::quilt.plot( locs, predsMRA[[t]]$state, zlim = zrange, nx = sqrt(n), ny = sqrt(n), main = "prediction MRA" )
+            fields::quilt.plot( locs, predsLR[[t]]$state, zlim = zrange, nx = sqrt(n), ny = sqrt(n), main = "prediction LR" )
+            par(defpar)
+            dev.off()
+        }
     }
 
     
