@@ -17,6 +17,7 @@ getL00 = function(vecchia.approx, covfun, locs){
 }
 
 
+
 getLtt = function(vecchia.approx, preds){
   orig.order=order(vecchia.approx$ord)
   V = preds$V
@@ -31,14 +32,11 @@ getConfInt = function(preds, alpha){
   D = Matrix::diag(Matrix::solve(preds$W))
   mu = preds$state
   z = qnorm(1 - alpha/2)
-  #browser()
   ub = mu + z*sqrt(D)
   lb = mu - z*sqrt(D)
   
   return(list(ub = ub, lb = lb))
 }
-
-
 
 
 
@@ -122,7 +120,7 @@ simulate.y = function(x, frac.obs, lik.params){
     #z = rgamma(n.obs, shape = default_lh_params$alpha, rate = default_lh_params$alpha*exp(-y[obs.inds]))
     y.obs = rgamma(n.obs, shape = lik.params[["alpha"]], rate = lik.params[["alpha"]]*exp(-x[obs.inds]))
   } else if(data.model=='gauss'){
-    y.obs = rnorm(n.obs, mean=x[obs.inds], sd=sqrt(lik.params[["me.var"]]))
+    y.obs = rnorm(n.obs, mean=x[obs.inds], sd=lik.params[["sigma"]])
   } else {
     print('Error: Distribution not implemented yet.')
   }
@@ -130,7 +128,6 @@ simulate.y = function(x, frac.obs, lik.params){
   y[obs.inds] = y.obs
   return(y)
 }
-
 
 
 
