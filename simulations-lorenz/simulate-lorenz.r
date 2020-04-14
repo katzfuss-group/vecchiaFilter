@@ -91,7 +91,7 @@ Tmax = 10
 Force = 10
 K = 32
 dt = 0.005
-M = 1
+M = 5
 b = 0.2
 evolFun = function(X) b*Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
 max.iter = 1
