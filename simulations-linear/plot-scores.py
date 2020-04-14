@@ -105,7 +105,7 @@ def plotScore(scoresDict, name):
 
 
 
-os.chdir("/home/marcin/HVLF/simulations-linear")
+os.chdir("/home/marcin/HVLF/simulations-linear/paper_results")
 
 families = ["gauss", "logistic", "poisson", "gamma"]
 RRMSPE = {}
