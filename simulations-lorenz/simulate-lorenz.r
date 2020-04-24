@@ -99,7 +99,7 @@ max.iter = 1
 
 
 ## covariance function
-sig2 = 0.1; range = .15; smooth = 1.5; 
+sig2 = 0.1; range = .15; smooth = 0.5; 
 covparms = c(sig2,range,smooth)
 covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
