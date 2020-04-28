@@ -51,7 +51,7 @@ for idx, family in enumerate(families):
     l2, = ax.plot(Neighbors, scores['RRMSPE_LR'], color="black", linestyle=":", label="low-rank")
     ax.set_title(family)
     l3 = ax.axhline(y=1.0, color="black", linestyle="dashed")
-    ax.set_ylim(0.95, 1.05*max(RRMSPEs.max()))
+    ax.set_ylim(1-0.1*max(RRMSPEs.max()), 1.05*max(RRMSPEs.max()))
     
     if(idx==0):
         ax.set_ylabel("RRMSPE")
@@ -86,7 +86,7 @@ for idx, family in enumerate(families):
     
     m = min(dLSs.min())
     M = max(dLSs.max())
-    ax.set_ylim(-10, 1.05*M)
+    ax.set_ylim(-0.1*M, 1.05*M)
     
     if(idx==0):
         ax.set_ylabel("dLS")

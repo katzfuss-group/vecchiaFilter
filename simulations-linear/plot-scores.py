@@ -53,7 +53,7 @@ def readData( family ):
 
 
 
-def plotScore(scoresDict, name):
+ def plotScore(scoresDict, name):
 
 
     m = 1e6; M = -1e6
@@ -66,6 +66,7 @@ def plotScore(scoresDict, name):
     
 
     fig = plt.figure(figsize=(9, 3))
+    fig.suptitle("N, size of the conditioning set", x=0.5, y=0.09, fontsize=10)
     for idx, family in enumerate(families):
 
         if family=="gauss":
@@ -84,10 +85,10 @@ def plotScore(scoresDict, name):
         l2, = ax.plot(time, score['LR'][3:], color="black", linestyle=":", label="low-rank")
         ax.set_title(familyName)
         if(name=="dLS"):
-            ax.set_ylim(-10, 1.05*M)
+            ax.set_ylim(-0.1*M, 1.05*M)
             l3 = ax.axhline(y=0, color="black", linestyle="dashed")
         elif(name=="RRMSPE"):
-            ax.set_ylim(0.95, 1.05*M)
+            ax.set_ylim(1-0.05*M, 1.05*M)
             l3 = ax.axhline(y=1.0, color="black", linestyle="dashed")
 
         if(idx==0):
@@ -96,7 +97,7 @@ def plotScore(scoresDict, name):
             ax.get_yaxis().set_visible(False)
 
 
-    fig.legend([l1, l2], labels=["HV", "low-rank", "Laplace"], ncol=3, bbox_to_anchor=(-0.3, -0.89, 1, 1))
+    fig.legend([l1, l2], labels=["HV", "low-rank", "Laplace"], ncol=3, bbox_to_anchor=(-0.3, -0.022, 1, 1))
     plt.tight_layout(pad=2)
 
     plt.savefig('linear-' + name + '.pdf')  

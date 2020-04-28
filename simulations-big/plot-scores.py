@@ -66,13 +66,13 @@ def plotScore(scoresDict, name):
         l2, = ax.plot(time, score['LR'][3:], color="black", linestyle=":", label="low-rank")
         ax.set_title(familyName)
         if(name=="dLS"):
-            ax.set_ylim(-10, 1.05*M)
+            ax.set_ylim(-0.1*M, 1.05*M)
             l3 = ax.axhline(y=0, color="black", linestyle="dashed")
         elif(name=="RRMSPE"):
             ax.set_ylim(0.95*m, 1.05*M)
             l3 = ax.axhline(y=1.0, color="black", linestyle="dashed")
         elif(name=="RMSPE"):
-            ax.set_ylim(0.95*m, 1.05*M)
+            ax.set_ylim(0, 1.05*M)
 
             
         if(idx==0):
