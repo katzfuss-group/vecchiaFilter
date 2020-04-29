@@ -7,3 +7,5 @@ cat gauss.results > results
 tail -n +2 poisson.results >> results
 tail -n +2 logistic.results >> results
 tail -n +2 gamma.results >> results
+
+python generate-plot.py
