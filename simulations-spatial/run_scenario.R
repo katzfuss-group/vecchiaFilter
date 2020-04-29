@@ -1,5 +1,5 @@
-source("~/HVLF/VL_scripts/data_generating_functions.R")
-source("~/HVLF/VL_scripts/data_generating_functions2.R")
+source("~/HVLF/simulations-spatial/data_generating_functions.R")
+source("~/HVLF/simulations-spatial/data_generating_functions2.R")
 
 # This code takes a set of parameters defining some simulation scenario,
 # such as data model, covariance parameters, and sample size, then simulates
@@ -61,7 +61,7 @@ create_scenario_tester = function(header, log_file_name){
       if(mod_type==4)
         ls=gamma_sample(samp_size,covmodel, seed = seed_r , dom = domn, dimen=dimen)
 
-      vecchia.approx    = vecchia_specify(ls$locs, neighbors, conditioning = 'mra')
+      vecchia.approx    = vecchia_specify(ls$locs, neighbors, conditioning = 'mra', verbose=TRUE)
       vecchia.approx_z  = vecchia_specify(ls$locs, neighbors, cond.yz = "zy")
       vecchia.approx_LR = vecchia_specify(ls$locs, ncol(vecchia.approx$U.prep$revNNarray) - 1, conditioning="firstm")
       vecchia.exact     = vecchia_specify(ls$locs, nrow(ls$locs)-1, conditioning='firstm')
