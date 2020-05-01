@@ -38,16 +38,19 @@ filter = function(approx.name, XY){
     
     cat(paste("\tfiltering: t=",t, "\n", sep=""))
     obs.aux = as.numeric(XY$y[[t]])
-    
+
+    cat("\t\tcalculating gradient...\n")
     Et = Matrix::Matrix(gradient(evolFun, mu.tt, centered = TRUE))
-    
+
+    cat("\t\tcalculating forecast moments\n")
     forecast = evolFun(mu.tt)
     Fmat = Et %*% L.tt
     covmodel = GPvecchia::getMatCov(approx, as.matrix(Fmat %*% Matrix::t(Fmat) + sig2*Sig0))
-    
+    cat("\t\tcalculating posterior\n")
     preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
                                                    likelihood_model = data.model, covmodel = covmodel,
                                                    covparms = covparms, likparms = lik.params, return_all = TRUE)
+    cat("\t\tsaving the moments\n")
     L.tt = getLtt(approx, preds.aux)
     mu.tt = matrix(preds.aux$mean, ncol = 1)
     preds[[t]] = list(state = mu.tt, W = preds.aux$W)
@@ -130,7 +133,9 @@ moments = getLRMuCovariance(n, Force, dt, K)
 Sig0 = (b**2)*moments[["Sigma"]] + diag(1e-10, n)
 mu = b*moments[["mu"]]
 x0 = b*getX0(n, Force, K, dt)
+Q = covfun(locs)
 Sigt = sig2*Sig0
+#Sigt = sig2*Q
 
 
 ## define Vecchia approximation
@@ -142,10 +147,10 @@ approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
 RRMSPE = list(); LogSc = list()
-foreach( iter=1:max.iter) %dopar% {
-#for (iter in 1:max.iter) {  
+#foreach( iter=1:max.iter) %dopar% {
+for (iter in 1:max.iter) {  
 
-    cat("Simulating data")
+    cat("Simulating data\n")
     XY = simulate.xy(x0, evolFun, Sigt, frac.obs, lik.params, Tmax)
    
     cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
@@ -184,13 +189,15 @@ foreach( iter=1:max.iter) %dopar% {
             }
             pdf(paste(resultsDir, "/", data.model, "/", number, ".pdf",sep=""), width=8, height=3.5)
             zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE)))))
+
             if( data.model!='poisson' ){
-                range2 = range(c(unlist(lapply(XY$y, function(t) range(t, na.rm = TRUE)))))
-                zrange = c(zrange, range2)
+                range2 = range(c(unlist(lapply(XY$y, function(t) range(t, na.rm = TRUE)))), na.rm=TRUE)
+                zrange = range(c(zrange, range2))
             }
             nna.obs = which(!is.na(XY$y[[t]]))
-            
+
             plot( NULL, type = "l", xlim = c(0, 1), ylim = zrange, col = "red", main = paste("t =", t), xlab = "", ylab = "")
+            
             ci.mra = getConfInt(predsMRA[[t]], 0.05)
             polygon(c(rev(locs), locs), c(rev(ci.mra$ub), ci.mra$lb), col = 'grey80', border = NA)
             lines(locs, XY$x[[t]], col = "red")
