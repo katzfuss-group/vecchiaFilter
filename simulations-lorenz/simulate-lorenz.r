@@ -40,11 +40,17 @@ filter = function(approx.name, XY){
     obs.aux = as.numeric(XY$y[[t]])
 
     cat("\t\tcalculating gradient...\n")
-    Et = Matrix::Matrix(gradient(evolFun, mu.tt, centered = TRUE))
+    Et = Matrix::Matrix(exactGradient(mu.tt, K, M, dt, Force))
+    #Et2 = Matrix::Matrix(gradient(evolFun, mu.tt, centered = TRUE))
 
     cat("\t\tcalculating forecast moments\n")
     forecast = evolFun(mu.tt)
     Fmat = Et %*% L.tt
+    #Fmat2 = Et2 %*% L.tt
+    
+    Matrix::image(Fmat %*% Matrix::t(Fmat) + sig2*Sig0)
+    #Matrix::image(Fmat2 %*% Matrix::t(Fmat2) + sig2*Sig0)
+    
     covmodel = GPvecchia::getMatCov(approx, as.matrix(Fmat %*% Matrix::t(Fmat) + sig2*Sig0))
     cat("\t\tcalculating posterior\n")
     preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
@@ -87,7 +93,7 @@ spatial.dim = 2
 n = 960
 m = 50
 frac.obs = 0.1
-Tmax = 10
+Tmax = 5
 
 
 ## evolution function ##
@@ -97,7 +103,7 @@ dt = 0.005
 M = 5
 b = 0.2
 evolFun = function(X) b*Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
-max.iter = 1
+max.iter = 6
 
 
 
@@ -147,8 +153,8 @@ approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
 RRMSPE = list(); LogSc = list()
-#foreach( iter=1:max.iter) %dopar% {
-for (iter in 1:max.iter) {  
+foreach( iter=1:max.iter) %dopar% {
+#for (iter in 1:max.iter) {  
 
     cat("Simulating data\n")
     XY = simulate.xy(x0, evolFun, Sigt, frac.obs, lik.params, Tmax)
