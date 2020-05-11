@@ -10,3 +10,4 @@ gauss/
 *.log
 Ott
 arma/*
+.directory

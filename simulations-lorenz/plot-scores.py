@@ -14,7 +14,7 @@ def readData( family ):
 
     RRMSPE = {"MRA" : 0, "LR" : 0}
     LogSc = {"MRA" : 0, "LR" : 0}
-    
+
     count = 0
     while( os.path.exists( RRMSPEfile ) ):
 
@@ -33,9 +33,7 @@ def readData( family ):
             MRA = np.array([float(score[1]) for score in scores])
             LR = np.array([float(score[2]) for score in scores])
 
-        mmax = max(max(abs(LR)), max(abs(MRA)))
-        if mmax>1e4:
-            print(family + ", " + str(it) + ": " + str(mmax))
+        #print(family + ", " + str(it) + ": " + str(max(abs(LR))))
             
         LogSc["MRA"] = LogSc["MRA"]*(count-1)/count + MRA/count
         LogSc["LR"] = LogSc["LR"]*(count-1)/count + LR/count
@@ -49,20 +47,21 @@ def readData( family ):
 
 
 
+
 def plotScore(scoresDict, name):
 
 
     m = 1e6; M = -1e6
     for family in families:
         score = scoresDict[family]
-        try:
-            m = min(min(score['MRA']), min(score['LR']), m)
-        except:
-            print("something is wrong with the score format")
+        m = min(min(score['MRA']), min(score['LR']), m)
         M = max(max(score['MRA']), max(score['LR']), M)
+
+
     
 
     fig = plt.figure(figsize=(9, 3))
+    fig.suptitle("N, size of the conditioning set", x=0.5, y=0.09, fontsize=10)
     for idx, family in enumerate(families):
 
         if family=="gauss":
@@ -74,17 +73,16 @@ def plotScore(scoresDict, name):
             
         score = scoresDict[family]
         Tmax = score['MRA'].shape[0]
-        time = np.arange(Tmax)
-
+        time = np.arange(1,Tmax+1)
         ax = fig.add_subplot(1, 4, idx+1)
         l1, = ax.plot(time, score['MRA'], color="#500000", linestyle="solid", label="HV")
         l2, = ax.plot(time, score['LR'], color="black", linestyle=":", label="low-rank")
         ax.set_title(familyName)
         if(name=="dLS"):
-            ax.set_ylim(m, 1.05*M)
+            ax.set_ylim(-0.1*M, 1.05*M)
             l3 = ax.axhline(y=0, color="black", linestyle="dashed")
         elif(name=="RRMSPE"):
-            ax.set_ylim(0.95*m, 1.05*M)
+            ax.set_ylim(1-0.05*M, 1.05*M)
             l3 = ax.axhline(y=1.0, color="black", linestyle="dashed")
 
         if(idx==0):
@@ -93,10 +91,10 @@ def plotScore(scoresDict, name):
             ax.get_yaxis().set_visible(False)
 
 
-    fig.legend([l1, l2], labels=["HV", "low-rank", "Laplace"], ncol=3, bbox_to_anchor=(-0.3, -0.89, 1, 1))
+    fig.legend([l1, l2], labels=["HV", "low-rank", "Laplace"], ncol=3, bbox_to_anchor=(-0.3, -0.022, 1, 1))
     plt.tight_layout(pad=2)
 
-    plt.savefig('lorenz-' + name + '.pdf')  
+    plt.savefig('linear-' + name + '.pdf')  
     
     plt.show()
 

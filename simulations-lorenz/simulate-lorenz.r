@@ -3,12 +3,12 @@ rm(list = ls())
 source("aux-functions.r")
 source("scores.r")
 resultsDir = "simulations-lorenz"
-#library(VEnKF)
+library(VEnKF)
 library(rootSolve)
 library(Matrix)
 library(GPvecchia)
 library(doParallel)
-registerDoParallel(cores=25)
+registerDoParallel(cores=5)
 
 
 filter = function(approx.name, XY){
@@ -19,14 +19,18 @@ filter = function(approx.name, XY){
   preds = list()
   obs.aux = as.numeric(XY$y[[1]])
 
+  cat(paste("\tfiltering: t=1\n"))
+  
+  cat("\t\tcalculating forecast moments\n")
   covmodel = GPvecchia::getMatCov(approx, as.matrix(Sig0))
   mu.tt1 = mu
   
+  cat("\t\tcalculating posterior\n")
   preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = mu.tt1,
-
                                       likelihood_model = data.model, covmodel = covmodel,
                                       covparms = covparms, likparms = lik.params, return_all = TRUE)
   
+  cat("\t\tsaving the moments\n")
   L.tt  = getLtt(approx, preds.aux)
   mu.tt = matrix(preds.aux$mean, ncol = 1)
   preds[[1]] = list(state = mu.tt, W = preds.aux$W, V = preds.aux$V)
@@ -40,18 +44,14 @@ filter = function(approx.name, XY){
     cat(paste("\tfiltering: t=",t, "\n", sep=""))
     obs.aux = as.numeric(XY$y[[t]])
 
-
     cat("\t\tcalculating gradient...\n")
     Et = Matrix::Matrix(exactGradient(mu.tt, K, M, dt, Force))
-    #Et2 = Matrix::Matrix(gradient(evolFun, mu.tt, centered = TRUE))
 
     cat("\t\tcalculating forecast moments\n")
     forecast = evolFun(mu.tt)
     Fmat = Et %*% L.tt
-    #Fmat2 = Et2 %*% L.tt
     
-    Matrix::image(Fmat %*% Matrix::t(Fmat) + sig2*Sig0)
-    #Matrix::image(Fmat2 %*% Matrix::t(Fmat2) + sig2*Sig0)
+    Matrix::image(Fmat %*% Matrix::t(Fmat) + Sigt)
     
     covmodel = GPvecchia::getMatCov(approx, as.matrix(Fmat %*% Matrix::t(Fmat) + sig2*Sig0))
     cat("\t\tcalculating posterior\n")
@@ -98,7 +98,6 @@ set.seed(1988)
 spatial.dim = 2
 n = 960
 m = 50
-
 frac.obs = 0.1
 Tmax = 5
 
@@ -109,10 +108,9 @@ Force = 10
 K = 32
 dt = 0.005
 M = 5
-
 b = 0.2
 evolFun = function(X) b*Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
-max.iter = 6
+max.iter = 5
 
 
 
@@ -151,7 +149,6 @@ moments = getLRMuCovariance(n, Force, dt, K)
 Sig0 = (b**2)*moments[["Sigma"]] + diag(1e-10, n)
 mu = b*moments[["mu"]]
 x0 = b*getX0(n, Force, K, dt)
-
 Q = covfun(locs)
 Sigt = sig2*Sig0
 #Sigt = sig2*Q
@@ -164,6 +161,7 @@ mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra', ordering = 'maxm
 exact = GPvecchia::vecchia_specify(locs, nrow(locs) - 1, ordering = 'maxmin', conditioning = 'firstm')
 low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, ordering = 'maxmin', conditioning = 'firstm')
 approximations = list(mra = mra, low.rank = low.rank, exact = exact)
+
 
 
 RRMSPE = list(); LogSc = list()

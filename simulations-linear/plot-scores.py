@@ -53,7 +53,7 @@ def readData( family ):
 
 
 
- def plotScore(scoresDict, name):
+def plotScore(scoresDict, name):
 
 
     m = 1e6; M = -1e6
