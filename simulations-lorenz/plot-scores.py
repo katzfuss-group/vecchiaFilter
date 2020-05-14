@@ -94,7 +94,7 @@ def plotScore(scoresDict, name):
     fig.legend([l1, l2], labels=["HV", "low-rank", "Laplace"], ncol=3, bbox_to_anchor=(-0.3, -0.022, 1, 1))
     plt.tight_layout(pad=2)
 
-    plt.savefig('linear-' + name + '.pdf')  
+    plt.savefig('lorenz-' + name + '.pdf')  
     
     plt.show()
 
