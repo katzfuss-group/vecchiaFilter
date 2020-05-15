@@ -45,7 +45,7 @@ def plotScore(scoresDict, name):
         M = max(max(score['MRA']), max(score['LR']), M)
 
 
-    print("min = %f, max = %f" % (m, M))
+    #print("min = %f, max = %f" % (m, M))
 
     fig = plt.figure(figsize=(9, 3))
     for idx, family in enumerate(families):
@@ -81,7 +81,7 @@ def plotScore(scoresDict, name):
             ax.get_yaxis().set_visible(False)
 
 
-    fig.legend([l1, l2], labels=["HV", "low-rank"], ncol=3, bbox_to_anchor=(-0.3, -0.89, 1, 1))
+    fig.legend([l1, l2], ["HV", "LR"], "upper center", bbox_to_anchor=[0, 0.02, 1, 1], ncol=2)
     plt.tight_layout(pad=2)
     
     plt.savefig('linear-' + name + '.pdf')  

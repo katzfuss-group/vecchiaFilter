@@ -36,7 +36,7 @@ dLSs = data.filter(["dLS_VL", "dLS_LR", "Neighbors", "Mod"]).groupby(["Mod", "Ne
 
 
 fig = plt.figure(figsize=(9, 3))
-fig.suptitle("N, size of the conditioning set", x=0.5, y=0.09, fontsize=10)
+#fig.suptitle("N, size of the conditioning set", x=0.5, y=0.09, fontsize=10)
 #plt.text(0.5, 0.13, 'matplotlib', horizontalalignment='center',verticalalignment='center', transform=fig.transFigure.transform())
 #plt.text(0.5, 0.13, 'matplotlib', transform=fig.transFigure)
 for idx, family in enumerate(families):
@@ -47,11 +47,12 @@ for idx, family in enumerate(families):
     
     
     ax = fig.add_subplot(1, 4, idx+1)
-    l1, = ax.plot(Neighbors, scores['RRMSPE_VL'], color="#500000", linestyle="solid", label="HV")
-    l2, = ax.plot(Neighbors, scores['RRMSPE_LR'], color="black", linestyle=":", label="low-rank")
+    l1, = ax.plot(Neighbors, scores['RRMSPE_VL'], color="red", linestyle="solid", label="HV")
+    l2, = ax.plot(Neighbors, scores['RRMSPE_LR'], color="blue", linestyle=":", label="low-rank")
     ax.set_title(family)
     l3 = ax.axhline(y=1.0, color="black", linestyle="dashed")
     ax.set_ylim(1-0.1*max(RRMSPEs.max()), 1.05*max(RRMSPEs.max()))
+    ax.get_xaxis().set_visible(False)
     
     if(idx==0):
         ax.set_ylabel("RRMSPE")
@@ -60,7 +61,8 @@ for idx, family in enumerate(families):
 
 
 
-fig.legend([l1, l2, l3], labels=["HV", "low-rank", "Laplace"], ncol=3, bbox_to_anchor=(-0.3, 0.022, 1, 1))
+#fig.legend([l1, l2, l3], labels=["HV", "LR", "DL"], ncol=3, bbox_to_anchor=(-0.3, 0.022, 1, 1))
+fig.legend([l1, l2, l3], ["HV", "LR", "DL"], "upper center", ncol=3)
 plt.tight_layout(pad=2.5)
 
 plt.savefig('spatial-RRMSPE.pdf')  
@@ -78,9 +80,9 @@ for idx, family in enumerate(families):
     Neighbors = np.array(scores.index.get_level_values('Neighbors'))
 
     ax = fig.add_subplot(1, 4, idx+1)
-    l1, = ax.plot(Neighbors, scores['dLS_VL'], color="#500000", linestyle="solid", label="HV")
-    l2, = ax.plot(Neighbors, scores['dLS_LR'], color="black", linestyle=":", label="low-rank")
-    ax.set_title(family)
+    l1, = ax.plot(Neighbors, scores['dLS_VL'], color="red", linestyle="solid", label="HV")
+    l2, = ax.plot(Neighbors, scores['dLS_LR'], color="blue", linestyle=":", label="low-rank")
+    #ax.set_title(family)
     l3 = ax.axhline(y=0, color="black", linestyle="dashed")
 
     
@@ -93,7 +95,8 @@ for idx, family in enumerate(families):
     else:
         ax.get_yaxis().set_visible(False)
 
-fig.legend([l1, l2, l3], labels=["HV", "low-rank", "Laplace"], ncol=3, bbox_to_anchor=(-0.3, 0.022, 1, 1))
+#fig.legend([l1, l2, l3], labels=["HV", "LR", "DL"], ncol=3, bbox_to_anchor=(-0.3, 0.022, 1, 1), loc="upper center")
+#fig.legend([l1, l2, l3], ["HV", "LR", "DL"], loc="upper center", ncol=3)
 plt.tight_layout(pad=2.5)
 
 plt.savefig('spatial-dLS.pdf')  

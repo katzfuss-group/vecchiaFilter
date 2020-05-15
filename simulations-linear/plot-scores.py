@@ -66,7 +66,7 @@ def plotScore(scoresDict, name):
     
 
     fig = plt.figure(figsize=(9, 3))
-    fig.suptitle("N, size of the conditioning set", x=0.5, y=0.09, fontsize=10)
+    fig.suptitle("time", x=0.5, y=0.09, fontsize=10)
     for idx, family in enumerate(families):
 
         if family=="gauss":
@@ -97,7 +97,8 @@ def plotScore(scoresDict, name):
             ax.get_yaxis().set_visible(False)
 
 
-    fig.legend([l1, l2], labels=["HV", "low-rank", "Laplace"], ncol=3, bbox_to_anchor=(-0.3, -0.022, 1, 1))
+    #fig.legend([l1, l2], ["HV", "low-rank", "Laplace"], "upper center", ncol=3)
+    fig.legend([l1, l2, l3], ["HV", "LR", "DL"], "upper center", bbox_to_anchor = [0, 0.02, 1, 1], ncol=3)
     plt.tight_layout(pad=2)
 
     plt.savefig('linear-' + name + '.pdf')  
