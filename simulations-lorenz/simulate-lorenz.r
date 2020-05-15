@@ -1,105 +1,26 @@
 setwd("~/HVLF")
 rm(list = ls())
 source("aux-functions.r")
+source("simulations-lorenz/Lorenz-aux.r")
 source("scores.r")
 resultsDir = "simulations-lorenz"
 library(VEnKF)
-library(rootSolve)
 library(Matrix)
 library(GPvecchia)
+library(foreach)
+library(iterators)
+library(parallel)
 library(doParallel)
 registerDoParallel(cores=5)
-
-
-filter = function(approx.name, XY){
-  
-  approx = approximations[[approx.name]]
-    
-  Tmax = length(XY$x)
-  preds = list()
-  obs.aux = as.numeric(XY$y[[1]])
-
-  cat(paste("\tfiltering: t=1\n"))
-  
-  cat("\t\tcalculating forecast moments\n")
-  covmodel = GPvecchia::getMatCov(approx, as.matrix(Sig0))
-  mu.tt1 = mu
-  
-  cat("\t\tcalculating posterior\n")
-  preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = mu.tt1,
-                                      likelihood_model = data.model, covmodel = covmodel,
-                                      covparms = covparms, likparms = lik.params, return_all = TRUE)
-  
-  cat("\t\tsaving the moments\n")
-  L.tt  = getLtt(approx, preds.aux)
-  mu.tt = matrix(preds.aux$mean, ncol = 1)
-  preds[[1]] = list(state = mu.tt, W = preds.aux$W, V = preds.aux$V)
-  
-  if (Tmax == 1) { 
-    return( preds )
-  } 
-    
-  for (t in 2:Tmax) {
-    
-    cat(paste("\tfiltering: t=",t, "\n", sep=""))
-    obs.aux = as.numeric(XY$y[[t]])
-
-    cat("\t\tcalculating gradient...\n")
-    Et = Matrix::Matrix(exactGradient(mu.tt, K, M, dt, Force))
-
-    cat("\t\tcalculating forecast moments\n")
-    forecast = evolFun(mu.tt)
-    Fmat = Et %*% L.tt
-    
-    Matrix::image(Fmat %*% Matrix::t(Fmat) + Sigt)
-    
-    covmodel = GPvecchia::getMatCov(approx, as.matrix(Fmat %*% Matrix::t(Fmat) + sig2*Sig0))
-    cat("\t\tcalculating posterior\n")
-    preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
-                                                   likelihood_model = data.model, covmodel = covmodel,
-                                                   covparms = covparms, likparms = lik.params, return_all = TRUE)
-    cat("\t\tsaving the moments\n")
-
-    L.tt = getLtt(approx, preds.aux)
-    mu.tt = matrix(preds.aux$mean, ncol = 1)
-    preds[[t]] = list(state = mu.tt, W = preds.aux$W, V = preds.aux$V)
-  }
-  return( preds )
-}
-
-
-
-center_operator = function(x) {
-  n = nrow(x)
-  ones = rep(1, n)
-  H = diag(n) - (1/n) * (ones %*% t(ones))
-  H %*% x
-}
-
-
-
-getLRMuCovariance = function(N, Force, dt, K){
-
-  fileName.all = paste("simulations-lorenz/Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep = "_")
-  X = Matrix::Matrix(scan(fileName.all, quiet = TRUE), nrow = N) 
-  Xbar = matrix(rowMeans(as.matrix(X)), ncol=1)
-  X = center_operator(X)
-  S = matrix((X %*% Matrix::t(X)) / (ncol(X) - 1), ncol=N)
-
-  return(list(mu = Xbar, Sigma = S))
-
-}
-
 
 
 
 ######### set parameters #########
 set.seed(1988)
-spatial.dim = 2
 n = 960
 m = 50
 frac.obs = 0.1
-Tmax = 5
+Tmax = 20
 
 
 
@@ -110,7 +31,7 @@ dt = 0.005
 M = 5
 b = 0.2
 evolFun = function(X) b*Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
-max.iter = 5
+max.iter = getDoParWorkers()
 
 
 
@@ -121,7 +42,7 @@ covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
 
 ## likelihood settings
-me.var = 0.2;
+me.var = 0.1;
 args = commandArgs(trailingOnly = TRUE)
 if (length(args) == 1) {
   if (!(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))) {
@@ -142,17 +63,13 @@ locs = matrix(grid.oneside, ncol = 1)
 
 
 ## set initial state
-
 cat("Loading the moments of the long-run Lorenz\n")
-
 moments = getLRMuCovariance(n, Force, dt, K)
 Sig0 = (b**2)*moments[["Sigma"]] + diag(1e-10, n)
 mu = b*moments[["mu"]]
 x0 = b*getX0(n, Force, K, dt)
-Q = covfun(locs)
 Sigt = sig2*Sig0
-#Sigt = sig2*Q
-
+#Sigt = sig2*covfun(locs)
 
 
 ## define Vecchia approximation
@@ -163,10 +80,7 @@ low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, ord
 approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
-
-RRMSPE = list(); LogSc = list()
-foreach( iter=1:max.iter) %dopar% {
-#for (iter in 1:max.iter) {  
+scores = foreach( iter=1:max.iter) %dopar% {
 
     cat("Simulating data\n")
     XY = simulate.xy(x0, evolFun, Sigt, frac.obs, lik.params, Tmax)
@@ -196,41 +110,17 @@ foreach( iter=1:max.iter) %dopar% {
 
     print(RRMSPE)
     print(LogSc)
-
-
-    ## plot results for the first iteration
-    if( iter==1 ){
-        for (t in 1:Tmax) {
-            if(t<10){
-                number = paste("0", t, sep="")  
-            } else {
-                number = t
-            }
-
-            pdf(paste(resultsDir, "/", data.model, "/", number, ".pdf",sep=""), width=8, height=3.5)
-            zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm = TRUE)))))
-
-            if( data.model!='poisson' ){
-                range2 = range(c(unlist(lapply(XY$y, function(t) range(t, na.rm = TRUE)))), na.rm=TRUE)
-                zrange = range(c(zrange, range2))
-            }
-            nna.obs = which(!is.na(XY$y[[t]]))
-
-            plot( NULL, type = "l", xlim = c(0, 1), ylim = zrange, col = "red", main = paste("t =", t), xlab = "", ylab = "")
-            
-            ci.mra = getConfInt(predsMRA[[t]], 0.05)
-            polygon(c(rev(locs), locs), c(rev(ci.mra$ub), ci.mra$lb), col = 'grey80', border = NA)
-            lines(locs, XY$x[[t]], col = "red")
-            if( data.model!='poisson' ){
-                points( locs[nna.obs,], XY$y[[t]][nna.obs], pch = 16, col = "black")
-            }
-            
-            lines( locs, predsE[[t]]$state, type = "l", col = "black", lty = "dashed")
-            lines( locs, predsMRA[[t]]$state, type = "l", col = "#500000")
-            lines( locs, predsLR[[t]]$state, type = "l", col = "black", lty = "dotted")
-            dev.off()
-        }
+    if(iter==1){
+      plotResults(XY, predsE, predsMRA, predsLR, resultsDir)
     }
+    list(RRMSPE, LogSc)
 }
 
+
+avgRRMSPE = Reduce("+", lapply(scores, `[[`, 1))/length(scores)
+avgdLS = Reduce("+", lapply(scores, `[[`, 2))/length(scores)
+cat("===== avg. RRMSPE: ====\n")
+print(avgRRMSPE)
+cat("==== avg. dLS ====\n")
+print(avgdLS)
 
