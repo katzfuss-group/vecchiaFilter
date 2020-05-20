@@ -48,7 +48,7 @@ LogS = function(preds, y){
   Tmax = length(preds)
   LS = rep(0, Tmax-1)
   for( t in 1:Tmax ){
-    LS[t] = dposterior(y[[t]], preds[[t]])
+    LS[t] = -dposterior(y[[t]], preds[[t]])
   }
   return(LS)
 }
@@ -58,18 +58,18 @@ dposterior = function(y, pred){
   
   mu = pred$state
   W= pred$W
-  # VL calculates V, Laplace calculates W                                                                                                                                                                                        
+  # VL calculates V, Laplace calculates W                           
   if("V" %in% names(pred)){
     det_term = sum(log(diag(pred$V)))
   }else{
     V=t(chol(Matrix::forceSymmetric(pred$W)))
-    #V = t(chol((W + t(W))/2))                                                                                                                                                                                                   
+    #V = t(chol((W + t(W))/2))                                      
     det_term = sum(log(diag(V)))
-    #det_term =log(det(W))/2                                                                                                                                                                                                     
+    #det_term =log(det(W))/2                                        
   }
   quad_term = -Matrix::t(y-mu) %*% W %*% (y-mu)/2
   pi_term = -length(y)/2*log(2*pi)
-  # value is of class "dgeMatrix"                                                                                                                                                                                                
+  # value is of class "dgeMatrix"                                   
   return((quad_term+det_term+pi_term)[1,1])
 }
 
