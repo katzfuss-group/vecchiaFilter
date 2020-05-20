@@ -135,14 +135,14 @@ evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
 max.iter = 1
 
 ## covariance parameters
-sig2 = 0.5; range = .15; smooth = 0.5; 
+sig2 = 0.5; range = .1; smooth = 0.5; 
 covparms = c(sig2,range,smooth)
 covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
 
 
 ## likelihood settings
-me.var = 0.2;
+me.var = 0.05;
 args = commandArgs(trailingOnly = TRUE)
 if (length(args) == 1) {
   if (!(args[1] %in% c("gauss", "poisson", "logistic", "gamma"))) {
