@@ -66,7 +66,8 @@ def plotScore(scoresDict, name):
     
 
     fig = plt.figure(figsize=(9, 3))
-    fig.suptitle("time", x=0.5, y=0.09, fontsize=10)
+    if max(abs(scoresDict['gauss']['MRA']))>10:
+        fig.suptitle("time", x=0.5, y=0.09, fontsize=10)
     for idx, family in enumerate(families):
 
         if family=="gauss":
@@ -81,9 +82,8 @@ def plotScore(scoresDict, name):
         time = np.arange(3,Tmax)
 
         ax = fig.add_subplot(1, 4, idx+1)
-        l1, = ax.plot(time, score['MRA'][3:], color="#500000", linestyle="solid", label="HV")
-        l2, = ax.plot(time, score['LR'][3:], color="black", linestyle=":", label="low-rank")
-        ax.set_title(familyName)
+        l1, = ax.plot(time, score['MRA'][3:], color="red", linestyle="solid", label="HV")
+        l2, = ax.plot(time, score['LR'][3:], color="blue", linestyle=":", label="LR")
         if(name=="dLS"):
             ax.set_ylim(-0.1*M, 1.05*M)
             l3 = ax.axhline(y=0, color="black", linestyle="dashed")
@@ -95,10 +95,14 @@ def plotScore(scoresDict, name):
             ax.set_ylabel(name)
         else:
             ax.get_yaxis().set_visible(False)
+        if max(abs(scoresDict['gauss']['MRA']))<10:
+            ax.get_xaxis().set_visible(False)
+            ax.set_title(familyName)
 
 
     #fig.legend([l1, l2], ["HV", "low-rank", "Laplace"], "upper center", ncol=3)
-    fig.legend([l1, l2, l3], ["HV", "LR", "DL"], "upper center", bbox_to_anchor = [0, 0.02, 1, 1], ncol=3)
+    if max(abs(scoresDict['gauss']['MRA']))<10:
+        fig.legend([l1, l2, l3], ["HV", "LR", "DL"], "upper center", bbox_to_anchor = [0, 0.02, 1, 1], ncol=3)
     plt.tight_layout(pad=2)
 
     plt.savefig('linear-' + name + '.pdf')  
