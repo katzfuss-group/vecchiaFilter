@@ -1,7 +1,7 @@
 setwd("~/HVLF")
 rm(list = ls())
 source("aux-functions.r")
-source("simulations-lorenz/Lorenz-aux.r")
+source("simulations-lorenz/aux-functions-Lorenz.r")
 source("scores.r")
 resultsDir = "simulations-lorenz"
 library(VEnKF)
