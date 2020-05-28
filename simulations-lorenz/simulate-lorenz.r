@@ -15,14 +15,16 @@ registerDoParallel(cores=5)
 
 
 
+AllParamsAsString = list()
+
+
+
 ######### set parameters #########
 set.seed(1988)
-n = 960
+n = 960 
 m = 50
 frac.obs = 0.1
-Tmax = 20
-
-
+Tmax = 2
 
 ## evolution function ##
 Force = 10
@@ -31,12 +33,12 @@ dt = 0.005
 M = 5
 b = 0.2
 evolFun = function(X) b*Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
-max.iter = getDoParWorkers()
+max.iter = 1#getDoParWorkers()
 
 
 
 ## covariance function
-sig2 = 0.1; range = .15; smooth = 0.5; 
+sig2 = 0.2; range = .15; smooth = 0.5; 
 covparms = c(sig2,range,smooth)
 covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
@@ -56,6 +58,29 @@ if (length(args) == 1) {
 lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha=2)
 
 
+AllParamsAsString = list("======= Lorenz simulation ========\n",
+                         "started at: ", format(Sys.time(), "%H:%M:%S, %a, %b %d"), "\n",
+                         "iterations: ", max.iter, "\n",
+                         "T = ", Tmax, ", frac. obs = ", frac.obs, ", n = ", n, ", m = ", m, "\n",
+                         "\n",
+                         "+++ likelihood +++\n",
+                         "data model: ", data.model, "\n")
+if(data.model == "gauss") {
+    AllParamsAsString = c(AllParamsAsString, list("me.var = ", me.var, "\n"))
+} else if(data.model == "gamma") {
+    AllParamsAsString = c(AllParamsAsString, list("alpha = ", alpha, "\n"))
+}
+AllParamsAsString = c(AllParamsAsString,
+                    list("\n+++ Lorenz settings +++\n",
+                         "Force = ", Force, ", K = ", K, ", dt = ", dt, ", M = ", M, ", b = ", b, "\n",
+                         "\n",
+                         "+++ model error covariance +++\n",
+                         "sig2 = ", sig2, ", range = ", range, ", smoothness = ", smooth, "\n"
+                         ))
+
+AllParamsAsString = paste(AllParamsAsString, collapse="")
+hash = digest::digest(AllParamsAsString, serialize=FALSE)
+cat(AllParamsAsString)
 
 ## generate grid of pred.locs
 grid.oneside = seq(0,1,length = round(n))
@@ -80,7 +105,8 @@ low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, ord
 approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
-scores = foreach( iter=1:max.iter) %dopar% {
+#scores = foreach( iter=1:max.iter) %dopar% {
+for (iter in 1:max.iter) {
 
     cat("Simulating data\n")
     XY = simulate.xy(x0, evolFun, Sigt, frac.obs, lik.params, Tmax)
@@ -104,12 +130,11 @@ scores = foreach( iter=1:max.iter) %dopar% {
     cat(paste("Low-rank filtering took ", d[3], "s\n", sep = ""))
 
     RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
+    browser()
     LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
     write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
     write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
 
-    print(RRMSPE)
-    print(LogSc)
     if(iter==1){
       plotResults(XY, predsE, predsMRA, predsLR, resultsDir)
     }
@@ -119,8 +144,13 @@ scores = foreach( iter=1:max.iter) %dopar% {
 
 avgRRMSPE = Reduce("+", lapply(scores, `[[`, 1))/length(scores)
 avgdLS = Reduce("+", lapply(scores, `[[`, 2))/length(scores)
-cat("===== avg. RRMSPE: ====\n")
-print(avgRRMSPE)
-cat("==== avg. dLS ====\n")
-print(avgdLS)
+resultsAsString = list("===== avg. RRMSPE: ====\n")
+resultsAsString = c(resultsAsString, capture.output(print(avgRRMSPE)))
+resultsAsString = c(resultsAsString, "\n==== avg. dLS ====\n")
+resultsAsString = c(resultsAsString, capture.output(print(avgdLS)))
+resultsAsString = c(resultsAsString, "\n")
+resultsAsString = paste(resultsAsString, collapse="\n")
+cat(resultsAsString)
+output = paste(c(AllParamsAsString, resultsAsString), sep="\n")
+writeLines(output, paste(resultsDir, "/logs/", hash, sep=""))
 
