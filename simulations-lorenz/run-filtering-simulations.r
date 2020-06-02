@@ -11,7 +11,7 @@ library(foreach)
 library(iterators)
 library(parallel)
 library(doParallel)
-registerDoParallel(cores=5)
+registerDoParallel(cores=25)
 
 
 
@@ -24,7 +24,7 @@ set.seed(1988)
 n = 960 
 m = 50
 frac.obs = 0.1
-Tmax = 2
+Tmax = 20
 
 ## evolution function ##
 Force = 10
@@ -33,12 +33,12 @@ dt = 0.005
 M = 5
 b = 0.2
 evolFun = function(X) b*Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
-max.iter = 1#getDoParWorkers()
+max.iter = 4*getDoParWorkers()
 
 
 
 ## covariance function
-sig2 = 0.2; range = .15; smooth = 0.5; 
+sig2 = 0.2; range = .15; smooth = 0.5;
 covparms = c(sig2,range,smooth)
 covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
@@ -53,6 +53,7 @@ if (length(args) == 1) {
     data.model = args[1]
   }
 } else {
+  #data.model = "poisson"
   data.model = "gauss"
 }
 lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha=2)
@@ -92,9 +93,10 @@ cat("Loading the moments of the long-run Lorenz\n")
 moments = getLRMuCovariance(n, Force, dt, K)
 Sig0 = (b**2)*moments[["Sigma"]] + diag(1e-10, n)
 mu = b*moments[["mu"]]
-x0 = b*getX0(n, Force, K, dt)
-Sigt = sig2*Sig0
-#Sigt = sig2*covfun(locs)
+#x0 = b*getX0(n, Force, K, dt)
+x0 = t(chol(Sig0)) %*% matrix(rnorm(n), ncol=1) + mu
+#Sigt = sig2*Sig0
+Sigt = covfun(locs)
 
 
 ## define Vecchia approximation
@@ -105,23 +107,23 @@ low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, ord
 approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
-#scores = foreach( iter=1:max.iter) %dopar% {
-for (iter in 1:max.iter) {
+scores = foreach( iter=1:max.iter) %dopar% {
+#for (iter in 1:max.iter) {
 
     cat("Simulating data\n")
     XY = simulate.xy(x0, evolFun, Sigt, frac.obs, lik.params, Tmax)
-   
-    cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
-    start = proc.time()
-    predsE = filter('exact', XY)
-    d = as.numeric(proc.time() - start)
-    cat(paste("Exact filtering took ", d[3], "s\n", sep = ""))
 
     cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
     start = proc.time()
     predsMRA = filter('mra', XY)
     d = as.numeric(proc.time() - start)
     cat(paste("MRA filtering took ", d[3], "s\n", sep = ""))
+    
+    cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
+    start = proc.time()
+    predsE = filter('exact', XY)
+    d = as.numeric(proc.time() - start)
+    cat(paste("Exact filtering took ", d[3], "s\n", sep = ""))
 
     cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
     start = proc.time()
@@ -130,7 +132,6 @@ for (iter in 1:max.iter) {
     cat(paste("Low-rank filtering took ", d[3], "s\n", sep = ""))
 
     RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
-    browser()
     LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
     write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
     write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
@@ -153,4 +154,3 @@ resultsAsString = paste(resultsAsString, collapse="\n")
 cat(resultsAsString)
 output = paste(c(AllParamsAsString, resultsAsString), sep="\n")
 writeLines(output, paste(resultsDir, "/logs/", hash, sep=""))
-

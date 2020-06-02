@@ -128,11 +128,11 @@ spatial.dim = 2
 n = 34**2
 m = 50
 frac.obs = 0.1
-Tmax = 10
+Tmax = 1
 diffusion = 0.00004
 advection = 0.01
 evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
-max.iter = 1
+max.iter = 12
 
 ## covariance parameters
 sig2 = 0.5; range = .1; smooth = 0.5; 
@@ -192,8 +192,6 @@ scores = foreach( iter=1:max.iter) %dopar% {
 
     write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep=""))
     write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep=""))
-    
-    print(RRMSPE)
 
     if(iter==1){
         m = M = 0
@@ -221,7 +219,18 @@ scores = foreach( iter=1:max.iter) %dopar% {
         }
     }
 
-    
+    list(RRMSPE, LogSc)
 }
 
 
+avgRRMSPE = Reduce("+", lapply(scores, `[[`, 1))/length(scores)
+avgdLS = Reduce("+", lapply(scores, `[[`, 2))/length(scores)
+resultsAsString = list("===== avg. RRMSPE: ====\n")
+resultsAsString = c(resultsAsString, capture.output(print(avgRRMSPE)))
+resultsAsString = c(resultsAsString, "\n==== avg. dLS ====\n")
+resultsAsString = c(resultsAsString, capture.output(print(avgdLS)))
+resultsAsString = c(resultsAsString, "\n")
+resultsAsString = paste(resultsAsString, collapse="\n")
+cat(resultsAsString)
+#output = paste(c(AllParamsAsString, resultsAsString), sep="\n")
+#writeLines(output, paste(resultsDir, "/logs/", hash, sep=""))
