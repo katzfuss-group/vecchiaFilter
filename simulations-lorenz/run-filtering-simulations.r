@@ -4,14 +4,14 @@ source("aux-functions.r")
 source("simulations-lorenz/aux-functions-Lorenz.r")
 source("scores.r")
 resultsDir = "simulations-lorenz"
-library(VEnKF)
+library(Lorenz04)
 library(Matrix)
 library(GPvecchia)
 library(foreach)
 library(iterators)
 library(parallel)
 library(doParallel)
-registerDoParallel(cores=25)
+registerDoParallel(cores=5)
 
 
 
@@ -24,21 +24,21 @@ set.seed(1988)
 n = 960 
 m = 50
 frac.obs = 0.1
-Tmax = 20
+Tmax = 5
 
 ## evolution function ##
-Force = 10
+Force = 15
 K = 32
 dt = 0.005
 M = 5
-b = 0.2
-evolFun = function(X) b*Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0, order = 4)
-max.iter = 4*getDoParWorkers()
+b = 0.1
+evolFun = function(X) b*Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0)
+max.iter = 1#getDoParWorkers()
 
 
 
 ## covariance function
-sig2 = 0.2; range = .15; smooth = 0.5;
+sig2 = 0.0001; range = .15; smooth = 0.5;
 covparms = c(sig2,range,smooth)
 covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
@@ -53,7 +53,6 @@ if (length(args) == 1) {
     data.model = args[1]
   }
 } else {
-  #data.model = "poisson"
   data.model = "gauss"
 }
 lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha=2)
@@ -67,9 +66,9 @@ AllParamsAsString = list("======= Lorenz simulation ========\n",
                          "+++ likelihood +++\n",
                          "data model: ", data.model, "\n")
 if(data.model == "gauss") {
-    AllParamsAsString = c(AllParamsAsString, list("me.var = ", me.var, "\n"))
+    AllParamsAsString = c(AllParamsAsString, list("sd = ", lik.params[["sigma"]], "\n"))
 } else if(data.model == "gamma") {
-    AllParamsAsString = c(AllParamsAsString, list("alpha = ", alpha, "\n"))
+    AllParamsAsString = c(AllParamsAsString, list("alpha = ", lik.params[["alpha"]], "\n"))
 }
 AllParamsAsString = c(AllParamsAsString,
                     list("\n+++ Lorenz settings +++\n",
