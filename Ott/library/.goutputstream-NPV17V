@@ -1,0 +1,282 @@
+! Lorenz system
+
+module Lorenz_system_mod
+
+type :: Lorenz_system
+	real			   :: s = 10., r = 28., b = 8./3., dt = 0.01
+	real, dimension(3) :: x = (/ 0., 10., 0. /)
+	contains
+	procedure :: initialize => Lorenz_system_initialize
+	procedure :: evolve => Lorenz_system_evolve
+	procedure :: dx => Lorenz_system_dx
+end type
+
+contains
+
+subroutine Lorenz_system_initialize( this, s, r, b )
+
+	class(Lorenz_system) :: this
+	real, intent(in)	 :: s, r, b
+	
+	this % s = s
+	this % r = r
+	this % b = b
+
+end subroutine
+
+subroutine Lorenz_system_evolve( this, time )
+
+	class(Lorenz_system) :: this
+	real, intent(in)	 :: time
+	
+	real, dimension(3) :: k1, k2, k3, k4
+	integer			   :: N, i
+	
+	N = nint( time / (this % dt) )
+
+	do i = 1, N
+		call this % dx( this % x,		   k1 )
+		call this % dx( this % x + k1 / 2, k2 )
+		call this % dx( this % x + k2 / 2, k3 )
+		call this % dx( this % x + k3,	   k4 )
+		this % x = this % x + ( k1 + 2*k2 + 2*k3 +k4 ) / 6
+	end do
+
+end subroutine
+
+subroutine Lorenz_system_dx( this, x, dx )
+
+	class(Lorenz_system)            :: this
+	real, dimension(3), intent(in)  :: x
+	real, dimension(3), intent(out) :: dx
+	
+	dx(1) = this % dt * ( this % s * ( x(2) - x(1) ) )
+	dx(2) = this % dt * ( x(1) * ( this % r - x(3) ) - x(2) )
+	dx(3) = this % dt * ( x(1) * x(2) - this % b * x(3) )
+
+end subroutine
+
+end module
+
+! Lorenz model
+
+module Lorenz_model_mod
+
+type Lorenz_model
+	integer	:: model_number = 3, N = 960, K, I
+	real	:: F = 15., b = 10., c = 2.5, alpha, beta, dt = 0.05/12 ! dt = 0.05/7 is the maximum not to make model 3 blow up.
+	real, allocatable, dimension(:) :: Z
+	contains
+	procedure :: initialize   => Lorenz_model_initialize
+	procedure :: set_state    => Lorenz_model_set_state
+	procedure :: evolve       => Lorenz_model_evolve
+	procedure :: dZ           => Lorenz_model_dZ
+	procedure :: dZ_1         => Lorenz_model_dZ_1
+	procedure :: dZ_2         => Lorenz_model_dZ_2
+	procedure :: set_I        => Lorenz_model_set_I
+	procedure :: make_bracket => Lorenz_model_make_bracket
+	procedure :: make_WK      => Lorenz_model_make_WK
+end type
+
+contains
+
+subroutine Lorenz_model_initialize( this, model_number, N, F, dt, b, c );
+
+	class(Lorenz_model) :: this
+	integer, intent(in) :: model_number, N
+	real,	 intent(in) :: F, dt
+	real,	 intent(in), optional :: b, c
+	
+	this % model_number = model_number
+	this % N = N
+	this % F = F
+	this % dt = dt
+	this % k = N/30
+	this % I = this % set_I()
+	this % alpha = real( 3 * this % I ** 2 + 3 ) / ( 2 * this % I ** 3 + 4 * this % I ) 
+	this % beta = real( 2 * this % I ** 2 + 1 ) / ( this % I ** 4 + 2 * this % I ** 2 )
+	if ( present(b) ) this % b = b
+	if ( present(c) ) this % c = c
+
+	allocate( this % Z(0:N-1) )
+	
+	call random_number( this % Z )
+
+end subroutine
+
+subroutine Lorenz_model_set_state( this, state )
+
+	class(Lorenz_model)				:: this
+	real, dimension(0:), intent(in)	:: state
+	
+	integer :: d, i
+	
+	d = size( state ) / this % N
+	
+	do i=0, this % N - 1
+		this % Z(i) = state(i*d)
+	end do
+
+end subroutine
+
+subroutine Lorenz_model_evolve( this, time )
+
+	class(Lorenz_model)				:: this
+	real, intent(in)				:: time
+	
+	integer							:: niter, i
+	real, dimension( 0 : this%N-1 ) :: k1, k2, k3, k4
+
+	niter = nint( time / (this % dt) )
+
+	do i = 1, niter
+		call this % dZ( this % Z,		   k1 )
+		call this % dZ( this % Z + k1 / 2, k2 )
+		call this % dZ( this % Z + k2 / 2, k3 )
+		call this % dZ( this % Z + k3,	   k4 )
+		this % Z = this % Z + ( k1 + 2*k2 + 2*k3 +k4 ) / 6
+	end do
+
+end subroutine
+
+subroutine Lorenz_model_dZ( this, Z, dZ )
+
+	class(Lorenz_model)				 :: this
+	real, dimension(0:), intent(in)	 :: Z
+	real, dimension(0:), intent(out) :: dZ
+	
+	select case ( this % model_number )
+		case (1); call this % dZ_1( Z, dZ )
+		case (2); call this % dZ_2( Z, dZ )
+		!case (3); call this % dZ_3( Z, dZ )
+	end select
+
+end subroutine
+
+subroutine Lorenz_model_dZ_1( this, Z, dZ )
+
+	class(Lorenz_model)				 :: this
+	real, dimension(0:), intent(in)	 :: Z
+	real, dimension(0:), intent(out) :: dZ
+	
+	integer :: i, N
+	
+	N = this % N
+	
+	do i = 0, N - 1
+		dZ(i) = this % dt * ( -Z( mo(i-2,N) ) * Z( mo(i-1,N) ) + Z( mo(i-1,N) ) * Z( mo(i+1,N) ) - Z(i) + this % F )
+	end do
+
+end subroutine
+
+subroutine Lorenz_model_dZ_2( this, Z, dZ )
+
+	class(Lorenz_model)				 :: this
+	real, dimension(0:), intent(in)	 :: Z
+	real, dimension(0:), intent(out) :: dZ
+
+	real, dimension( 0 : this % N -1 ) :: bracket
+	integer :: n
+	
+	call this % make_bracket( Z, bracket )
+	do n = 0, this % N - 1
+		dZ(n) = this % dt * ( bracket(n) - Z(n) + this % F )
+	end do
+
+end subroutine
+
+subroutine Lorenz_model_make_bracket( this, X, bracket )
+
+	class(Lorenz_model)				 :: this
+	real, dimension(0:), intent(in)	 :: X
+	real, dimension(0:), intent(out) :: bracket
+	
+	logical :: flag_even
+	integer :: i, J, N, K
+	real    :: s
+	real, dimension( 0: this % N - 1 ) :: WK 
+	
+	N = this % N; K = this % K
+	flag_even = .false.; J = this % K / 2; s = 0.
+	if ( mod(K,2) == 0 ) flag_even = .true.
+
+	call this % make_WK( X, WK )
+	
+	! Calculate bracket(0)
+	do i = -J, J
+		s = s + WK( mo(0-K+i,N) ) * X( mo(0+K+i,N) )
+	end do
+	bracket(0) = - WK( mo(0-2*K,N) ) * WK( mo(0-K,N) ) + s
+	if ( flag_even ) then
+		bracket(0) = bracket(0) - (  WK( mo(0-K-J,N) ) * X( mo(0+K-J,N) ) + WK( mo(0-K+J,N) ) * X( mo(0+K+J,N) )  ) / 2.
+	end if
+	
+	! Calculate bracket(i) for the rest of i's
+	do i = 1, N-1
+		s = s + (  - WK( mo(i-K-J-1,N) ) * X( mo(i+K-J-1,N) ) + WK( mo(i-K+J,N) ) * X( mo(i+K+J,N) )  )
+		bracket(i) = - WK( mo(i-2*K,N) ) * WK( mo(i-K,N) ) + s
+		if ( flag_even ) then
+			bracket(i) = bracket(i) - (  WK( mo(i-K-J,N) ) * X( mo(i+K-J,N) ) + WK( mo(i-K+J,N) ) * X( mo(i+K+J,N) )  ) / 2.
+		end if
+	end do
+	
+	bracket = bracket / (K*K)
+	
+end subroutine
+
+subroutine Lorenz_model_make_WK( this, X, WK )
+
+	class(Lorenz_model)				 :: this
+	real, dimension(0:), intent(in)	 :: X
+	real, dimension(0:), intent(out) :: WK
+	
+	integer :: i, J, N, K
+	logical :: flag_even
+	real    :: s
+	
+	N = this % N; K = this % K
+	flag_even = .false.; J = K / 2; s = 0.
+	if ( mod(K,2) == 0 ) flag_even = .true.
+
+	! Calculate WK(0)
+	do i = -J, J
+		s = s + X( mo(0+i,N) )
+	end do
+	WK(0) = s
+	if ( flag_even ) WK(0) = WK(0) - ( X( mo(0-J,N) ) + X( mo(0+J,N) ) ) / 2.
+
+	! Calculate WK(n) for each n other than 0
+	do i = 1, N-1
+		s = s + (  - X( mo(i-J-1,N) ) + X( mo(i+J,N) )  )
+		WK(i) = s
+		if ( flag_even ) WK(i) = WK(i) - ( X( mo(i-J,N) ) + X( mo(i+J,N) ) ) / 2.
+	end do
+
+end subroutine
+
+function Lorenz_model_set_I( this ) result( I ) ! make 7 waves, maximum I values
+
+	class(Lorenz_model)	:: this
+	integer				:: I
+	
+	select case ( this % N )
+		case (960); I = 12
+		case (480); I =  6
+		case (240); I =  4
+		case (120); I =  3
+		case  (60); I =  1
+		case  (30); I =  1
+	end select
+	
+end function
+
+integer function mo( i, N )
+
+	integer, intent(in) :: i, N
+	
+	mo = mod( i, N )
+	if ( mo < 0 ) mo = mo + N
+	
+end function
+
+end module
