@@ -1,0 +1,102 @@
+---
+title: "HV-Laplace filter"
+author: "Marcin Jurek"
+date: "6/29/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+setwd("~/HVLF")
+rm(list = ls())
+source("aux-functions.r")
+source("simulations-lorenz/aux-functions-Lorenz.r")
+source("scores.r")
+resultsDir = "simulations-lorenz"
+library(VEnKF)
+library(Matrix)
+library(GPvecchia)
+```
+
+
+This vignette illustrates the basic use of the code developed for numerical experiments described in the paper. The code below is set up in a way that resembles the scenarios used in the section devoted to non-linear models. For illustration purposes the number of grid points is limited to 96, 
+
+```{r params}
+######### set parameters #########
+set.seed(1988)
+n = 96
+N = 10
+frac.obs = 0.1
+Tmax = 20
+
+## evolution function ##
+Force = 10
+K = 10
+dt = 0.005
+M = 5
+b = 0.1
+evolFun = function(X) b*Lorenz04M2Sim(as.numeric(X)/b, Force, K, dt, M, iter = 1, burn = 0)
+```
+
+```{r covFun}
+## covariance function
+sig2 = 0.01; range = .15; smooth = 0.5;
+covparms = c(sig2,range,smooth)
+covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
+```
+
+```{r likelihood}
+## likelihood settings
+me.var = 0.1;
+args = commandArgs(trailingOnly = TRUE)
+data.model = "gauss" # poisson, logistic, gamma
+lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha = 2)
+```
+
+```{r grid}
+## generate grid of pred.locs
+grid.oneside = seq(0,1,length = round(n))
+locs = matrix(grid.oneside, ncol = 1)
+```
+
+```{r initState}
+moments = getLRMuCovariance(n, Force, dt, K)
+Sig0 = (b**2)*moments[["Sigma"]] + diag(1e-10, n)
+mu = b*moments[["mu"]]
+#x0 = b*getX0(n, Force, K, dt)
+x0 = t(chol(Sig0)) %*% matrix(rnorm(n), ncol = 1) + mu
+#Sigt = sig2*Sig0
+Sigt = covfun(locs)
+```
+
+```{r approx}
+## define Vecchia approximation
+mra = GPvecchia::vecchia_specify(locs, N, conditioning = 'mra', ordering = 'maxmin')
+exact = GPvecchia::vecchia_specify(locs, nrow(locs) - 1, ordering = 'maxmin', conditioning = 'firstm')
+low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, ordering = 'maxmin', conditioning = 'firstm')
+approximations = list(mra = mra, low.rank = low.rank, exact = exact)
+```
+
+```{r filtering}
+cat("Simulating data\n")
+XY = simulate.xy(x0, evolFun, Sigt, frac.obs, lik.params, Tmax)
+
+cat(paste("filtering: ", ", MRA", "\n", sep = ""))
+start = proc.time()
+predsMRA = filter('mra', XY)
+d = as.numeric(proc.time() - start)
+cat(paste("MRA filtering took ", d[3], "s\n", sep = ""))
+    
+cat(paste("filtering: ", ", exact", "\n", sep = ""))
+start = proc.time()
+predsE = filter('exact', XY)
+d = as.numeric(proc.time() - start)
+cat(paste("Exact filtering took ", d[3], "s\n", sep = ""))
+
+cat(paste("filtering: ", ", LR", "\n", sep = ""))
+start = proc.time()
+predsLR  = filter('low.rank', XY)
+d = as.numeric(proc.time() - start)
+cat(paste("Low-rank filtering took ", d[3], "s\n", sep = ""))
+
+plotResults(XY, predsE, predsMRA, predsLR)
+```

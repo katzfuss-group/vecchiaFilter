@@ -4,7 +4,7 @@ source("aux-functions.r")
 source("simulations-lorenz/aux-functions-Lorenz.r")
 source("scores.r")
 resultsDir = "simulations-lorenz"
-library(VEnKF)
+library(Lorenz04)
 library(Matrix)
 library(GPvecchia)
 library(foreach)
@@ -21,14 +21,14 @@ AllParamsAsString = list()
 
 ######### set parameters #########
 set.seed(1988)
-n = 96
-m = 20
+n = 960 
+m = 50
 frac.obs = 0.1
-Tmax = 20
+Tmax = 5
 
 ## evolution function ##
-Force = 10
-K = 10
+Force = 15
+K = 32
 dt = 0.005
 M = 5
 b = 0.1
@@ -38,7 +38,7 @@ max.iter = 1#getDoParWorkers()
 
 
 ## covariance function
-sig2 = 0.01; range = .15; smooth = 0.5;
+sig2 = 0.0001; range = .15; smooth = 0.5;
 covparms = c(sig2,range,smooth)
 covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
 
@@ -135,7 +135,7 @@ scores = foreach( iter=1:max.iter) %dopar% {
     write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
     write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
 
-    if (iter == 1) {
+    if(iter==1){
       plotResults(XY, predsE, predsMRA, predsLR, resultsDir)
     }
     list(RRMSPE, LogSc)
