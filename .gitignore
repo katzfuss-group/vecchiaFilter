@@ -1,7 +1,5 @@
-slides/*
 .Rhistory
 .RData
-/documents/*
 simulations-lorenz/Lorenz*
 simulations-lorenz/init_Lorenz*
 poisson/
@@ -9,10 +7,7 @@ logistic/
 gamma/
 gauss/
 *.log
-Ott
 arma/*
 .directory
 VEnKF-test/*
-UW-Spacetime-talk
-sync.sh
 simulations-lorenz/logs/*
