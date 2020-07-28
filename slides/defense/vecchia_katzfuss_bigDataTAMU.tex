@@ -1,0 +1,707 @@
+\documentclass[xcolor=table]{beamer}
+\usepackage{beamerthemesplit}
+
+\titlegraphic{\includegraphics[height=10mm]{../plots/logo_TAMU.png}}
+%\logo{ \includegraphics[height=10mm]{../plots/logo_TAMU.png} }
+
+\usepackage[font={small}]{caption,subcaption}
+\captionsetup[subfigure]{aboveskip=0pt,belowskip=-1pt}
+\captionsetup{compatibility=false}
+
+\definecolor{maroon}{RGB}{80,0,0}
+\definecolor{coolgrey}{RGB}{112,115,115}
+\definecolor{lightaccent}{RGB}{231,222,208}
+
+% set theme
+\usetheme{CambridgeUS}
+\usecolortheme[named=maroon]{structure} 
+\setbeamercolor*{palette primary}{fg=maroon,bg=coolgrey}
+\setbeamercolor*{palette secondary}{fg=maroon,bg=lightaccent}
+\setbeamercolor*{palette tertiary}{fg=white,bg=maroon}
+\setbeamercolor{title}{fg=maroon}
+\setbeamercolor{frametitle}{fg=maroon}
+
+% fine tuning of the design
+\setbeamertemplate{navigation symbols}{}
+\setbeamercovered{highly dynamic}
+\setbeamertemplate{itemize items}[circle]
+\setbeamertemplate{enumerate items}[default]
+\setbeamertemplate{sections/subsections in toc}[square]
+\setbeamercovered{transparent}
+\setbeamersize{description width=.8cm}
+
+%% insert TOC when advancing to next (sub)section
+%\AtBeginSection[] {
+%   \begin{frame}
+%       \frametitle{Outline}
+%       \tableofcontents[currentsection,currentsubsection]
+%   \end{frame}
+%}
+%\AtBeginSubsection[] {
+%   \begin{frame}
+%       \frametitle{Outline}
+%       \tableofcontents[currentsection,currentsubsection]
+%   \end{frame}
+%}
+
+\usepackage{graphicx,psfrag,amsfonts,natbib,amsmath,colonequals}
+\usepackage[latin1]{inputenc}
+\usepackage{verbatim,tikz}
+\usepackage{color} % ,enumitem}
+\usepackage{bm}
+
+\usepackage{animate}
+
+\newcommand{\il}[1]{\begin{itemize}  #1 \end{itemize}}
+\newcommand{\ils}[1]{\begin{itemize} \vspace{2mm} \setlength\itemsep{3mm}  #1 \end{itemize}}
+\newcommand{\eq}[1]{\begin{equation}  #1 \end{equation}}
+
+\newcommand{\ba}{\mathbf{a}}
+\newcommand{\bh}{\mathbf{h}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bc}{\mathbf{c}}
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\bg}{\mathbf{g}}
+\newcommand{\bs}{\mathbf{s}}
+\newcommand{\bp}{\mathbf{p}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bq}{\mathbf{q}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bS}{\mathbf{S}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\bZ}{\mathbf{Z}}
+\newcommand{\bF}{\mathbf{F}}
+\newcommand{\bO}{\mathbf{O}}
+\newcommand{\bP}{\mathbf{P}}
+\newcommand{\bA}{\mathbf{A}}
+\newcommand{\bY}{\mathbf{Y}}
+\newcommand{\bJ}{\mathbf{J}}
+\newcommand{\bW}{\mathbf{W}}
+\newcommand{\bG}{\mathbf{G}}
+\newcommand{\bL}{\mathbf{L}}
+\newcommand{\bI}{\mathbf{I}}
+\newcommand{\bD}{\mathbf{D}}
+\newcommand{\bH}{\mathbf{H}}
+\newcommand{\bU}{\mathbf{U}}
+\newcommand{\bV}{\mathbf{V}}
+\newcommand{\bK}{\mathbf{K}}
+\newcommand{\bX}{\mathbf{X}}
+\newcommand{\bQ}{\mathbf{Q}}
+\newcommand{\bB}{\mathbf{B}}
+\newcommand{\bC}{\mathbf{C}}
+\newcommand{\bM}{\mathbf{M}}
+\newcommand{\bR}{\mathbf{R}}
+
+
+
+\newcommand{\bfzero}{\mathbf{0}}
+\newcommand{\bfalpha}{\bm{\alpha}}
+\newcommand{\bfgamma}{\bm{\gamma}}
+\newcommand{\bfmu}{\bm{\mu}}
+\newcommand{\bfxi}{\bm{\xi}}
+\newcommand{\bftheta}{\bm{\theta}}
+\newcommand{\bfeta}{\bm{\eta}}
+\newcommand{\bfnu}{\bm{\nu}}
+\newcommand{\bfdelta}{\bm{\delta}}
+\newcommand{\bfkappa}{\bm{\kappa}}
+\newcommand{\bfbeta}{\bm{\beta}}
+\newcommand{\bfepsilon}{\bm{\epsilon}}
+\newcommand{\bftau}{\bm{\tau}}
+\newcommand{\bfomega}{\bm{\omega}}
+\newcommand{\bfpi}{\bm{\pi}}
+\newcommand{\bfpsi}{\bm{\psi}}
+\newcommand{\bfSigma}{\bm{\Sigma}}
+\newcommand{\bfGamma}{\bm{\Gamma}}
+\newcommand{\bfLambda}{\bm{\Lambda}}
+\newcommand{\bfPsi}{\bm{\Psi}}
+\newcommand{\bfOmega}{\bm{\Omega}}
+
+\newcommand{\mrares}{l}
+\newcommand{\im}{{i_1,\ldots,i_\mrares}}
+\newcommand{\imp}{{i_1,\ldots,i_{\mrares+1}}}
+\newcommand{\imm}{{i_1,\ldots,i_{\mrares-1}}}
+\newcommand{\jm}{{j_1,\ldots,j_\mrares}}
+\newcommand{\jmp}{{j_1,\ldots,j_{\mrares+1}}}
+\newcommand{\jmm}{{j_1,\ldots,j_{\mrares-1}}}
+\newcommand{\jk}{{j_1,\ldots,j_k}}
+\newcommand{\jl}{{j_1,\ldots,j_l}}
+\newcommand{\jlp}{{j_1,\ldots,j_{l+1}}}
+\newcommand{\jM}{{j_1,\ldots,j_m}}
+
+\DeclareMathOperator{\E}{E}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\cov}{cov}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\chol}{chol}
+\DeclareMathOperator{\rchol}{rchol}
+\DeclareMathOperator{\rev}{rev}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\blockdiag}{blockdiag}
+\newcommand{\GP}{GP}
+\newcommand{\avg}{avg}
+\newcommand{\trace}{trace}
+\newcommand{\sign}{sign}
+\renewcommand{\path}{Q}
+\newcommand{\normal}{\mathcal{N}}
+\newcommand{\order}{\mathcal{O}}
+\renewcommand{\prec}{\bQ}
+\newcommand{\pprec}{\widetilde{\bQ}}
+\newcommand{\domain}{\mathcal{D}}
+\newcommand{\kronecker}{\raisebox{1pt}{\ensuremath{\:\otimes\:}}}
+
+\newcommand{\dens}{f}
+\newcommand{\adens}{\widehat{f}}
+\newcommand{\neighbors}{\mathcal{P}}
+\newcommand{\neighvec}[1]{\mathbf{p}_{#1}}
+\newcommand{\neigh}[1]{\neighbors_{#1}}
+\newcommand{\hist}[1]{\mathcal{H}_{#1}}
+\newcommand{\histvec}[1]{\mathbf{h}_{#1}}
+\newcommand{\locs}{\mathcal{S}}
+\newcommand{\obs}{\mathbf{O}}
+\newcommand{\obslocs}{\mathcal{S}^O}
+\newcommand{\predlocs}{\mathcal{S}^P}
+\newcommand{\mraknots}{\mathcal{K}}
+\newcommand{\knot}{\mathbf{k}}
+
+\newcommand{\dg}{\mbox{$^{\circ}$}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\title[GP Approximations]
+    {Gaussian-Process Approximations for Big Data}
+\author[Matthias Katzfuss]{Matthias Katzfuss}
+\institute[Texas A\&M]{Department of Statistics\\Texas A\&M University}
+\date{April 20, 2018}
+
+% Gaussian processes (GPs) are popular, flexible, and interpretable probabilistic models for functions. GPs are well suited for big data in areas such as machine learning, regression, and geospatial analysis. However, direct application of GPs is computationally infeasible for large datasets. We consider a framework for fast GP inference based on the so-called Vecchia approximation. Our framework contains many popular existing GP approximations as special cases. Representing the models by directed acyclic graphs, we determine the sparsity of the matrices necessary for inference, which leads to new insights regarding the computational properties. Based on these results, we propose novel Vecchia approaches for noisy, non-Gaussian, and massive data. We provide theoretical results, conduct numerical comparisons, and apply the methods to satellite data.
+
+
+
+\begin{document}
+
+\frame{\titlepage}
+
+%%%%%%%%%%%%%%   Actual slides start here     %%%%%%%%%%%%%%%%%%%%%%
+
+
+%\section[Outline]{}
+%\frame{
+%    \frametitle{Outline}
+%    
+%    \tableofcontents
+%    
+%}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Gaussian processes}
+
+
+\frame[t]{
+    \frametitle{Introduction}   
+~
+
+\vspace{-12mm}
+
+\begin{center}
+\includegraphics<1>[width =.7\linewidth]{../plots/illus1}
+\includegraphics<2>[width =.7\linewidth]{../plots/illus2}
+\includegraphics<3>[width =.7\linewidth]{../plots/illus3}
+\end{center}
+
+\onslide<1->{Consider a function}
+\onslide<2->{, observed incompletely}
+\onslide<3>{, and with noise/error}
+
+
+%\ils{
+%\onslide<3->{\item For $\bz_i$, always condition on $\by_i$
+%\item For $\by_i$, condition on index set $q(i) \subset \{1,\ldots,i-1\}$ with $|q(i)|\leq m \; (\ll \ell)$,
+%partitioned as $q(i) = q_y(i) \cup q_z(i)$ }
+%\onslide<4->{\item Conditioning on latent $\by_j$ can be more accurate (see next slides) but also more expensive than conditioning on $\bz_j$
+%\item Implied distribution of the data: $\adens(\bz) = \int \adens(\bx) d\by$ }
+%}
+
+}
+
+
+\frame[t]{
+    \frametitle{Gaussian processes: Probabilistic function estimators}   
+~
+
+\vspace{-12mm}
+
+\begin{center}
+\includegraphics<1>[width =.7\linewidth]{../plots/illus4}
+\includegraphics<2>[width =.7\linewidth]{../plots/illus5}
+\includegraphics<3>[width =.7\linewidth]{../plots/illus6}
+\end{center}
+
+\onslide<1->{Assuming Gaussianity, Gaussian processes (GPs) can provide an optimal function estimate}
+
+\onslide<2->{and quantify uncertainty in the form of a joint probability distribution}
+
+%\ils{
+%\item Prediction intervals/bands
+%\item Probability of exceeding thresholds
+%\item Distribution of mean/total
+%}
+
+}
+
+
+\frame{
+    \frametitle{Application areas}   
+
+Examples:
+\ils{
+\item Time series
+\item Spatial fields
+\item (Nonlinear) regression and classification
+\item Machine learning
+}
+
+}
+
+
+\frame{
+    \frametitle{Example: Satellite data}   
+
+Chlorophyll fluorescence: Indicator of photosynthetic energy conversion.
+
+Over 100,000 noisy data retrieved over 16 days by the OCO-2 satellite:
+
+\vspace{-7mm}
+
+\begin{columns}[c]
+    \column{.65\textwidth}
+            \includegraphics[width =.95\linewidth]{../../../generalVecchia/plots/flrdata}
+    \column{.35\textwidth}
+     \includegraphics[width =.95\linewidth]{../../../generalVecchia/plots/flrorbit}
+\end{columns}
+
+\vspace{-8mm}
+\footnotesize 
+From \url{https://disc.gsfc.nasa.gov/datacollection/OCO2_L2_Lite_SIF_7r.html}
+}
+
+
+\frame{
+    \frametitle{Non-Gaussian data: Generalized GP}   
+
+Conditional on GP, data are non-Gaussian: binary, categorical, counts, point patterns, \ldots
+
+\vspace{2mm}
+
+\onslide<2->{Binary classification using logistic GP regression: Take GP function}
+
+\onslide<3>{Transform into probability using logistic link, then draw from Bernoulli distribution}
+
+\vspace{3mm}
+
+\only<1>{\phantom{\includegraphics[width =.45\linewidth]{../plots/illusbinfct}}}
+\includegraphics<2->[width =.45\linewidth]{../plots/illusbinfct} \hfill % \begin{minipage}[b]{.05\linewidth} \Large $\rightarrow$ \end{minipage} \hfill
+\includegraphics<3>[width =.45\linewidth]{../plots/illusbindata}
+
+}
+
+
+
+\frame{
+    \frametitle{GPs: Well suited for big data}   
+
+~
+
+\vspace{-7mm}
+
+\begin{center}
+\includegraphics<1>[width =.7\linewidth]{../plots/illus5}
+\includegraphics<2>[width =.7\linewidth]{../plots/illus_largen}
+\includegraphics<3>[width =.7\linewidth]{../plots/illus_ns}
+\end{center}
+
+%\ils{
+%\onslide<3->{\item For $\bz_i$, always condition on $\by_i$
+%\item For $\by_i$, condition on index set $q(i) \subset \{1,\ldots,i-1\}$ with $|q(i)|\leq m \; (\ll \ell)$,
+%partitioned as $q(i) = q_y(i) \cup q_z(i)$ }
+%\onslide<4->{\item Conditioning on latent $\by_j$ can be more accurate (see next slides) but also more expensive than conditioning on $\bz_j$
+%\item Implied distribution of the data: $\adens(\bz) = \int \adens(\bx) d\by$ }
+%}
+
+\il{
+\onslide<1>{\item Interpretable}
+\onslide<2>{\item More data $\rightarrow$ learn more fine-scale features}
+\onslide<3>{\item Highly flexible}
+}
+
+}
+
+
+\frame{
+    \frametitle{BUT: GPs are not scalable}   
+
+For $n$ data points, need to work with $n \times n$ covariance matrix\\
+
+$\rightarrow$ Direct inference has $\mathcal{O}(n^3)$ time and $\mathcal{O}(n^2)$ memory complexity
+
+\begin{center}
+\includegraphics[width =.58\linewidth]{../plots/GPtime}
+\end{center}
+
+}
+
+
+
+%%%%%%%%%%%%%%%%
+\section{Vecchia approximation}
+
+
+\frame{
+    \frametitle{Vecchia approximation} 
+
+Assume $\bx$ is multivariate Gaussian random vector of length $N$. Density function can be factorized as
+\[
+f(\bx) = \prod_{i=1}^N f(x_i|{\color{red}\bx_{1:i-1}}),
+\]
+where $\bx_{1:i-1} \colonequals (x_1,\ldots,x_{i-1})'$. 
+
+\vspace{3mm}
+
+\pause 
+
+This factorization motivates the \citet{Vecchia1988} approximation:
+\begin{equation*}
+\label{eq:vecchia}
+\widehat f(\bx) = \prod_{i=1}^N f(x_i|{\color{red}\bx_{g(i)}}),
+\end{equation*}
+where $g(i) \subset \{1,\ldots,i-1\}$ is the conditioning set of size $|g(i)| \leq m$. 
+
+\vspace{2mm}
+
+\pause 
+%Approximation becomes exact as $m$ increases. 
+If  $m \ll n$, can lead to enormous computational savings.
+}
+
+
+
+\frame{
+    \frametitle{General Vecchia framework \citep{Katzfuss2017a}}   
+
+The vector $\bx$ does not have to be the data vector itself.  
+
+\vspace{4mm}
+
+Three choices for general Vecchia:
+\begin{enumerate}
+\item Which variables to include in $\bx$? % (i.e., what is the relationship between $\bx$ and the GP of interest)?
+\item How to order the variables in $\bx$? 
+\item How to choose the conditioning sets $g(i)$? 
+\end{enumerate}
+
+\vspace{4mm}
+
+Choices can result in tremendous differences in terms of approximation accuracy and computational speed.
+
+}
+
+
+\frame{
+    \frametitle{Response Vecchia \citep{Vecchia1988}}   
+
+Vecchia approximation is applied to data/responses directly
+
+\vspace{2mm}
+
+{\color{red}Exact GP prediction} \onslide<2->{ vs. {\color{blue}response Vecchia with $m=4$}}
+\begin{center}
+\includegraphics<1>[width =.65\linewidth]{../plots/illus6}
+\includegraphics<2>[width =.65\linewidth]{../plots/illus7}
+\includegraphics<3>[width =.65\linewidth]{../plots/illus8}
+\end{center}
+
+\onslide<2>{{\color{blue}Works well for data without noise}}
+
+\onslide<3>{{\color{blue}Works very poorly if data are noisy}}
+
+%$m=4$
+}
+
+
+\frame{
+    \frametitle{General Vecchia \citep{Katzfuss2017a}}   
+
+$\bx$ consists of noisy data and (unknown/latent) GP realizations
+
+\begin{center}
+\includegraphics[width =.7\linewidth]{../plots/illus9}
+\end{center}
+
+Works well even if data are noisy ($m=4$)\\
+~
+
+}
+
+
+%\frame{
+%    \frametitle{Include prediction variables}   
+%
+%}
+
+
+\frame{
+    \frametitle{Vecchia-Laplace for non-Gaussian data}   
+
+\il{
+\item For generalized GP, posterior is intractable $\rightarrow$ 2nd-order Taylor expansion at the mode (Laplace approximation)
+\item Laplace algorithm: Iterative GP prediction using Gaussian pseudo-data
+\item Vecchia-Laplace (Katzfuss \& Zilber, 2018): $\bx$ consists of latent GP realizations and pseudo-data
+}
+
+\vspace{3mm}
+
+\includegraphics<1->[width =.45\linewidth]{../plots/illusbindata} \hfill % \begin{minipage}[b]{.05\linewidth} \Large $\rightarrow$ \end{minipage} \hfill
+\includegraphics<2>[width =.45\linewidth]{../plots/illusbinpred}
+
+}
+
+
+\frame[t]{
+    \frametitle{Ordering}   
+
+\begin{minipage}{.45\textwidth}
+\begin{center}
+Coordinate\\
+\includegraphics[width =.95\linewidth]{../../../generalVecchia/plots/talk_illus_coord}
+\end{center}
+\end{minipage}
+\hfill
+\begin{minipage}{.45\textwidth}
+\begin{center}
+Max-min distance\\
+\includegraphics[width =.95\linewidth]{../../../generalVecchia/plots/talk_illus_maxmin}
+\end{center}
+\end{minipage}
+
+\vspace{5mm}
+
+Max-min is much more accurate \citep{Guinness2016a} 
+}
+
+
+\frame[t]{
+    \frametitle{Multi-resolution approximation \citep[MRA;][]{Katzfuss2015}}
+
+~
+
+\vspace{-8mm}
+
+\begin{center}
+\includegraphics[width =.4\linewidth]{../../../generalVecchia/plots/talk_illus_mra}
+\end{center}
+
+\il{
+\item $\domain$ is iteratively partitioned into $J$ subregions (here, $J=4$)
+\item distributed analysis, massive data
+\item useful for data assimilation (Jurek \& Katzfuss, 2018)
+\item results in hierarchical off-diagonal low-rank (HODLR) matrix
+\item Special cases: FSA, PIC, MPP, low-rank, sparse GP, \ldots
+}
+
+}
+
+
+
+\begin{frame}{Latent vs.\ response conditioning}
+
+~
+
+\vspace{-6mm}
+
+\begin{block}{Proposition}
+~ 
+
+\vspace{-6mm}
+
+\[\textnormal{KL}\big(\dens(\bx) \| \adens_{\textnormal{latent}}(\bx)\big) \leq \textnormal{KL}\big(\dens(\bx) \| \adens_{\textnormal{response}}(\bx)\big)\]
+\end{block}
+
+\vspace{3mm}
+
+	\centering
+	\includegraphics[width =.5\linewidth]{../../../generalVecchia/plots/comp_1D_SNR1}
+
+
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%\frame{
+%    \frametitle{Existing approaches for computational feasibility} 
+%
+%Let $\bfSigma \colonequals \cov(\bz)$ be the data covariance matrix. 
+%
+%\vspace{3mm}
+%
+%Existing approaches include:
+%\ils{
+%\item Sparse $\bfSigma$ \citep[e.g.,][]{furrer2006covariance,kaufman2008covariance}
+%\item Sparse $\bfSigma^{-1}$ \citep[e.g.,][]{rue2005gaussian,lindgren2011explicit,Nychka2012}
+%\item Low-rank $\bfSigma$ \citep[e.g.,][]{Higdon1998, Wikle1999, Quinonero-Candela2005, Banerjee2008, Cressie2008}
+%\item Sparse Cholesky factor of $\bfSigma^{-1}$: see following slide
+%}
+%
+%%\ils{
+%%\item Covariance tapering \citep[e.g.,][]{furrer2006covariance,kaufman2008covariance}:
+%%Multiply covariance function by compactly supported correlation function\\
+%% $\rightarrow$ sparse $\bC = \cov(\bz)$ 
+%%\item Stochastic partial differential equation (SPDE) approach \citep{lindgren2011explicit}:
+%%Approximate Mat\'ern covariances with Markov random fields\\
+%%$\rightarrow$ sparse $\bC^{-1}$
+%%\item Low-rank models \citep[e.g.,][]{Higdon1998, Wikle1999, Quinonero-Candela2005, Banerjee2008, Cressie2008}:
+%%Express GP as weighted sum of (a small number of) basis functions\\
+%% $\rightarrow$ sparse rank decomposition of $\bC$ 
+%%\item Vecchia's approximation:  $\rightarrow$ sparse Cholesky factor of $\bC^{-1}$
+%%}
+%
+%}
+
+
+
+\frame[t]{
+    \frametitle{DAG representation and sparsity}
+
+\only<1>{
+ \includegraphics[trim={62mm 25mm 62mm 20mm},clip,width =.75\linewidth]{../../../generalVecchia/plots/DAG_standard} %lbrt
+ \hfill
+ \includegraphics[width =.2\linewidth]{../../../generalVecchia/plots/V_standard}
+} 	
+\only<2>{
+ \includegraphics[trim={62mm 25mm 62mm 20mm},clip,width =.75\linewidth]{../../../generalVecchia/plots/DAG_latent} %lbrt
+ \hfill
+ \includegraphics[width =.2\linewidth]{../../../generalVecchia/plots/V_latent}
+} 	
+\only<3>{
+\includegraphics[trim={62mm 25mm 62mm 20mm},clip,width =.75\linewidth]{../../../generalVecchia/plots/DAG_SGV} %lbrt
+ \hfill
+\includegraphics[width =.2\linewidth]{../../../generalVecchia/plots/V_SGV}
+} 	
+ 	 	
+\vspace{4mm}
+
+\ils{
+\only<1->{ 	
+\item Response Vecchia results in sparse Cholesky factors of the precision (i.e., inverse covariance) matrix \ldots
+}
+\only<2->{ 	
+\item but latent conditioning can make them dense(r).
+}
+\only<3>{ 	
+\item Under sparse general Vecchia (SGV) rules, complexity is linear in $n$: %$\order(nm^3)$
+\il{ \item based on $d$-separation in directed acyclic graph (DAG) representation}
+}
+}
+
+}
+
+
+
+
+%%%%%%%%%%%%%%
+\section{Satellite-data application}
+
+\frame{
+    \frametitle{Chlorophyll fluorescence}   
+
+Satellite data for May 16 to May 31, 2017, with $n = 104{,}683$
+
+\vspace{6mm}
+
+Results using sparse general Vecchia with $m=25$, computed in a couple of seconds:
+
+\vspace{3mm}
+
+\includegraphics[trim={0mm 6mm 0mm 5mm},clip,width=1\textwidth]{../../../vecchia_predictions/plots/fluorescence_pred.pdf}%lbrt
+
+}
+
+
+%\frame{
+%    \frametitle{Satellite data: Model comparison}   
+%
+%Loglikelihoods of fitted models (differences from best-fitting model):
+%
+%\vspace{3mm}
+%
+%\centering
+%\includegraphics[width=0.6\textwidth]{../../../generalVecchia/plots/satellite_logliks}
+%
+%}
+
+
+%%%%%%%%%%%%%
+\section{Conclusions and guidelines}
+
+\frame{
+    \frametitle{Conclusions}
+
+General Vecchia framework for GP approximations:
+\begin{itemize}
+\item Accurate
+\item Very general
+\item Choice of $\bx$, ordering, and conditioning all important
+\item Can guarantee linear scalability
+\end{itemize}
+
+\vspace{8mm}
+
+    Main reference: \\
+    Katzfuss, M.\ and Guinness, J. (2017). A general framework for Vecchia approximations of Gaussian processes. \emph{arXiv:1708.06302}.
+
+%\vspace{5mm}
+%
+%\footnotesize
+%Acknowledgments:
+%\il{
+%\item Katzfuss: NSF Grant DMS--1521676 and NSF CAREER Grant DMS--1654083
+%}
+
+{\color{white}
+\tiny
+\bibliographystyle{apalike}
+\bibliography{../vecchiabib}
+}
+
+}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%\frame{
+% \frametitle{References}
+%\tiny
+%
+%\def\newblock{}
+%
+%~
+%
+%\vspace{-5mm}
+%
+%\bibliographystyle{apalike}
+%\bibliography{vecchiabib}
+%
+%
+%}
+
+
+\end{document}
