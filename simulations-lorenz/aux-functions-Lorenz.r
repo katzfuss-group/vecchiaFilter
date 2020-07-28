@@ -65,15 +65,25 @@ filter = function(approx.name, XY){
   mu.tt1 = mu
   
   cat("\t\tcalculating posterior\n")
-  preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = mu.tt1,
-                                      likelihood_model = data.model, covmodel = covmodel,
-                                      covparms = NULL, likparms = lik.params, return_all = TRUE)
+  
+  if( any(!is.na(obs.aux)) ){
+    preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = mu.tt1,
+                                                   likelihood_model = data.model, covmodel = covmodel,
+                                                   covparms = NULL, likparms = lik.params, return_all = TRUE)
+  }
   
   cat("\t\tsaving the moments\n")
-  L.tt  = getLtt(approx, preds.aux)
-  mu.tt = matrix(preds.aux$mean, ncol = 1)
-  preds[[1]] = list(state = mu.tt, W = preds.aux$W)#, V = preds.aux$V)
-  
+  if( any(!is.na(obs.aux)) ) {
+    L.tt  = getLtt(approx, preds.aux)
+    mu.tt = matrix(preds.aux$mean, ncol = 1)
+    preds[[1]] = list(state = mu.tt, W = preds.aux$W)#, V = preds.aux$V)
+  } else {
+    mu.tt = mu.tt1
+    L.tt = GPvecchia::createL( approx, covparms, covmodel )    
+    preds[[1]] = list(state = mu.tt, W = L.tt)#, V = preds.aux$V)
+  }
+
+
   if (Tmax == 1) { 
     return( preds )
   } 
@@ -92,14 +102,24 @@ filter = function(approx.name, XY){
     
     covmodel = GPvecchia::getMatCov(approx, as.matrix(Fmat %*% Matrix::t(Fmat) + Sigt))
     cat("\t\tcalculating posterior\n")
-    preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
+    
+    if( any(!is.na(obs.aux)) ){
+      preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = forecast,
                                                    likelihood_model = data.model, covmodel = covmodel,
                                                    covparms = covparms, likparms = lik.params, return_all = TRUE)
+    }
+    
     cat("\t\tsaving the moments\n")
-
-    L.tt = getLtt(approx, preds.aux)
-    mu.tt = matrix(preds.aux$mean, ncol = 1)
-    preds[[t]] = list(state = mu.tt, W = preds.aux$W, V = preds.aux$V)
+    if( any(!is.na(obs.aux)) ){
+      L.tt = getLtt(approx, preds.aux)
+      mu.tt = matrix(preds.aux$mean, ncol = 1)
+      preds[[t]] = list(state = mu.tt, W = preds.aux$W)#, V = preds.aux$V)
+    } else {
+      mu.tt = mu.tt1
+      L.tt = GPvecchia::createL( approx, covparms, covmodel ) 
+      preds[[t]] = list(state = mu.tt, W = L.tt)#, V = preds.aux$V)
+    }
+    
   }
   return( preds )
 }
