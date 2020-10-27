@@ -1,0 +1,339 @@
+\begin{thebibliography}{}
+
+\bibitem[Ambikasaran et~al., 2016]{Ambikasaran2016}
+Ambikasaran, S., Foreman-Mackey, D., Greengard, L., Hogg, D.~W., and O'Neil, M.
+  (2016).
+\newblock {Fast direct methods for Gaussian processes}.
+\newblock {\em IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  38(2):252--265.
+
+\bibitem[Anderson, 2001]{Anderson2001}
+Anderson, J.~L. (2001).
+\newblock {An ensemble adjustment Kalman filter for data assimilation}.
+\newblock {\em Monthly Weather Review}, 129(12):2884--2903.
+
+\bibitem[Banerjee et~al., 2004]{Banerjee2004}
+Banerjee, S., Carlin, B.~P., and Gelfand, A.~E. (2004).
+\newblock {\em {Hierarchical Modeling and Analysis for Spatial Data}}.
+\newblock Chapman {\&} Hall.
+
+\bibitem[Banerjee et~al., 2008]{Banerjee2008}
+Banerjee, S., Gelfand, A.~E., Finley, A.~O., and Sang, H. (2008).
+\newblock {Gaussian predictive process models for large spatial data sets}.
+\newblock {\em Journal of the Royal Statistical Society, Series B},
+  70(4):825--848.
+
+\bibitem[Bonat and Ribeiro~Jr, 2016]{Bonat2016}
+Bonat, W.~H. and Ribeiro~Jr, P.~J. (2016).
+\newblock Practical likelihood analysis for spatial generalized linear mixed
+  models.
+\newblock {\em Environmetrics}, 27(2):83--89.
+
+\bibitem[Burgers et~al., 1998]{Burgers1998}
+Burgers, G., Jan~van Leeuwen, P., and Evensen, G. (1998).
+\newblock {Analysis scheme in the ensemble Kalman filter}.
+\newblock {\em Monthly Weather Review}, 126(6):1719--1724.
+
+\bibitem[Cressie, 1993]{Cressie1993}
+Cressie, N. (1993).
+\newblock {\em {Statistics for Spatial Data, revised edition}}.
+\newblock John Wiley {\&} Sons, New York, NY.
+
+\bibitem[Datta et~al., 2016]{Datta2016}
+Datta, A., Banerjee, S., Finley, A.~O., and Gelfand, A.~E. (2016).
+\newblock {Hierarchical nearest-neighbor Gaussian process models for large
+  geostatistical datasets}.
+\newblock {\em Journal of the American Statistical Association},
+  111(514):800--812.
+
+\bibitem[DelSole and Yang, 2010]{delsole2010state}
+DelSole, T. and Yang, X. (2010).
+\newblock State and parameter estimation in stochastic dynamical models.
+\newblock {\em Physica D: Nonlinear Phenomena}, 239(18):1781--1788.
+
+\bibitem[Douc et~al., 2005]{Douc2005}
+Douc, R., Capp{\'{e}}, O., and Moulines, E. (2005).
+\newblock {Comparison of resampling schemes for particle filtering}.
+\newblock {\em ISPA 2005. Proceedings of the 4th International Symposium on
+  Image and Signal Processing and Analysis, 2005.}, pages 64--69.
+
+\bibitem[Doucet and Johansen, 2011]{Doucet2011}
+Doucet, A. and Johansen, A.~M. (2011).
+\newblock {A tutorial on particle filtering and smoothing: Fifteen years
+  later}.
+\newblock In Crisan, D. and Rozovskii, B., editors, {\em The Oxford Handbook of
+  Nonlinear Filtering}, number December, pages 656--704. Oxford University
+  Press.
+
+\bibitem[Evensen, 1994]{Evensen1994}
+Evensen, G. (1994).
+\newblock {Sequential data assimilation with a nonlinear quasi-geostrophic
+  model using Monte Carlo methods to forecast error statistics}.
+\newblock {\em Journal of Geophysical Research}, 99(C5):10143–10162.
+
+\bibitem[Evensen, 2007]{Evensen2007}
+Evensen, G. (2007).
+\newblock {\em {Data Assimilation: The Ensemble Kalman Filter}}.
+\newblock Springer.
+
+\bibitem[Finley et~al., 2009]{Finley2009}
+Finley, A.~O., Sang, H., Banerjee, S., and Gelfand, A.~E. (2009).
+\newblock {Improving the performance of predictive process modeling for large
+  datasets}.
+\newblock {\em Computational Statistics {\&} Data Analysis}, 53(8):2873--2884.
+
+\bibitem[Geoga et~al., 2018]{Geoga2018}
+Geoga, C.~J., Anitescu, M., and Stein, M.~L. (2018).
+\newblock {Scalable Gaussian Process Computations Using Hierarchical Matrices}.
+\newblock {\em arXiv:1808.03215}.
+
+\bibitem[Gneiting and Katzfuss, 2014]{Gneiting2014}
+Gneiting, T. and Katzfuss, M. (2014).
+\newblock {Probabilistic forecasting}.
+\newblock {\em Annual Review of Statistics and Its Application}, 1(1):125--151.
+
+\bibitem[Golub and Van~Loan, 2012]{Golub2012}
+Golub, G.~H. and Van~Loan, C.~F. (2012).
+\newblock {\em {Matrix Computations}}.
+\newblock JHU Press, 4th edition.
+
+\bibitem[Grewal and Andrews, 1993]{Grewal1993}
+Grewal, M.~S. and Andrews, A.~P. (1993).
+\newblock {\em {Kalman Filtering: Theory and Applications}}.
+\newblock Prentice Hall.
+
+\bibitem[Guinness, 2018]{Guinness2016a}
+Guinness, J. (2018).
+\newblock {Permutation methods for sharpening Gaussian process approximations}.
+\newblock {\em Technometrics}, 60(4):415--429.
+
+\bibitem[Hackbusch, 2015]{Hackbusch2015}
+Hackbusch, W. (2015).
+\newblock {\em {Hierarchical Matrices: Algorithms and Analysis}}, volume~49.
+\newblock Springer.
+
+\bibitem[Heaton et~al., 2019]{Heaton2017}
+Heaton, M.~J., Datta, A., Finley, A.~O., Furrer, R., Guinness, J., Guhaniyogi,
+  R., Gerber, F., Gramacy, R.~B., Hammerling, D., Katzfuss, M., Lindgren, F.,
+  Nychka, D.~W., Sun, F., and Zammit-Mangion, A. (2019).
+\newblock {A case study competition among methods for analyzing large spatial
+  data}.
+\newblock {\em Journal of Agricultural, Biological, and Environmental
+  Statistics}, 24(3):398--425.
+
+\bibitem[Johannesson et~al., 2003]{Johannesson2003}
+Johannesson, G., Cressie, N., and Huang, H.-C. (2003).
+\newblock {Dynamic multi-resolution spatial models}.
+\newblock In Higuchi, T., Iba, Y., and Ishiguro, M., editors, {\em Proceedings
+  of AIC2003: Science of Modeling}, volume~14, pages 167--174, Tokyo. Institute
+  of Statistical Mathematics.
+
+\bibitem[Julier and Uhlmann, 1997]{Julier1997}
+Julier, S.~J. and Uhlmann, J.~K. (1997).
+\newblock {New extension of the Kalman filter to nonlinear systems}.
+\newblock In {\em Int. Symp. Aerospace/Defense Sensing, Simul. and Controls},
+  pages 182--193.
+
+\bibitem[Jurek and Katzfuss, 2018]{Jurek2018}
+Jurek, M. and Katzfuss, M. (2018).
+\newblock {Multi-resolution filters for massive spatio-temporal data}.
+\newblock {\em arXiv:1810.04200}.
+
+\bibitem[Kalman, 1960]{Kalman1960}
+Kalman, R. (1960).
+\newblock {A new approach to linear filtering and prediction problems}.
+\newblock {\em Journal of Basic Engineering}, 82(1):35--45.
+
+\bibitem[Katzfuss, 2017]{Katzfuss2015}
+Katzfuss, M. (2017).
+\newblock {A multi-resolution approximation for massive spatial datasets}.
+\newblock {\em Journal of the American Statistical Association},
+  112(517):201--214.
+
+\bibitem[Katzfuss and Cressie, 2011]{Katzfuss2010}
+Katzfuss, M. and Cressie, N. (2011).
+\newblock {Spatio-temporal smoothing and EM estimation for massive
+  remote-sensing data sets}.
+\newblock {\em Journal of Time Series Analysis}, 32(4):430--446.
+
+\bibitem[Katzfuss and Gong, 2019]{Katzfuss2017b}
+Katzfuss, M. and Gong, W. (2019).
+\newblock {A class of multi-resolution approximations for large spatial
+  datasets}.
+\newblock {\em Statistica Sinica}, accepted.
+
+\bibitem[Katzfuss and Guinness, 2019]{Katzfuss2017a}
+Katzfuss, M. and Guinness, J. (2019).
+\newblock {A general framework for Vecchia approximations of Gaussian
+  processes}.
+\newblock {\em Statistical Science}, accepted.
+
+\bibitem[Katzfuss et~al., 2020a]{Katzfuss2018}
+Katzfuss, M., Guinness, J., Gong, W., and Zilber, D. (2020a).
+\newblock {Vecchia approximations of Gaussian-process predictions}.
+\newblock {\em Journal of Agricultural, Biological, and Environmental
+  Statistics}, accepted.
+
+\bibitem[Katzfuss et~al., 2020b]{Katzfuss2020}
+Katzfuss, M., Guinness, J., and Lawrence, E. (2020b).
+\newblock {Scaled Vecchia approximation for fast computer-model emulation}.
+\newblock {\em arXiv:2005.00386}.
+
+\bibitem[Katzfuss et~al., 2016]{Katzfuss2015b}
+Katzfuss, M., Stroud, J.~R., and Wikle, C.~K. (2016).
+\newblock {Understanding the ensemble Kalman filter}.
+\newblock {\em The American Statistician}, 70(4):350--357.
+
+\bibitem[Katzfuss et~al., 2020c]{Katzfuss2017c}
+Katzfuss, M., Stroud, J.~R., and Wikle, C.~K. (2020c).
+\newblock {Ensemble Kalman methods for high-dimensional hierarchical dynamic
+  space-time models}.
+\newblock {\em Journal of the American Statistical Association},
+  115(530):866--885.
+
+\bibitem[Kaufman et~al., 2011]{Kaufman2011}
+Kaufman, C.~G., Bingham, D., Habib, S., Heitmann, K., and Frieman, J.~A.
+  (2011).
+\newblock {Efficient emulators of computer experiments using compactly
+  supported correlation functions, with an application to cosmology}.
+\newblock {\em The Annals of Applied Statistics}, 5(4):2470--2492.
+
+\bibitem[Kennedy and O'Hagan, 2001]{Kennedy2001}
+Kennedy, M.~C. and O'Hagan, A. (2001).
+\newblock {Bayesian calibration of computer models}.
+\newblock {\em Journal of the Royal Statistical Society: Series B},
+  63(3):425--464.
+
+\bibitem[Lauritzen, 1996]{lauritzen1996graphical}
+Lauritzen, S. (1996).
+\newblock {\em Graphical Models}.
+\newblock Oxford Statistical Science Series. Clarendon Press.
+
+\bibitem[Li et~al., 2014]{LiAmbikasaran2014}
+Li, J.~Y., Ambikasaran, S., Darve, E.~F., and Kitanidis, P.~K. (2014).
+\newblock {A Kalman filter powered by H-matrices for quasi-continuous data
+  assimilation problems}.
+\newblock {\em Water Resources Research}, 50(5):3734--3749.
+
+\bibitem[Liu et~al., 2020]{Liu2018}
+Liu, H., Ong, Y.-S., Shen, X., and Cai, J. (2020).
+\newblock {When Gaussian process meets big data: A review of scalable GPs}.
+\newblock {\em IEEE Transactions on Neural Networks and Learning Systems}.
+
+\bibitem[Lorenz, 1996]{Lorenz1996}
+Lorenz, E.~N. (1996).
+\newblock {Predictability -- A problem partly solved}.
+\newblock {\em Seminar on Predictability, Vol. 1, ECMWF}.
+
+\bibitem[Lorenz, 2005]{Lorenz2005}
+Lorenz, E.~N. (2005).
+\newblock {Designing chaotic models}.
+\newblock {\em Journal of the Atmospheric Sciences}, 62(5):1574--1587.
+
+\bibitem[Nychka and Anderson, 2010]{Nychka2010}
+Nychka, D.~W. and Anderson, J.~L. (2010).
+\newblock {Data assimilation}.
+\newblock In Gelfand, A.~E., Diggle, P.~J., Fuentes, M., and Guttorp, P.,
+  editors, {\em Handbook of Spatial Statistics}, chapter~27, pages 477--494.
+  CRC Press.
+
+\bibitem[Pham et~al., 1998]{Pham1998}
+Pham, D.~T., Verron, J., and Christine~Roubaud, M. (1998).
+\newblock {A singular evolutive extended Kalman filter for data assimilation in
+  oceanography}.
+\newblock {\em Journal of Marine Systems}, 16(3-4):323--340.
+
+\bibitem[Rasmussen and Williams, 2006]{Rasmussen2006}
+Rasmussen, C.~E. and Williams, C. K.~I. (2006).
+\newblock {\em {Gaussian Processes for Machine Learning}}.
+\newblock MIT Press.
+
+\bibitem[Rue and Held, 2010]{Rue2010}
+Rue, H. and Held, L. (2010).
+\newblock {Discrete spatial variation}.
+\newblock In {\em Handbook of Spatial Statistics}, chapter~12, pages 171--200.
+  CRC Press.
+
+\bibitem[Sacks et~al., 1989]{Sacks1989}
+Sacks, J., Welch, W., Mitchell, T., and Wynn, H. (1989).
+\newblock {Design and analysis of computer experiments}.
+\newblock {\em Statistical Science}, 4(4):409--435.
+
+\bibitem[Saibaba et~al., 2015]{Saibaba2015}
+Saibaba, A.~K., Miller, E.~L., and Kitanidis, P.~K. (2015).
+\newblock Fast{ K}alman filter using hierarchical matrices and a low-rank
+  perturbative approach.
+\newblock {\em Inverse Problems}, 31(1):015009.
+
+\bibitem[Sch{\"{a}}fer et~al., 2020]{Schafer2020}
+Sch{\"{a}}fer, F., Katzfuss, M., and Owhadi, H. (2020).
+\newblock {Sparse Cholesky factorization by Kullback-Leibler minimization}.
+\newblock {\em arXiv:2004.14455}.
+
+\bibitem[Sch{\"{a}}fer et~al., 2017]{Schafer2017}
+Sch{\"{a}}fer, F., Sullivan, T.~J., and Owhadi, H. (2017).
+\newblock {Compression, inversion, and approximate PCA of dense kernel matrices
+  at near-linear computational complexity}.
+\newblock {\em arXiv:1706.02205}.
+
+\bibitem[Sigrist et~al., 2015]{Sigrist2015}
+Sigrist, F., K{\"{u}}nsch, H.~R., and Stahel, W.~A. (2015).
+\newblock {Stochastic partial differential equation based modelling of large
+  space–time data sets}.
+\newblock {\em Journal of the Royal Statistical Society, Series B}.
+
+\bibitem[Stein, 2002]{Stein2002}
+Stein, M.~L. (2002).
+\newblock {The screening effect in kriging}.
+\newblock {\em Annals of Statistics}, 30(1):298--323.
+
+\bibitem[Stein, 2011]{Stein2011}
+Stein, M.~L. (2011).
+\newblock {When does the screening effect hold?}
+\newblock {\em Annals of Statistics}, 39(6):2795--2819.
+
+\bibitem[Stein et~al., 2004]{Stein2004}
+Stein, M.~L., Chi, Z., and Welty, L. (2004).
+\newblock {Approximating likelihoods for large spatial data sets}.
+\newblock {\em Journal of the Royal Statistical Society: Series B},
+  66(2):275–296.
+
+\bibitem[Tierney and Kadane, 1986]{Tierney1986}
+Tierney, L. and Kadane, J.~B. (1986).
+\newblock {Accurate approximations for posterior moments and marginal
+  densities}.
+\newblock {\em Journal of the American Statistical Association},
+  81(393):82--86.
+
+\bibitem[Toledo, 2007]{Toledo2007}
+Toledo, S. (2007).
+\newblock {Lecture Notes on Combinatorial Preconditioners, Chapter 3}.
+\newblock http://www.tau.ac.il/{\~{}}stoledo/Support/chapter-direct.pdf.
+
+\bibitem[Vecchia, 1988]{Vecchia1988}
+Vecchia, A. (1988).
+\newblock {Estimation and model identification for continuous spatial
+  processes}.
+\newblock {\em Journal of the Royal Statistical Society, Series B},
+  50(2):297--312.
+
+\bibitem[Verlaan and Heemink, 1995]{Verlaan1995}
+Verlaan, M. and Heemink, A.~W. (1995).
+\newblock {Reduced rank square root filters for large scale data assimilation
+  problems}.
+\newblock In {\em Proceedings of the 2nd International Symposium on
+  Assimilation in Meteorology and Oceanography}, pages 247--252. World
+  Meteorological Organization.
+
+\bibitem[Wikle and Cressie, 1999]{Wikle1999}
+Wikle, C.~K. and Cressie, N. (1999).
+\newblock {A dimension-reduced approach to space-time Kalman filtering}.
+\newblock {\em Biometrika}, 86(4):815--829.
+
+\bibitem[Zilber and Katzfuss, 2019]{Zilber2019}
+Zilber, D. and Katzfuss, M. (2019).
+\newblock {Vecchia-Laplace approximations of generalized Gaussian processes for
+  big non-Gaussian spatial data}.
+\newblock {\em arXiv:1906.07828}.
+
+\end{thebibliography}

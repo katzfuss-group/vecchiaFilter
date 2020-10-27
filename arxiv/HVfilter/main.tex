@@ -1,0 +1,1139 @@
+\documentclass[12pt,letterpaper]{article}
+
+\usepackage{natbib,hyperref}
+
+\usepackage[ left=1in, top=1in, right=1in, bottom=1in]{geometry}
+\usepackage{graphicx,bm,colonequals,amsmath,amssymb,url,xcolor,bbm}
+\usepackage{array,tabularx,multirow}
+\usepackage{enumitem}
+\usepackage[font={footnotesize}]{caption,subcaption}
+\usepackage[utf8]{inputenc}
+\usepackage{enumitem}
+\usepackage{soul} % for strikethrough text
+\usepackage{placeins} % for FloatBarrier
+\usepackage[normalem]{ulem}
+
+% for nice algorithms in pseudocode
+\usepackage[ruled,vlined]{algorithm2e}
+\SetKwInput{KwInput}{Input}
+\usepackage{algorithmic}
+% \usepackage{algorithm, algpseudocode}
+\usepackage{array,framed}
+\usepackage{float}
+\makeatletter
+\newcommand{\algorithmicbreak}{\textbf{break}}
+\newcommand{\BREAK}{\STATE \algorithmicbreak}
+\makeatother
+
+
+\graphicspath{{plots/}}
+
+%\usepackage{xr}
+%\externaldocument{supplement}
+
+% only display equation numbers that are actually referenced in the text
+\usepackage{mathtools}
+\mathtoolsset{showonlyrefs} 
+
+\setlength{\bibsep}{2pt}
+\bibpunct[, ]{(}{)}{;}{a}{,}{,}
+   
+% define and specify proposition environment
+\usepackage{amsthm}
+\newtheoremstyle{propstyle} % name
+    {2mm}                    % Space above
+    {1mm}                    % Space below
+    {\itshape}                   % Body font
+    {}                           % Indent amount
+    {\scshape}                   % Theorem head font
+    {.}                          % Punctuation after theorem head
+    {.5em}                       % Space after theorem head
+    {}  % Theorem head spec (can be left empty, meaning ‘normal’)
+\theoremstyle{propstyle}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{propstyle}
+\newtheorem{definition}{Definition}
+\theoremstyle{propstyle}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{propstyle}
+\newtheorem{claim}{Claim}
+\theoremstyle{propstyle}
+\newtheorem{assumption}{Assumption}
+
+% for algorithm box/environment
+\usepackage{array,framed}
+%\newcounter{algorithm}
+%\newenvironment{algorithm}[1][]{\refstepcounter{algorithm}\par\medskip\noindent%
+%   \textbf{Algorithm~\thealgorithm: #1} \rmfamily}{\medskip}
+   
+   
+\makeatletter
+\renewcommand{\paragraph}{%
+  \@startsection{paragraph}{4}%
+  {\z@}{2ex \@plus 1ex \@minus .2ex}{-1em}%
+  {\normalfont\normalsize\bfseries}%
+}
+\makeatother
+
+\DeclareMathAlphabet\mathbfcal{OMS}{cmsy}{b}{n}
+
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\textfraction}{0.1}
+
+% bold letters
+\newcommand{\bh}{\mathbf{h}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\bl}{\mathbf{l}}
+\newcommand{\ba}{\mathbf{a}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bc}{\mathbf{c}}
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\bs}{\mathbf{s}}
+\newcommand{\bp}{\mathbf{p}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\by}{\mathbf{y}}
+\newcommand{\bq}{\mathbf{q}}
+\newcommand{\bg}{\mathbf{g}}
+\newcommand{\bk}{\mathbf{k}}
+\newcommand{\bt}{\mathbf{t}}
+\newcommand{\br}{\mathbf{r}}
+\newcommand{\bw}{\mathbf{w}}
+\newcommand{\bS}{\mathbf{S}}
+\newcommand{\bT}{\mathbf{T}}
+\newcommand{\bz}{\mathbf{z}}
+\newcommand{\bZ}{\mathbf{Z}}
+\newcommand{\bO}{\mathbf{O}}
+\newcommand{\bP}{\mathbf{P}}
+\newcommand{\bA}{\mathbf{A}}
+\newcommand{\bY}{\mathbf{Y}}
+\newcommand{\bJ}{\mathbf{J}}
+\newcommand{\bW}{\mathbf{W}}
+\newcommand{\bF}{\mathbf{F}}
+\newcommand{\bG}{\mathbf{G}}
+\newcommand{\bE}{\mathbf{E}}
+\newcommand{\bL}{\mathbf{L}}
+\newcommand{\bN}{\mathbf{N}}
+\newcommand{\bI}{\mathbf{I}}
+\newcommand{\bD}{\mathbf{D}}
+\newcommand{\bH}{\mathbf{H}}
+\newcommand{\bU}{\mathbf{U}}
+\newcommand{\bV}{\mathbf{V}}
+\newcommand{\bK}{\mathbf{K}}
+\newcommand{\bX}{\mathbf{X}}
+\newcommand{\bQ}{\mathbf{Q}}
+\newcommand{\bB}{\mathbf{B}}
+\newcommand{\bC}{\mathbf{C}}
+\newcommand{\bM}{\mathbf{M}}
+\newcommand{\bR}{\mathbf{R}}
+
+% bold greek letters and symbols
+\newcommand{\bfzero}{\mathbf{0}}
+\newcommand{\bfalpha}{\bm{\alpha}}
+\newcommand{\bfgamma}{\bm{\gamma}}
+\newcommand{\bfmu}{\bm{\mu}}
+\newcommand{\bfxi}{\bm{\xi}}
+\newcommand{\bftheta}{\bm{\theta}}
+\newcommand{\bfeta}{\bm{\eta}}
+\newcommand{\bfnu}{\bm{\nu}}
+\newcommand{\bfdelta}{\bm{\delta}}
+\newcommand{\bfkappa}{\bm{\kappa}}
+\newcommand{\bfbeta}{\bm{\beta}}
+\newcommand{\bfepsilon}{\bm{\epsilon}}
+\newcommand{\bftau}{\bm{\tau}}
+\newcommand{\bfomega}{\bm{\omega}}
+\newcommand{\bfpi}{\bm{\pi}}
+\newcommand{\bfpsi}{\bm{\psi}}
+\newcommand{\bfrho}{\bm{\rho}}
+\newcommand{\bfSigma}{\bm{\Sigma}}
+\newcommand{\bfGamma}{\bm{\Gamma}}
+\newcommand{\bfLambda}{\bm{\Lambda}}
+\newcommand{\bfPsi}{\bm{\Psi}}
+\newcommand{\bfOmega}{\bm{\Omega}}
+
+% other math commands
+\newcommand{\der}[1]{\tfrac{\partial}{\partial #1}}
+\DeclareMathOperator*{\var}{Var}
+\DeclareMathOperator*{\cov}{Cov}
+\DeclareMathOperator*{\diag}{diag}
+\DeclareMathOperator*{\tr}{tr}
+\newcommand{\GP}{\mathcal{GP}}
+\DeclareMathOperator*{\avg}{avg}
+\DeclareMathOperator*{\trace}{trace}
+\DeclareMathOperator*{\blockdiag}{blockdiag}
+\newcommand{\order}{\mathcal{O}}
+\newcommand{\normal}{\mathcal{N}}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+\newcommand{\kronecker}{\raisebox{1pt}{\ensuremath{\:\otimes\:}}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+
+% for lower-case script letters and partitioning/conditioning sets
+%\usepackage{pzccal}
+\DeclareFontFamily{OT1}{pzc}{}
+\DeclareFontShape{OT1}{pzc}{m}{it}{<-> s * [1.2] pzcmi7t}{}
+\DeclareMathAlphabet{\mathpzc}{OT1}{pzc}{m}{it}
+% \newcommand{\sx}{{\mathpzc{x}\hspace{.2pt}}} 
+% \newcommand{\sa}{{\mathpzc{a}\hspace{.2pt}}}
+% \newcommand{\condset}{{\mathpzc{c}\hspace{.2pt}}}
+\newcommand{\sx}{\mathcal{X}}
+\newcommand{\sa}{\mathcal{A}}
+\newcommand{\sy}{\mathcal{Y}}
+\newcommand{\condset}{\mathcal{C}}
+
+\newcommand\sbullet[1][.5]{\mathbin{\vcenter{\hbox{\scalebox{#1}{$\bullet$}}}}}
+
+% GP/spatial commands
+\newcommand{\domain}{\mathcal{D}}
+\newcommand{\locs}{\mathcal{S}}
+
+% MRA commands
+\newcommand{\im}{{i_1,\ldots,i_m}}
+\newcommand{\iM}{{i_1,\ldots,i_M}}
+\newcommand{\il}{{i_1,\ldots,i_l}}
+\newcommand{\js}{{j_1,\ldots,j_s}}
+\newcommand{\jm}{{j_1,\ldots,j_m}}
+\newcommand{\jmp}{{j_1,\ldots,j_{m+1}}}
+\newcommand{\jmm}{{j_1,\ldots,j_{m-1}}}
+\newcommand{\jMm}{{j_1,\ldots,j_{M-1}}}
+\newcommand{\jk}{{j_1,\ldots,j_k}}
+\newcommand{\jkp}{{j_1,\ldots,j_{k+1}}}
+\newcommand{\jkm}{{j_1,\ldots,j_{k-1}}}
+\newcommand{\jl}{{j_1,\ldots,j_\ell}}
+\newcommand{\jlm}{{j_1,\ldots,j_{\ell-1}}}
+\newcommand{\jlp}{{j_1,\ldots,j_{\ell+1}}}
+\newcommand{\jM}{{j_1,\ldots,j_M}}
+\newcommand{\knots}{\mathcal{K}}
+
+% space-time commands
+\newcommand{\evol}{\mathcal{E}}
+\newcommand{\levol}{\mathbf{E}}
+\newcommand{\grid}{\mathcal{S}}
+\newcommand{\obs}{\mathcal{I}}
+
+
+% vecchia commands
+\DeclareMathOperator*{\rchol}{rchol}
+\DeclareMathOperator*{\chol}{chol}
+\DeclareMathOperator*{\rev}{rev}
+\DeclareMathOperator*{\ichol}{\text{ichol}}
+\DeclareMathOperator*{\hv}{\texttt{HV}}
+\DeclareMathOperator*{\hvl}{\texttt{HVL}}
+\newcommand{\Sp}[1]{\text{Sp}\left(#1\right)}
+\newcommand{\condmean}{\bfmu_{\by|\bx}}
+
+
+
+% graphical model commands
+\newcommand{\nd}{\mathcal{N}} %non-descendants
+\newcommand{\An}{\text{An}}
+
+% editing commands
+\newcommand{\todo}[1]{\textcolor{red}{[#1]}}
+
+
+
+%%%%
+\title{Hierarchical sparse Cholesky decomposition with applications to high-dimensional spatio-temporal filtering}
+
+\author{Marcin Jurek\thanks{Department of Statistics, Texas A\&M University} \and Matthias Katzfuss\footnotemark[1] \thanks{Corresponding author: \texttt{katzfuss@gmail.com}}}
+\date{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Spatial statistics often involves Cholesky decomposition of covariance matrices. To ensure scalability to high dimensions, several recent approximations have assumed a sparse Cholesky factor of the precision matrix. We propose a hierarchical Vecchia approximation, whose conditional-independence assumptions imply sparsity in the Cholesky factors of both the precision and the covariance matrix. This remarkable property is crucial for applications to high-dimensional spatio-temporal filtering. We present a fast and simple algorithm to compute our hierarchical Vecchia approximation, and we provide extensions to non-linear data assimilation with non-Gaussian data based on the Laplace approximation. In several numerical comparisons, our methods strongly outperformed alternative approaches.
+\end{abstract}
+
+{\small\noindent\textbf{Keywords:} state-space model, spatio-temporal statistics, data assimilation, Vecchia approximation, hierarchical matrix, incomplete Cholesky decomposition}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction\label{sec:intro}}
+
+%%% motivation
+Symmetric positive-definite matrices arise in spatial statistics, Gaussian-process inference, and spatio-temporal filtering, with a wealth of application areas, including geoscience \citep[e.g.,][]{Cressie1993,Banerjee2004}, machine learning \citep[e.g.,][]{Rasmussen2006}, data assimilation \citep[e.g.,][]{Nychka2010,Katzfuss2015b}, and the analysis of computer experiments \citep[e.g.,][]{Sacks1989,Kennedy2001}.
+Inference in these areas typically relies on Cholesky decomposition of the positive-definite matrices. However, this operation scales cubically in the dimension of the matrix, and it is thus computationally infeasible for many modern problems and applications, which are increasingly high-dimensional.
+% The advantages of Cholesky factorization make it a ubiquitous tool in filtering problems and give rise to the family of square root filters (reference).
+
+
+
+%%%% Literature review
+
+%% general
+Countless approaches have been proposed to address these computational challenges. \citet{Heaton2017} provide a recent review from a spatial-statistics perspective, and \citet{Liu2018} review approaches in machine learning. In  high-dimensional filtering, proposed solutions include low-dimensional approximations \citep[e.g.,][]{Verlaan1995,Pham1998,Wikle1999,Katzfuss2010}, spectral methods \citep[e.g.][]{Wikle1999,Sigrist2015}, and hierarchical approaches \citep[e.g.,][]{Johannesson2003,LiAmbikasaran2014,Saibaba2015,Jurek2018}. Operational data assimilation often relies on ensemble Kalman filters \citep[e.g.,][]{Evensen1994,Burgers1998,Anderson2001,Evensen2007,Katzfuss2015b,Katzfuss2017c}, which represent distributions by samples or ensembles. %; this reduces the computational burden, but it also results in undesired sampling variability. 
+
+%% vecchia and sparse cholesky
+Maybe the most promising approximations for spatial data and Gaussian processes implicitly or explicitly rely on sparse Cholesky factors. The assumption of ordered conditional independence in the popular Vecchia approximation \citep{Vecchia1988} and its extensions \citep[e.g.,][]{Stein2004,Datta2016,Guinness2016a,Katzfuss2017a,Katzfuss2018,Katzfuss2020,Schafer2020} implies sparsity in the Cholesky factor of the precision matrix. \citet{Schafer2017} uses an incomplete Cholesky decomposition to construct a sparse approximate Cholesky factor of the covariance matrix. However, these methods are not generally applicable to spatio-temporal filtering, because the assumed sparsity is not preserved under filtering operations.
+
+
+
+%%%% Our approach 
+
+%% spatial-only case
+Here, we relate the sparsity of the Cholesky factors of the covariance matrix and the precision matrix to specific assumptions regarding ordered conditional independence.
+% While some of these conditions have been known before, we are not aware of their precise statement and a formal proof.
+We show that these assumptions are simultaneously satisfied for a particular Gaussian-process approximation that we call hierarchical Vecchia (HV), which is a special case of the general Vecchia approximation \citep{Katzfuss2017a} based on hierarchical domain partitioning \citep[e.g.,][]{Katzfuss2015,Katzfuss2017b}.
+We show that the HV approximation can be computed using a simple and fast incomplete Cholesky decomposition.
+%which is conceptually simpler and more accurate than existing algorithms for multi-resolution decompositions. 
+
+%% filtering
+Due to its remarkable property of implying a sparse Cholesky factor whose inverse has equivalent sparsity structure, HV is well suited for extensions to spatio-temporal filtering; this is in contrast to other Vecchia approximations and other spatial approximations relying on sparsity. We provide a scalable HV-based filter for linear Gaussian spatio-temporal state-space models, which is related to the multi-resolution filter of \citet{Jurek2018}.
+Further, by combining HV with a Laplace approximation \citep[cf.][]{Zilber2019}, our method can be used for the analysis of non-Gaussian data. Finally, by combining the methods with the extended Kalman filter \citep[e.g.,][Ch.~5]{Grewal1993}, we obtain fast filters for high-dimensional, non-linear, and non-Gaussian spatio-temporal models.
+For a given formulation of HV, the computational cost of all of our algorithms scales linearly in the state dimension, assuming sufficiently sparse temporal evolution.
+
+% \todo{should we include a paragraph stating the contributions of this paper?}
+% To sum up, the paper makes the following contributions. First, it succinctly summarizes and proves conditional independence conditions that ensure that a particular element of the Cholesky factor and its inverse vanish. While some of these conditions have been known before, we are not aware of their precise statement and a formal proof. Second, we describe a new version of the Vecchia approximation and show that it satisfies all of these conditions. Third, we show how HV approximation can be easily obtained using the incomplete Cholesky decomposition (IC0). Fourth, we demonstrate how IC0 can be used to create an approximate Kalman filter. Fifth, we develop extensions to non-Gaussian data and non-linear temporal evolution models.
+
+
+%%%%%  organization of the manuscript
+The remainder of this document is organized as follows. In Section \ref{sec:sparsity}, we specify the relationship between ordered conditional independence and sparse (inverse) Cholesky factors. Then, we build up increasingly complex and general methods, culminating in non-linear and non-Gaussian spatio-temporal filters: in Section \ref{sec:hv}, we introduce hierarchical Vecchia for a linear Gaussian spatial field at a single time point; in Section \ref{sec:nongaussian}, we extend this to non-Gaussian data; and in Section \ref{sec:filter}, we consider the general spatio-temporal filtering case, including nonlinear evolution and parameter inference on unknown parameters in the model. Section \ref{sec:comparison} contains numerical comparisons to existing approaches. Section \ref{sec:conclusion} concludes.
+Appendices \ref{app:graph}--\ref{app:proofs} contain proofs and further details.
+Code implementing our methods and numerical comparisons is available at \url{https://github.com/katzfuss-group/vecchiaFilter}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sparsity of Cholesky factors\label{sec:sparsity}}
+
+We begin by specifying the connections between ordered conditional independence and sparsity of the Cholesky factor of the covariance and precision matrix.
+\begin{claim}
+Let $\bw$ be a normal random vector with variance-covariance matrix $\bK$.
+\begin{enumerate}
+    \item Let $\bL = \chol(\bK)$ be the lower-triangular Cholesky factor of the covariance matrix $\bK$. For $i>j$:
+    \[ \bL_{i,j}=0 \iff w_i \perp w_j \, | \, \bw_{1:j-1} \]
+    \item Let $\bU = \rchol(\bK^{-1}) = \bP \chol( \bP\bK^{-1}\bP)\,\bP$ be the Cholesky factor of the precision matrix under reverse ordering, where $\bP$ is the reverse-ordering permutation matrix. Then $\bU$ is upper-triangular, and for $i>j$:
+    \[ \bU_{j,i}=0 \iff w_i \perp w_j \, | \, \bw_{1:j-1},\bw_{j+1:i-1} \]
+\end{enumerate}
+\label{claim:cond-indep}
+\end{claim}
+The connection between ordered conditional independence and the Cholesky factor of the precision matrix is well known \citep[e.g.,][]{Rue2010}; Part 2 of our claim states this connection under reverse ordering \citep[e.g.,][Prop.~3.3]{Katzfuss2017a}. In Part 1, we consider the lesser-known relationship between ordered conditional independence and sparsity of the Cholesky factor of the covariance matrix, which was recently discussed in \citet[][Sect.~1.4.2]{Schafer2017}. For completeness, we provide a proof of Claim \ref{claim:cond-indep} in Appendix \ref{app:proofs}.
+
+Claim \ref{claim:cond-indep} is crucial for our later developments and proofs. In Section \ref{sec:hv}, we specify a hierarchical Vecchia approximation of Gaussian processes that satisfies both types of conditional independence in Claim \ref{claim:cond-indep}; the resulting sparsity of the Cholesky factor and its inverse allows extensions to spatio-temporal filtering in Section \ref{sec:filter}.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Hierarchical Vecchia for large Gaussian spatial data\label{sec:hv}}
+
+Consider a Gaussian process $x(\cdot)$ and a vector $\bx = (x_1, \ldots, x_n)^\top$ representing $x(\cdot)$ evaluated on a grid $\grid = \{\bs_1,\ldots,\bs_n \}$ with $\bs_i \in \domain \subset \mathbb{R}^d$ and $x_i = x(\bs_i)$ for $\bs_i \in \domain$, $i=1,\ldots,n$. We assume the following model:
+\begin{align}
+\label{eq:gobs} y_{i} \,|\, \bx & \stackrel{ind}{\sim} \normal(x_i,\tau_i^2),\qquad i \in \obs, \\
+\label{eq:gevol} \bx  & \sim \normal_n(\bfmu,\bfSigma),
+\end{align}
+where $\obs \subset \{1,\ldots,n\}$ are the indices of grid points at which observations are available, and $\by$ is the data vector consisting of these observations $\{y_{i}: i \in \obs\}$.
+Note that we can equivalently express \eqref{eq:gobs} using matrix notation as $\by \,|\, \bx \sim \normal(\bH\bx,\bR)$, where $\bH$ is obtained by selecting only the rows with indices $i \in \obs$ from an identity matrix, and $\bR$ is a diagonal matrix with entries $\{\tau_i^2: i \in \obs\}$.
+
+Our interest is in computing the posterior distribution of $\bx$ given $\by$, which requires inverting or decomposing an $n \times n$ matrix at a cost of $\order(n^3)$ if $|\obs| = \order(n)$. This is computationally infeasible for large $n$.
+
+
+
+%%%%%%
+\subsection{The hierarchical Vecchia approximation\label{sec:hv-intro}}
+
+We now describe a hierarchical Vecchia approximation with unique sparsity and computational properties, which enable fast computation for spatial models as in \eqref{eq:gobs}--\eqref{eq:gevol} and also allow extensions to spatio-temporal filtering as explained later.
+
+Assume that the elements of the vector $\bx$ are hierarchically partitioned into a set $\sx^{0:M} = \bigcup_{m=0}^M \sx^m$, where $\sx^m = \bigcup_{k=1}^m \bigcup_{j_k=1}^{J_k} \sx_\jm$, and $\sx_\jm$ is a set consisting of $|\sx_\jm|$ elements of $\bx$, such that there is no overlap between any two sets, $\sx_\jm \cap \sx_\il = \emptyset$ for $(\jm) \neq (\il)$. %Then define $\sx^{0:m} = \bigcup_{k=0}^m \sx^k$. 
+We assume that $\bx$ is ordered according to $\sx^{0:M}$, in the sense that if $i>j$, then $x_i \in \sx^{m_1}$ and $x_j \in \sx^{m_2}$ with $m_1 \geq m_2$.
+As a toy example with $n=6$, the vector $\bx = (x_1,\ldots,x_6)$ might be partitioned with $M=1$, $J_1 = 2$ as $\sx^{0:1} = \sx^0 \cup \sx^1$, $\sx^0 = \sx = \{x_1,x_2\}$, and $\sx^1 = \sx_{1,1} \cup \sx_{1,2}$, where $\sx_{1,1}=\{x_3,x_4\}$, and $\sx_{1,2} = \{x_5,x_6\}$. Another toy example is illustrated in Figure \ref{fig:toy}.
+
+The exact distribution of $\bx \sim \normal_n(\bfmu,\bfSigma)$ can be written as
+\[
+\textstyle p(\bx) = \prod_{m=0}^M \prod_\jm p(\sx_\jm|\sx^{0:m-1}, \sx_{\jmm,1:j_m-1}),
+\]
+where the conditioning set of $\sx_\jm$ consists of all sets $\sx^{0:m-1}$ at lower resolution, plus those at the same resolution that are previous in lexicographic ordering. The idea of \citet{Vecchia1988} was to remove many of these variables in the conditioning set, which for geostatistical applications often incurs only small approximation error due to the so-called screening effect \citep[e.g.,][]{Stein2002,Stein2011}.
+
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{subfigure}{.99\textwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{plots/domain.pdf}
+    \caption{Iterative domain partitioning for $n=35$ locations} 
+    \label{fig:domain-&-knots}
+\end{subfigure}\\
+\vspace{3mm}
+    \begin{subfigure}{0.54\textwidth}
+    \includegraphics[width=0.85\textwidth]{plots/graph.pdf}
+    \caption{Directed acyclic graph (DAG)}
+    \label{fig:dag}
+    \end{subfigure}
+    \begin{subfigure}{.44\textwidth}
+    \includegraphics[trim=0mm 12mm 0mm 12mm, clip,width=0.95\textwidth]{plots/matrix.pdf}
+    \caption{Sparsity pattern of the $\bU$ matrix}
+    \label{fig:sparsity-pattern}
+    \end{subfigure}
+    \caption{Toy example with $n=35$ of the hierarchical Vecchia approximation in \eqref{eq:vecchia-approx} with $M=2$ and $J_1=J_2=2$; the color for each set $\sx_\jm$ is consistent across (a)--(c).
+    (a) Partitioning of the spatial domain $\domain$ and the locations $\locs$; for resolution $m=0,1,2$, locations of $\sx^{0:m}$ (solid dots) and locations of points at finer resolutions ($\circ$).
+    (b) DAG illustrating the conditional-dependence structure, with  bigger arrows for connections between vertices at neighboring levels of the hierarchy, to emphasize the tree structure.
+    (c) Corresponding sparsity pattern of $\bU$ (see Proposition \ref{prop:same-sparsity-factors}), with groups of columns/rows corresponding to different resolutions separated by pink lines, and groups of columns/rows corresponding to different $\sx_\jm$ at the same resolution separated by blue lines. }
+    \label{fig:toy}
+\end{figure}
+
+
+Here we consider a hierarchical Vecchia (HV) approximation of the form
+\begin{equation}
+\textstyle \hat{p}(\bx) = \prod_{m=0}^M \prod_\jm p(\sx_\jm|\sa_\jm),
+\label{eq:vecchia-approx}
+\end{equation}
+where $\sa_\jm = \sx \cup \sx_{j_1} \cup \ldots \cup \sx_{\jmm}$ is the set of ancestors of $\sx_\jm$. For example, the set of ancestors of $\sx_{2,1,2}$ is $\sa_{2,1,2} = \sx \cup \sx_2 \cup \sx_{2,1}$. Thus, $\sa_\jm = \sa_\jmm \cup \sx_\jmm$, and the ancestor sets are nested: $\sa_\jmm \subset \sa_\jm$. We can equivalently write \eqref{eq:vecchia-approx} in terms of individual variables as
+\begin{equation}
+\textstyle \hat{p}(\bx) = \prod_{i=1}^n p(x_i|\,\condset_i),
+\label{eq:vecchia-approx-ind}
+\end{equation}
+where $\condset_i = \sa_\jm \cup \{x_k \in \sx_\jm \! : \, k<i \}$ for $x_i \in \sx_\jm$. The choice of the $\condset_i$ involves a trade-off: generally, the larger the $\condset_i$, the higher the computational cost (see Proposition \ref{prop:complexity-vf} below), but the smaller the approximation error; HV is exact when all $\condset_i = \{x_1,\ldots,x_{i-1}\}$.
+
+Vecchia approximations and their conditional-independence assumptions are closely connected to directed acyclic graphs \citep[DAGs;][]{Datta2016,Katzfuss2017a}. Summarizing briefly, as illustrated in Figure \ref{fig:dag}, we associate a vertex with each set $\sx_\jm$, and we draw an arrow from the vertex corresponding to $\sx_{\il}$ to the vertex corresponding to $\sx_\jm$ if and only if $\sx_{\il}$ is in the conditioning set of $\sx_\jm$ (i.e., $\sx_{\il} \subset \sa_\jm$). DAGs corresponding to HV approximations always have a tree structure, due to the nested ancestor sets. Necessary terminology and notation from graph theory is reviewed in Appendix \ref{app:graph}.
+
+In practice, as illustrated in Figure \ref{fig:domain-&-knots}, we partition the spatial field $\bx$ into the hierarchical set $\sx^{0:M}$ based on a recursive partitioning of the spatial domain $\domain$ into $J_1$ regions $\domain_{1},\ldots,\domain_{J_1}$, each of which is again split into $J_2$ regions, and so forth, up to resolution $M$ \citep{Katzfuss2015}: $\domain_\jmm = \bigcup_{j_m=1}^{J_m} \domain_\jm$, $m=1,\ldots,M$.
+We then set each $\sx_\jm$ to be a subset of the variables in $\bx$ whose location is in $\domain_\jm$: $\sx_\jm \subset \{x_i: \bs_i \in \domain_\jm\}$. This implies that the ancestors $\sa_\jm$ of each set $\sx_\jm$ consist of the variables associated with regions at lower resolutions $m=0,\ldots,m-1$ that contain $\domain_\jm$.
+Specifically, for all our numerical examples, we set $J_1=\ldots=J_M=2$, and we select each $\sx_\jm$ corresponding to the first $|\sx_\jm|$ locations in a maximum-distance ordering \citep{Guinness2016a,Schafer2017} of $\locs$ that are contained in $\domain_\jm$ but are not already in $\sa_\jm$.
+
+The HV approximation \eqref{eq:vecchia-approx} is closely related to the multi-resolution approximation \citep{Katzfuss2015,Katzfuss2017b}, as noted in \citet[][Sec.~2.5]{Katzfuss2017a}, which in turn is closely related to hierarchical off-diagonal low-rank (HODLR) matrices \citep[e.g.][]{Hackbusch2015,Ambikasaran2016,Saibaba2015,Geoga2018}, as noted in \citet{Jurek2018}.
+However, the definition, exposition, and details provided here enable our later proofs, simple incomplete-Cholesky-based computation, and extensions to non-Gaussian data and to nonlinear space-time filtering.
+
+
+
+
+%%%%%%
+\subsection{Sparsity of the hierarchical Vecchia approximation}
+
+For all Vecchia approximations, the assumed conditional independence implies a sparse Cholesky factor of the precision matrix \citep[e.g.,][Prop.~3.3]{Datta2016,Katzfuss2017a}. The conditional-independence assumption made in our HV approximation also implies a sparse Cholesky factor of the covariance matrix, which is in contrast to many other formulations of the Vecchia approximation:
+\begin{proposition}
+For the HV approximation in \eqref{eq:vecchia-approx}, we have $\hat p(\bx) = \normal_n(\bx|\bfmu,\hat\bfSigma)$. Define $\bL = \chol(\hat\bfSigma)$ and $\bU = \rchol(\hat\bfSigma^{-1}) = \bP \chol( \bP\hat\bfSigma^{-1}\bP)\,\bP$, where $\bP$ is the reverse-ordering permutation matrix.
+\begin{enumerate}
+    \item For $i\neq j$:
+    \begin{enumerate}
+        \item $\bL_{i,j} = 0$ unless $x_j \in \condset_i$
+        \item $\bU_{j,i} = 0$ unless $x_j \in \condset_i$
+    \end{enumerate}
+    \item $\bU = \bL^{-\top}$
+\end{enumerate}
+\label{prop:same-sparsity-factors}
+\end{proposition}
+The proof relies on Claim \ref{claim:cond-indep}. All proofs can be found in Appendix \ref{app:proofs}. Proposition \ref{prop:same-sparsity-factors} says that the Cholesky factors of the covariance and precision matrix implied by a HV approximation are both sparse, and $\bU$ has the same sparsity pattern as $\bL^{\top}$. An example of this pattern is shown in Figure \ref{fig:sparsity-pattern}. Furthermore, because $\bL = \bU^{-\top}$, we can quickly compute one of these factors given the other, as described in Section \ref{sec:vecchia-complexity} below.
+
+For other Vecchia approximations, the sparsity of the prior Cholesky factor $\bU$ does not necessarily imply the same sparsity for the Cholesky factor of the posterior precision matrix, and in fact there can be substantial in-fill \citep{Katzfuss2017a}. However, this is not the case for the particular case of HV, for which the posterior sparsity is exactly the same as the prior sparsity:
+\begin{proposition}
+Assume that $\bx$ has the distribution $\hat p(\bx)$ given by the HV approximation in \eqref{eq:vecchia-approx}. Let $\widetilde\bfSigma = \var(\bx|\by)$ be the posterior covariance matrix of $\bx$ given data $y_{i} \,|\, \bx \stackrel{ind}{\sim} \normal(x_i,\tau_i^2)$, $i \in \obs \subset \{1,\ldots,n\}$ as in \eqref{eq:gobs}. Then:
+\begin{enumerate}
+    \item $\widetilde\bU = \rchol(\widetilde\bfSigma^{-1})$ has the same sparsity pattern as $\bU = \rchol(\hat\bfSigma^{-1})$. 
+    \item $\widetilde\bL = \chol(\widetilde\bfSigma)$ has the same sparsity pattern as $\bL = \chol(\hat\bfSigma)$.
+\end{enumerate}
+\label{prop:posterior}
+\end{proposition}
+
+
+
+
+
+%%%%%%
+\subsection{Fast computation using incomplete Cholesky factorization\label{sec:vecchia-complexity}}
+
+For notational and computational convenience, we assume now that each conditioning set $\condset_i$ consists of at most $N$ elements of $\bx$. For example, this can be achieved by setting $|\sx_\jm|\leq r$ with $r = N/(M+1)$. Then $\bU$ can be computed using general expressions for the Vecchia approximation in $\order(nN^3)$ time \citep[e.g.,][]{Katzfuss2017a}. Alternatively, inference can be carried out using multi-resolution decompositions \citep{Katzfuss2015,Katzfuss2017b,Jurek2018} in $\order(nN^2)$, but these algorithms are fairly involved. 
+
+Instead, we show here how HV inference can be carried out in $\order(nN^2)$ time using standard sparse-matrix algorithms, including the incomplete Cholesky factorization, based on at most $nN$ entries of $\bfSigma$. Our algorithm, which is based on ideas in \citet{Schafer2017}, is much simpler than multi-resolution decompositions. 
+
+\begin{algorithm}[ht]
+\caption{Incomplete Cholesky decomposition: $\ichol(\bA,\bS)$}
+\KwInput{ positive-definite matrix $\bA \in \mathbb{R}^{n \times n}$, sparsity matrix $\bS \in \{0,1\}^{n \times n}$}
+\KwResult{ lower-triangular $n\times n$ matrix $\bL$ }
+\begin{algorithmic}[1]
+\FOR{$i=1$ to $n$}
+\FOR{$j=1$ to $i-1$}
+\IF{$\bS_{i,j}=1$}
+\STATE $\bL_{i,j} = (\bA_{i,j} - \sum_{k=1}^{j-1}\bL_{i,k}\bL_{j,k})/\bL_{j,j}$ \\
+\ENDIF
+\ENDFOR 
+\STATE $\bL_{i,i} = (\bA_{i,i} - \sum_{k=1}^{i-1}\bL_{k,k})^{1/2}$
+\ENDFOR
+\end{algorithmic}
+\label{alg:ic0}
+\end{algorithm}
+
+The incomplete Cholesky factorization \citep[e.g.,][]{Golub2012}, denoted by $\ichol(\bA, \bS)$ and given in Algorithm \ref{alg:ic0}, is identical to the standard Cholesky factorization of the matrix $\bA$, except that we skip all operations that involve elements that are not in the sparsity pattern represented by the zero-one matrix $\bS$. It is important to note that to compute $\bL=\ichol(\bA, \bS)$ for a large dense matrix $\bA$, we do not actually need to form or access the entire $\bA$; instead, to reduce memory usage and computational cost, we simply compute $\bL=\ichol(\bA \circ \bS, \bS)$ based on the sparse matrix $\bA \circ \bS$, where $\circ$ denotes element-wise multiplication. Thus, while we write expressions like $\bL=\ichol(\bA, \bS)$ for notational simplicity below, this should always be read as $\bL=\ichol(\bA \circ \bS, \bS)$.
+
+For our HV approximation in \eqref{eq:vecchia-approx}, we henceforth set $\bS$ to be a sparse lower-triangular matrix with $\bS_{i,j}=1$ if $x_j \in \condset_i$, and $0$ otherwise. Thus, the sparsity pattern of $\bS$ is the same as that of $\bL$, and its transpose is that of $\bU$ shown in Figure \ref{fig:sparsity-pattern}. 
+
+\begin{proposition} \label{prop:chol-lemma}
+Assuming \eqref{eq:vecchia-approx}, denote $\var(\bx) = \hat\bfSigma$ and $\bL = \chol(\hat\bfSigma)$. Then, $\bL = \ichol(\bfSigma, \bS)$.
+\end{proposition}
+
+Hence, the Cholesky factor of the covariance matrix $\hat\bfSigma$ implied by the HV approximation can be computed using the incomplete Cholesky algorithm based on the (at most) $nN$ entries of the exact covariance $\bfSigma$ indicated by $\bS$. Using this result, we propose Algorithm \ref{alg:VF} for posterior inference on $\bx$ given $\by$. 
+
+\begin{algorithm}[ht]
+\caption{Posterior inference using hierarchical Vecchia: $\hv(\by,\bS,\bfmu,\bfSigma,\bH,\bR)$}
+\KwInput{data $\by$; sparsity $\bS$; $\bfmu, \bfSigma$ s.t.\ $\bx \sim \normal_n(\bfmu, \bfSigma)$; obs.\ matrix $\bH$; noise variances $\bR$}
+\KwResult{$\widetilde\bfmu$ and $\widetilde\bL$ such that $\hat{p}(\bx|\by) = \normal_n(\bx|\widetilde\bfmu,\widetilde\bL\widetilde\bL^\top)$ }
+\begin{algorithmic}[1]
+\STATE $\bL = \ichol(\bfSigma, \bS)$, using Algorithm \ref{alg:ic0}
+\STATE $\bU = \bL^{-\top}$
+\STATE $\bfLambda = \bU\bU^\top + \bH^\top\bR^{-1}\bH$
+\STATE $\widetilde{\bU} = \bP\left(\chol(\bP\bfLambda\bP)\right)\bP$, where $\bP$ is the order-reversing permutation matrix
+\STATE $\widetilde{\bL} = \widetilde{\bU}^{-\top}$
+\STATE $\widetilde{\bfmu} = \bfmu + \widetilde{\bL}\widetilde{\bL}^\top\bH^{\top}\bR^{-1}\left(\by - \bH \bfmu\right)$
+\end{algorithmic}
+\label{alg:VF}
+\end{algorithm}
+
+By combining the incomplete Cholesky factorization with the results in Propositions \ref{prop:same-sparsity-factors} and \ref{prop:posterior} (saying that all involved Cholesky factors are sparse), we can perform fast posterior inference:
+\begin{proposition} \label{prop:complexity-vf}
+Algorithm \ref{alg:VF} can be carried out in $\order(nN^2)$ time and $\order(nN)$ space, assuming that $|\condset_i| \leq N$ for all $i=1,\ldots,n$.
+\end{proposition}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Extensions to non-Gaussian spatial data using the Laplace approximation\label{sec:nongaussian}}
+
+Now consider the model
+\begin{align}
+\label{eq:ngobs} y_{i} \,|\, \bx & \stackrel{ind}{\sim} g_i(y_{i} | x_{i}),\qquad i \in \obs, \\
+\label{eq:ngevol} \bx  & \sim \normal_n(\bfmu,\bfSigma),
+\end{align}
+where $g_i$ is a distribution from an exponential family. Using the HV approximation in \eqref{eq:vecchia-approx}--\eqref{eq:vecchia-approx-ind} for $\bx$, the implied posterior can be written as:
+\begin{equation}
+    \label{eq:nongaussianpost}
+\hat{p}(\bx|\by) = \frac{p(\by|\bx) \hat{p}(\bx)}{\int p(\by|\bx) \hat{p}(\bx) d\bx} = \frac{(\prod_{i \in \obs} g_i(y_i|x_i)) \hat{p}(\bx)}{\int (\prod_{i \in \obs} g_i(y_i|x_i)) \hat{p}(\bx) d\bx}.
+\end{equation}
+Unlike in the Gaussian case as in \eqref{eq:gobs}, the integral in the denominator cannot generally be evaluated in closed form, and Markov Chain Monte Carlo methods are often used to numerically approximate the posterior. Instead, \citet{Zilber2019} proposed a much faster method that combines a general Vecchia approximation with the Laplace approximation \citep[e.g.][Sect.~3.4]{Tierney1986,Rasmussen2006}. The Laplace approximation is combined with a Gaussian approximation of the posterior, obtained by carrying out a second-order Taylor expansion of the posterior log-density around its mode. Although the mode cannot generally be obtained in closed form, it can be computed straightforwardly using a Newton-Raphson procedure, because $\log \hat{p}(\bx|\by) = \log p(\by|\bx) + \log \hat{p}(\bx) + c$ is a sum of two concave functions and hence also concave (as a function of $\bx$, under appropriate parametrization of the $g_i$).
+
+While each Newton-Raphson update requires the computation and decomposition of the $n \times n$ Hessian matrix, the update can be carried out quickly by making use of the sparsity implied by the Vecchia approximation. To do so, we follow \citet{Zilber2019} in exploiting the fact that the Newton-Raphson update is equivalent to computing the conditional mean of $\bx$ given pseudo-data. Specifically, at the $\ell$-th iteration of the algorithm, given the current state value $\bx^{(\ell)}$, let us define
+\begin{equation}
+ \textstyle \bu^{(\ell)} = \big[ u^{(\ell)}_i \big]_{i \in \obs}, \qquad \text{where} \quad u^{(\ell)}_i = \frac{\partial}{\partial x} \log g_i(y_i|x)\big\vert_{x=x^{(\ell)}_i},
+\label{eq:u}
+\end{equation}
+and
+\begin{equation}
+\textstyle \bD^{(\ell)} = \diag\big(\{d_i^{(\ell)}: i \in \obs\}\big), \qquad \text{ where} \quad d_i^{(\ell)} = -\big(\frac{\partial^2}{\partial x^2} \log g_i(y_i|x)\big)^{-1}\big\vert_{x=x^{(\ell)}_i}.
+\label{eq:D}
+\end{equation}
+Then, we compute the next iteration's state value $\bx^{(\ell+1)} = \mathbb{E}(\bx|\bt^{(\ell)})$ as the conditional mean of $\bx$ given pseudo-data
+$\bt^{(\ell)} = \bx^{(\ell)} + \bD^{(\ell)} \bu^{(\ell)}$
+assuming Gaussian noise,
+$t^{(\ell)}_i | \bx \stackrel{ind.}{\sim} \normal(x_i,d_i^{(\ell)})$,
+$i \in \obs$.
+\citet{Zilber2019} recommend computing the conditional mean $\mathbb{E}(\bx|\bt^{(\ell)})$ based on a general-Vecchia-prediction approach proposed in \citet{Katzfuss2018}. Here, we instead compute the posterior mean using Algorithm \ref{alg:VF} based on the HV method described in Section \ref{sec:hv}, due to its sparsity-preserving properties. In contrast to the approach recommended in \citet{Zilber2019}, our algorithm is guaranteed to converge, because it is equivalent to Newton-Raphson optimization of the log of the posterior density in \eqref{eq:nongaussianpost}, which is concave.
+Once the algorithm converges to the posterior mode $\widetilde\bfmu$, we obtain a Gaussian HV-Laplace approximation of the posterior as
+\[
+\hat{p}_L(\bx|\by) = \normal_n(\bx|\widetilde\bfmu,\widetilde\bL\widetilde\bL^\top),
+\]
+where $\widetilde\bL$ is the Cholesky factor of the negative Hessian of the log-posterior at $\widetilde\bfmu$.
+Our approach is described in Algorithm \ref{alg:VL}. The main computational expense for each iteration of the \texttt{for} loop is carrying out Algorithm \ref{alg:VF}, and so each iteration requires only $\order(nN^2)$ time.
+
+\begin{algorithm}[ht]
+\caption{Hierarchical-Vecchia-Laplace inference: $\hvl(\by,\bS,\bfmu,\bfSigma,\{g_i\})$}
+\KwInput{ data $\by$; sparsity $\bS$; $\bfmu, \bfSigma$ such that $\bx \sim \normal_n(\bfmu, \bfSigma)$; likelihoods $\{g_i: i \in \obs \}$}
+\KwResult{ $\widetilde\bfmu$ and $\widetilde\bL$ such that $\hat{p}_L(\bx|\by) = \normal_n(\bx|\widetilde\bfmu,\widetilde\bL\widetilde\bL^\top)$ }
+\begin{algorithmic}[1]
+\STATE Initialize $\bx^{(0)} = \bfmu$
+\STATE Set $\bH = \bI_{\obs,:}$ as the rows $\obs$ of the $n \times n$ identity matrix $\bI$
+\FOR{$\ell = 0,1,2,\ldots$}
+    \STATE Calculate $\bu^{(\ell)}$ as in \eqref{eq:u}, $\bD^{(\ell)}$ as in \eqref{eq:D}, and $\bt^{(\ell)} = \bx^{(\ell)} + \bD^{(\ell)} \bu^{(\ell)}$
+    \STATE Calculate $[\bx^{(\ell+1)},\widetilde\bL]=\hv(\bt^{(\ell)},\bS,\bfmu,\bfSigma,\bH,\bD^{(\ell)})$ using Algorithm \ref{alg:VF}
+    \IF{$\norm{\bx^{(\ell+1)} - \bx^{(\ell)}}/\norm{\bx^{(\ell)}} < \epsilon$}
+    \BREAK
+    \ENDIF
+\ENDFOR
+\RETURN $\widetilde{\bfmu}=\bx^{(\ell+1)}$ and $\widetilde\bL$
+\end{algorithmic}
+\label{alg:VL}
+\end{algorithm}
+
+In the Gaussian case, when $g_i(y_i | x_i) = \normal(y_i|a_i x_i,\tau_i^2)$ for some $a_i \in \mathbb{R}$, it can be shown using straightforward calculations that the pseudo-data $t_i = y_i/a_i$ and pseudo-variances $d_i = \tau_i^2$ do not depend on $\bx$, and so Algorithm \ref{alg:VL} converges in a single iteration. If, in addition, $a_i=1$ for all $i=1,\ldots,n$, then \eqref{eq:ngobs} becomes equivalent to \eqref{eq:gobs}, and Algorithm \ref{alg:VL} simplifies to Algorithm \ref{alg:VF}. 
+For non-Gaussian data, our Laplace and Gaussian approximations introduce an additional source of error. While this error is difficult to quantify theoretically, empirical studies \citep[e.g.,][]{Bonat2016, Zilber2019} have shown that Laplace-type approximations can be very accurate and can strongly outperform sampling-based approaches such as Markov Chain Monte Carlo.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Fast filters for spatio-temporal models} \label{sec:filter}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Linear evolution} \label{sec:linear-filter}
+
+We now turn to a spatio-temporal state-space model (SSM), which adds a temporal evolution model to the spatial model \eqref{eq:ngobs} considered in Section \ref{sec:nongaussian}. For now, assume that the evolution is linear.
+Starting with an initial distribution $\bx_0 \sim \normal_{n}(\bfmu_{0|0},\bfSigma_{0|0})$, we consider the following SSM for discrete time $t=1,2,\ldots$:
+\begin{align}
+y_{ti} \,|\, \bx_t & \stackrel{ind}{\sim} g_{ti}(y_{ti} | x_{ti}), \qquad i \in \obs_t \label{eq:linear-dynamics-obs}\\
+\bx_t \,|\, \bx_{t-1} & \sim \normal_n(\levol_t\bx_{t-1},\bQ_t),
+\label{eq:linear-dynamics}
+\end{align}
+where $\by_{t}$ is the data vector consisting of $n_t \leq n$ observations $\{y_{ti}: i \in \obs_t\}$, $\obs_t \subset \{1,\ldots,n\}$ contains the observation indices at time $t$, $g_{ti}$ is a distribution from the exponential family, $\bx_t = (x_1,\ldots,x_n)^\top$ is the latent spatial field of interest at time $t$ observed at a spatial grid $\grid$, and $\levol_t$ is a sparse $n \times n$ evolution matrix.
+
+At time $t$, our goal is to obtain or approximate the filtering distribution $p(\bx_t|\by_{1:t})$ of $\bx_t$ given data $\by_{1:t}$ up to the current time $t$. This task, also referred to as data assimilation or on-line inference, is commonly encountered in many fields of science whenever one is interested in quantifying the uncertainty in the current state or in obtaining forecasts into the future.
+If the observation equations $g_{ti}$ are all Gaussian, the filtering distribution can be derived using the Kalman filter \citep{Kalman1960} for small to moderate $n$. At each time $t$, the Kalman filter consist of a forecast step that computes $p(\bx_t|\by_{1:t-1})$, and an update step which then obtains $p(\bx_t|\by_{1:t})$. For linear Gaussian SSMs, both of these distributions are multivariate normal.
+
+Our Kalman-Vecchia-Laplace (KVL) filter extends the Kalman filter to high-dimensional SSMs (i.e., large $n$) with non-Gaussian data, as in \eqref{eq:linear-dynamics-obs}--\eqref{eq:linear-dynamics}. % assimilate non-Gaussian observations
+Its update step is very similar to the inference problem in Section \ref{sec:nongaussian}, and hence it essentially consists of the HVL in Algorithm \ref{alg:VL}. 
+We complement this update with a forecast step, in which the moment estimates are propagated forward using the temporal evolution model. This forecast step is exact, and so the KVL approximation error is solely due to the HVL approximation at each update step. The KVL filter is given in Algorithm \ref{alg:KVLfilter}.
+
+\begin{algorithm}[ht]
+\caption{Kalman-Vecchia-Laplace (KVL) filter}
+\KwInput{$\bS$, $\bfmu_{0|0}$, $\bfSigma_{0|0}$, $\{(\by_t,\levol_t,\bQ_t,\{g_{t,i}\}): t=1,2,\ldots \}$}
+\KwResult{$\bfmu_{t|t}, \bL_{t|t}$, such that $\hat{p}(\bx_t|\by_{1:t}) = \normal_n(\bx_t|\bfmu_{t|t},\bL_{t|t}\bL_{t|t}^\top)$}
+\begin{algorithmic}[1]
+\STATE Compute $\bU_{0|0} = \ichol(\bfSigma_{0|0}, \bS)$ and $\bL_{0|0} = \bU_{0|0}^{-\top}$
+\FOR{$t = 1, 2, \dots$}
+    % \STATE Acquire $\by_t$
+    \STATE Forecast: $\bfmu_{t|t-1} = \levol_t\bfmu_{t-1|t-1}$ and $\bL_{t|t-1} = \levol_t\bL_{t-1|t-1}$ \label{ln:evolL}
+    \STATE For all $(i,j)$ with $\bS_{i,j}=1$: $\bfSigma_{t|t-1; i,j} = \bL_{t|t-1;i,:} \bL_{t|t-1;j,:}^\top + \bQ_{t;i,j}$ \label{ln:forecov}
+    \STATE Update: $[\bfmu_t, \bL_{t|t}] = \hvl(\by_t, \bS, \bfmu_{t|t-1}, \bfSigma_{t|t-1}, \left\{g_{t,i}\right\}$) using Algorithm \ref{alg:VL}
+    \RETURN $\bfmu_{t|t}, \bL_{t|t}$
+\ENDFOR
+\end{algorithmic}
+\label{alg:KVLfilter}
+\end{algorithm}
+
+In Line \ref{ln:forecov}, $\bL_{t|t-1;i,:}$ denotes the $i$th row of $\bL_{t|t-1}$. The KVL filter scales well with the state dimension $n$. The evolution matrix $\levol_t$, which is often derived using a forward-finite-difference scheme and thus has only a few nonzero elements in each row, can be quickly multiplied with $\bL_{t-1|t-1}$ in Line \ref{ln:evolL}, as the latter is sparse (see Section \ref{sec:vecchia-complexity}). The $\order(nN)$ necessary entries of $\bfSigma_{t|t-1}$ in Line \ref{ln:forecov} can also be calculated quickly due to the sparsity of $\bL_{t|t-1;i,:}$. The low computational cost of the \texttt{HVL} algorithm has already been discussed in Section \ref{sec:nongaussian}. Thus, assuming sufficiently sparse $\levol_t$, the KVL filter scales approximately as $\order(nN^2)$ per iteration.
+In the case of Gaussian data (i.e., all $g_{ti}$ in \eqref{eq:linear-dynamics-obs} are Gaussian), our KVL filter will produce essentially equivalent filtering distributions as the more complicated multi-resolution filter of \citet{Jurek2018}.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{An extended filter for nonlinear evolution}
+
+Finally, we consider a nonlinear and non-Gaussian model, which extends \eqref{eq:linear-dynamics-obs}--\eqref{eq:linear-dynamics} by allowing nonlinear evolution operators, $\evol_t: \mathbb{R}^n \rightarrow \mathbb{R}^n$. This results in the model
+\begin{align}
+\label{eq:obs} y_{ti} \,|\, \bx_t & \stackrel{ind}{\sim} g_{ti}(y_{ti} | x_{ti}), \qquad i \in \obs_t \\
+\label{eq:evol} \bx_t \,|\, \bx_{t-1} & \sim \normal_n(\evol_t(\bx_{t-1}),\bQ_t).
+\end{align}
+
+Due to the nonlinearity of the evolution operator $\evol_t$, the KVL filter in Algorithm \ref{alg:KVLfilter} is not directly applicable anymore. However, similar inference is still possible as long as the evolution is not too far from linear. Approximating the evolution as linear is generally reasonable if the time steps are short, or if the measurements are highly informative. In this case, we propose the extended Kalman-Vecchia-Laplace filter (EKVL) in Algorithm~\ref{alg:eKVLfilter}, which approximates the extended Kalman filter \citep[e.g.,][Ch.~5]{Grewal1993} and extends it to non-Gaussian data using the Vecchia-Laplace aproach. For the forecast step, EKVL computes the forecast mean as $\bfmu_{t|t-1} = \evol_t(\bfmu_{t-1|t-1})$. The forecast covariance matrix $\bfSigma_{t|t-1}$ is obtained as before, after approximating the evolution using the Jacobian as $\levol_t = \frac{\partial \evol_t(\by_{t-1})}{\partial \by_{t-1}} \big|_{\by_{t-1} = \bfmu_{t-1|t-1} }$.  Errors in the forecast covariance matrix due to this linear approximation can be captured in the innovation covariance, $\bQ_t$. If the Jacobian matrix cannot be computed, it is sometimes possible to build a statistical emulator \citep[e.g.,][]{Kaufman2011} instead, which approximates the true evolution operator.
+
+Once $\bfmu_{t|t-1}$ and $\bfSigma_{t|t-1}$ have been obtained, the update step of the EKVL proceeds exactly as in the KVL filter by approximating the forecast distribution as Gaussian.
+
+\begin{algorithm}[ht]
+\caption{Extended Kalman-Vecchia-Laplace (EKVL) filter}
+\KwInput{$\bS$, $\bfmu_{0|0}$, $\bfSigma_{0|0}$, $\{(\by_t,\evol_t,\bQ_t,\{g_{t,i}\}): t=1,2,\ldots \}$}
+\KwResult{$\bfmu_{t|t}, \bL_{t|t}$, such that $\hat{p}(\bx_t|\by_{1:t}) = \normal_n(\bx_t|\bfmu_{t|t},\bL_{t|t}\bL_{t|t}^\top)$}
+\begin{algorithmic}[1]
+\STATE Compute $\bU_{0|0} = \ichol(\bfSigma_{0|0}, \bS)$ and $\bL_{0|0} = \bU_{0|0}^{-\top}$
+\FOR{$t = 1, 2, \dots$}
+    \STATE Calculate $\levol_t = \frac{\partial \evol_t(\bx_{t-1})}{\partial \bx_{t-1}} \big|_{\bx_{t-1} = \bfmu_{t-1|t-1} }$ \label{ln:jacobian}
+    \STATE Forecast: $\bfmu_{t|t-1} = \evol_t(\bfmu_{t-1|t-1})$ and $\bL_{t|t-1} = \levol_t\bL_{t-1|t-1}$
+     \STATE For all $(i,j)$ with $\bS_{i,j}=1$: $\bfSigma_{t|t-1; i,j} = \bL_{t|t-1;i,:} \bL_{t|t-1;j,:}^\top + \bQ_{t;i,j}$
+    \STATE Update: $[\bfmu_t, \bL_{t|t}] = \hvl(\by_t, \bS, \bfmu_{t|t-1}, \bfSigma_{t|t-1}, \left\{g_{t,i}\right\}$) using Algorithm \ref{alg:VL}
+    \RETURN $\bfmu_{t|t}, \bL_{t|t}$
+\ENDFOR
+\end{algorithmic}
+\label{alg:eKVLfilter}
+\end{algorithm}
+
+Similarly to Algorithm \ref{alg:KVLfilter}, EKVL scales very well with the dimension of $\bx$, the only difference being the additional operation of calculating the Jacobian in Line \ref{ln:jacobian}, whose cost is problem dependent. Only those entries of $\bE_t$ need to be calculated that are multiplied with non-zero entries of $\bL_{t-1|t-1}$, whose sparsity structure is known ahead of time.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{A particle-EKVL filter in case of unknown parameters}
+
+The distributions and matrices in model \eqref{eq:obs}--\eqref{eq:evol} may depend on parameters $\bftheta_t$ at each time $t$, which we have implicitly assumed to be known thus far. We now discuss the case of a (small) number of unknown parameters $\bftheta_t$. Specifically, $\bfmu_{0|0}$ and $\bfSigma_{0|0}$ may depend on $\bftheta_0$, and the quantities $\{g_{t,i}\}$, $\evol_t$, and $\bQ_t$ at each time $t$ may depend on $\bftheta_t$.
+There are two main approaches to simultaneous filtering for the state $\bx_t$ and the parameters $\bftheta_t$: state augmentation and Rao-Blackwellized filters \citep{Doucet2011}. The main idea behind the former is to include $\bftheta_t$ in the state vector $\bx_t$ and to modify the evolution and the model error matrices accordingly, but this approach is known to work poorly in certain cases \citep[e.g.,][]{delsole2010state,Katzfuss2017c}. Thus, following \citet{Jurek2018}, we now present a Rao-Blackwellized filter in which integration over $\bx_t$ is performed based on our HVL approximation.
+
+Writing $\bftheta_{0:t} = (\bftheta_0, \ldots, \bftheta_t)$, the integrated likelihood at time $t$ is given by
+\begin{equation}
+\textstyle p(\by_{1:t}|\bftheta_{0:t}) = p(\by_1 | \bftheta_{0:1})\prod_{k=2}^t p(\by_{k}|\by_{1:k-1}, \bftheta_{0:k}).
+\label{eq:int-lik-approx}
+\end{equation}
+It is well known that
+\begin{equation}
+p(\by_{t}|\by_{1:t-1}, \bftheta_{0:t}) = 
+    \frac{p(\by_t, \bx_t | \by_{1:t-1},\bftheta_{0:t})}{p(\bx_t|\by_{1:t},\bftheta_{0:t})} = 
+    \frac{p(\by_t | \bx_t,\bftheta_{t}) p(\bx_t|\by_{1:t-1},\bftheta_{0:t})}{ p(\bx_t|\by_{1:t},\bftheta_{0:t})},
+    \label{eq:lik-decom}
+\end{equation}
+where $p(\by_t | \bx_t,\bftheta_{t})$ is available in closed form from \eqref{eq:obs}, and the forecast and filtering distributions can be approximated using the EKVL, to obtain
+\begin{equation}
+    \mathcal{L}_t(\bftheta_{0:t}) \colonequals \hat p(\by_{t}|\by_{1:t-1}, \bftheta_{0:t})  = \frac{p(\by_t | \bx_t,\bftheta_{t})\normal(\bfmu_{t|t-1}, \bfSigma_{t|t-1})}{\normal(\bfmu_{t|t}, \bfSigma_{t|t})}.
+\label{eq:approximate-yAR}
+\end{equation}
+The normal densities can be quickly evaluated for given parameter values $\bftheta_{0:t}$, because Algorithm \ref{alg:eKVLfilter} calculates sparse Cholesky factors of their precision matrices. For $t=1$, the term $\mathcal{L}_1(\bftheta_{0:1}) \colonequals \hat p(\by_1|\bftheta_{0:1})$ can be approximated in a similar way using $\bfmu_{0|0}$ and $\bfSigma_{0|0}$.
+
+The particle-EKVL filter is given by Algorithm \ref{alg:peKVLfilter}, assuming that the parameter priors are given by $f_0(\bftheta_0)$ and then recursively by $f_t(\bftheta_t|\bftheta_{t-1})$.
+
+\begin{algorithm}[ht]
+\caption{Particle-EKVL filter}
+\KwInput{$\bS$, $\bfmu_{0|0}$, $\bfSigma_{0|0}$, $\{(\by_t,\evol_t,\bQ_t,\{g_{t,i}\}): t=1,2,\ldots \}$, priors $\{f_t\}$, proposal distributions $\{q_t\}$, desired number of particles $N_p$}
+\KwResult{
+    $\{(\bftheta_t^{(l)},w_t^{(l)},\bfmu_{t|t}^{(l)},\bL^{(l)}_{t|t}): l=1,\ldots,N_p\}$,
+    such that $\hat p(\bftheta_t,\bx_t|\by_{1:t}) = \sum_{l=1}^{N_p} w_t^{(l)} \delta_{\bftheta_t^{(l)}}(\bftheta_t) \normal_n(\bx_t|\bfmu_{t|t}^{(l)},\bL_{t|t}^{(l)}\bL_{t|t}^{(l)}{}^\top)$}
+\begin{algorithmic}[1]
+\FOR{$l = 1, 2, \dots, N_p$}
+    \STATE Draw $\bftheta_0^{(l)} \sim f_0(\bftheta_0)$ and set weight $w_0^{(l)} = 1/N_p$
+    \STATE Compute $\bL_{0|0}(\bftheta_0^{(l)}) = \ichol(\bfSigma_{0|0}(\bftheta_0^{(l)}), \bS)$
+    \STATE Compute $\bfmu^{(l)}_{0|0}(\bftheta_0^{(l)})$ and $\bU_{0|0}(\bftheta_0^{(l)}) = \bL_{0|0}^{-\top}(\bftheta_0^{(l)})$
+\ENDFOR
+\FOR{$t = 1, 2, \ldots$}
+    \FOR{$l = 1, 2, \ldots, N_p$}
+        \STATE Draw $\bftheta_t^{(l)} \sim q_t(\bftheta_t^{(l)}|\bftheta_{t-1}^{(l)})$
+        \STATE Calculate $\levol_t^{(l)} = \frac{\partial \evol_t(\by_{t-1}, \bftheta_t^{(l)})}{\partial \by_{t-1}} \big|_{\by_{t-1} = \bfmu_{t-1|t-1}(\bftheta_{t-1}^{(l)}) }$ \label{ln:jacobian2}
+        \STATE Forecast: $\bfmu_{t|t-1}^{(l)} = \evol_t(\bfmu_{t-1|t-1}, \bftheta_{t-1}^{(l)})$ and $\bL_{t|t-1}^{(l)} = \levol_t^{(l)}\bL_{t-1|t-1}^{(l)}$
+        \STATE For $(i,j)$ s.t.\ $\bS_{i,j}=1$: $\bfSigma_{t|t-1; i,j}^{(l)} = \bL_{t|t-1;i,:}^{(l)} (\bL_{t|t-1;j,:}^{(l)})^\top + \bQ_{t;i,j}(\bftheta^{(l)}_t)$
+        \STATE Update: $[\bfmu_t^{(l)}, \bL_{t|t}^{(l)}] = \hvl(\by_t, \bS, \bfmu_{t|t-1}^{(l)}, \bfSigma_{t|t-1}^{(l)}, \{g_{t,i}(\bftheta^{(l)}_t)\}$)
+        \STATE Calculate $\mathcal{L}_t(\bftheta_{0:t}^{(l)})$ as in \eqref{eq:approximate-yAR}
+        \STATE Update particle weight $w_t^{(l)} \propto w_{t-1}^{(l)} \mathcal{L}_t(\bftheta_{0:t}^{(l)})f_t(\bftheta_{t}^{(l)} | \bftheta_{t-1}^{(l)}) / q_t(\bftheta_{t}^{(l)} | \bftheta_{t-1}^{(l)})$
+        \RETURN $\bfmu_{t|t}^{(l)}, \bL_{t|t}^{(l)}, \bftheta_t^{(l)}, w_t^{(l)}$
+    \ENDFOR
+    \STATE Resample $\{(\bftheta_{t}^{(l)}, \bfmu_{t|t}^{(l)}, \bL_{t|t}^{(l)})\}_{l=1}^{N_p}$ with weights $\{w_t^{(l)}\}_{l=1}^{N_p}$ to obtain equally weighted particles \citep[e.g.,][]{Douc2005}
+\ENDFOR
+\end{algorithmic}
+\label{alg:peKVLfilter}
+\end{algorithm}
+
+
+
+% Then at each time $t$ for particles $\{\bftheta_t^{(l)}\}_{l=1}^{N_p}$ with weights $\{w_t^{(l)}\}_{l=1}^{N_p}$ the approximate joint filtering distribution is given by
+% $$\bftheta_t, \bx_t | \by_{1:t} \sim \sum_{l=1}^{N_p} w_t^{(l)} \normal\left(\bfmu_{t|t}^{(l)}, \bfSigma_{t|t}^{(l)} \right).$$
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Numerical comparison\label{sec:comparison}}
+
+\subsection{Methods and criteria\label{sec:simul-general}}
+
+We considered and compared the following methods:
+\begin{description}
+\item[Hierarchical Vecchia (HV):] Our methods as described in this paper.
+\item[Low rank (LR):] A special case of HV with $M=1$, in which the diagonal and the first $N$ columns of $\bS$ are nonzero, and all other entries are zero. This results in a matrix approximation $\hat\bfSigma$ that is of rank $N$ plus diagonal, known as the modified predictive process \citep[][]{Banerjee2008,Finley2009} in spatial statistics. LR has the same computational complexity as HV.
+\item[Dense Laplace (DL):] A further special case of HV with $M=0$, in which $\bS$ is a fully dense matrix of ones. Thus, there is no error due to the Vecchia approximation, and so in the non-Gaussian spatial-only setting, this is equivalent to a Gaussian Laplace approximation. DL will generally be more accurate than HV and low-rank, but it scales as $\order(n^3)$ and is thus not feasible for high dimension $n$.
+\end{description}
+
+For each scenario below, we simulated observations using \eqref{eq:obs}, taking $g_{t,i}$ to be each of four exponential-family distributions: Gaussian, $\normal(x,\tau^2)$; logistic Bernoulli, $\mathcal{B}(1/(1+e^{-x}))$; Poisson, $\mathcal{P}(e^x)$; and gamma, $\mathcal{G}(a, ae^{-x})$, with shape parameter $a=2$. For most scenarios, we assumed a moderate state dimension $n$, so that DL remained feasible; a large $n$ was considered in Section \ref{sec:big-simul}.
+
+The main metric to compare HV and LR was the difference in KL divergence between their posterior or filtering distributions and those generated by DL; as the exact distributions were not known here, we approximated this metric by the average difference in log scores \citep[dLS; e.g.,][]{Gneiting2014} over several simulations. We also calculated the relative root mean square prediction error (RRMSPE), defined as the root mean square prediction error of HV and LR, respectively, divided by the root mean square prediction error of DL. For both criteria, lower values are better.
+
+
+
+%%%%%%%%%%%%%
+\subsection{Spatial-only data}
+\label{sec:purely-spatial}
+
+In our first scenario, we considered spatial-only data according to \eqref{eq:ngobs}--\eqref{eq:ngevol} on a grid $\grid$ of size $n=34 \times 34 = 1{,}156$ on the unit square, $\domain = [0,1]^2$. We set $\bfmu = \bfzero$ and $\bfSigma_{i,j} = \exp(-\|\bs_i - \bs_j\|/0.15)$. For the Gaussian likelihood, we assumed variance $\tau^2 = 0.2$. %Hierarchical Vecchia parameters for each N are presented in Table \ref{tab:vecchiaParams}.
+
+%\begin{table}[]
+%    \centering
+%    \begin{tabular}{c|c|c|c}
+%         N & \# resolutions ($M$) & \lVert $\sx_\jm$  \lVert& \# partitions ($J$) \\
+%         \hline
+%         1 & 1 & 1 & 2500 \\
+%         2 & 2 & 1, 1 & 2\\
+%         4 & 4 & 1, 1, 1, 1 & 2\\
+%         9 & 9 & 1, 1, 1, 1, 1, 1, 1, 1, 1 & 2\\
+%         16 & 11 & 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, $\sim$ & 2\\
+%         32 & 10 & 3, 3, 3, 3, 4, 4, 4, 4, 4, $\sim$ & 2\\
+%         51 & 9 & 6, 6, 6, 6, 6, 6, 6, 6, $\sim$ & 2\\
+%         71 & 8 & 8, 9, 9, 9, 9, 9, 9, 9 & 2\\
+%         85 & 8 & 11, 11, 11, 11, 11, 11, 11, $\sim$ & 2\\
+%    \end{tabular}
+%    \caption{Parameters used in the Vecchia approximation. The symbol $\sim$ indicates that not all sets $\sx_\jM$ had the same number of elements. This is because keeping a constant number of elements was impossible as there were not enough "unused" grid points left.}
+%    \label{tab:vecchiaParams}
+%\end{table}
+
+The comparison scores averaged over 100 simulations for the posteriors obtained using Algorithm \ref{alg:VL} are shown as a function of $N$ in Figure \ref{fig:spatial-scores}. HV (Algorithm \ref{alg:VF}) was much more accurate than LR for each value of $N$.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{1.0\textwidth}
+        \includegraphics[trim=0mm 6mm 0mm 0mm, clip,width=1.0\textwidth]{plots/spatial-RRMSPE.pdf}
+        % \caption{RRMSPE (relative to pure Laplace approximation)}
+    \end{subfigure}
+    \medskip
+    \begin{subfigure}{1.0\textwidth}
+        \includegraphics[trim=0mm 0mm 0mm 6mm, clip,width=1.0\textwidth]{plots/spatial-dLS.pdf}
+        % \caption{difference in log score}
+    \end{subfigure}
+    \caption{Approximation accuracy for the posterior distribution $\bx|\by$ for spatial data (see Section \ref{sec:purely-spatial})}
+    \label{fig:spatial-scores}
+\end{figure}
+
+
+
+
+%%%%%%%%%%%%%
+\subsection{Linear temporal evolution\label{sec:simul-linear}}
+
+Next, we considered a linear spatio-temporal advection-diffusion process with diffusion parameter $\alpha = 4 \times 10^{-5}$ and advection parameter $\beta = 10^{-2}$ as in \citet{Jurek2018}. The spatial domain $\domain = [0,1]^2$ was discretized on a grid of size $n=34 \times 34 = 1{,}156$ using the centered finite differences, and we considered discrete time points $t=1,\ldots,T$ with $T=20$. After this discretization, our model was of the form \eqref{eq:linear-dynamics-obs}--\eqref{eq:linear-dynamics}, where $\bfSigma_{0|0}=\bQ_1=\ldots=\bQ_T$ with $(i,j)$th entry $\exp(-\|\bs_i - \bs_j\|/0.15)$, and $\bE_t$ was a sparse matrix with nonzero entries corresponding to interactions between neighboring grid points to the right, left, top and bottom. See the supplementary material of \citet{Jurek2018} for details.
+% More formally, for $\bs \in [0,1]^2$
+% \begin{equation}
+%     \begin{cases}
+%         \der{t}x(\bs,t) = \alpha_1 \der{s_1}x(\bs,t) + \alpha_2 \der{s_2}x(\bs,t) + \beta_1 \frac{\partial^2}{\partial s_1^2}x(\bs,t) + \beta_2 \frac{\partial^2}{\partial s_2^2}x(\bs,t)) + \zeta(\bs,t) \\
+% 		x(\cdot, 0) = GP\left(\bfzero, \sigma^2_0Exp(\cdot, \cdot)\right)
+% 	\end{cases}
+% \end{equation}
+% where $\zeta(\bs, t)$ is a two dimensional zero-mean stationary Gaussian process independent over time and with exponential function with range $\lambda_0=0.15$, marginal variance $\sigma^2_w=1.0$ and  $Exp$ is an covariance kernel with range $\lambda_0=0.15$ and marginal variance $\sigma^2_0=1.0$. 
+At each time $t$, we generated $n_t = 0.1 n$ observations with indices $\obs_t$ sampled randomly from $\{1,\ldots,n\}$. For the Gaussian case, we assumed variance $\tau^2=0.25$.
+We used conditioning sets of size at most $N=41$ for both HV and LR; specifically, for HV, we used $J=2$ partitions at $M=7$ resolutions, with set sizes $|\sx_\jm|$ of $5, 5, 5, 5, 6, 6, 6$, respectively, for $m=0,1,\ldots,M-1$, and $|\sx_\jM| \leq 3$.
+
+Figure \ref{fig:linear-scores} compares the scores for the filtering distributions $\bx_t | \by_{1:t}$ obtained using Algorithm \ref{alg:KVLfilter}, averaged over 80 simulations. Again, HV was much more accurate than LR. Importantly, while the accuracy of HV was relatively stable over time, LR became less accurate over time, with the approximation error accumulating.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{1.0\textwidth}
+        \includegraphics[trim=0mm 6mm 0mm 0mm, clip,width=1.0\textwidth]{plots/linear-RRMSPE.pdf}
+        % \caption{RRMSPE (relative to pure Laplace approximation)}
+    \end{subfigure}
+    \begin{subfigure}{1.0\textwidth}
+        \includegraphics[trim=0mm 0mm 0mm 6mm, clip,width=1.0\textwidth]{plots/linear-dLS.pdf}
+        % \caption{difference in log score}
+    \end{subfigure}
+    \caption{Accuracy of filtering distributions $\bx_t | \by_{1:t}$ for the advection-diffusion model in Section \ref{sec:simul-linear}}
+    \label{fig:linear-scores}
+\end{figure}
+
+
+
+
+%%%%%%%%%%%%%
+\subsection{Simulations using a very large \texorpdfstring{$n$}{n}} \label{sec:big-simul}
+
+We repeated the advection-diffusion experiment from Section \ref{sec:simul-linear} on a high-resolution grid of size $n=300 \times 300 = 90{,}000$, with $n_t=9{,}000$ observations corresponding to 10\% of the grid points. In order to avoid numerical artifacts related to the finite differencing scheme, we reduced the advection and diffusion coefficients to $\alpha = 10^{-7}$ and $\beta=10^{-3}$, respectively. We set $N=44$, $M=14$, $J=2$, and $|\sx_\jm| = 3$ for $m=0,1,\ldots,M-1$, and $|\sx_\jM| \leq 2$. DL was too computationally expensive due to the high dimension $n$, and so we simply compared HV and LR based on the root mean square prediction error (RMSPE) between the true state and their respective filtering means, averaged over 10 simulations.
+
+As shown in Figure \ref{fig:linear-scores-big}, HV was again much more accurate than LR. Comparing to Figure \ref{fig:linear-scores}, we see that the relative improvement of HV to LR increased even further; taking the Gaussian case as an example, the ratio of the RMSPE for HV and LR was around 1.2 in the small-$n$ setting, and greater than 2 in the large-$n$ setting.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{1.0\textwidth}
+        \includegraphics[width=1.0\textwidth]{plots/linear-RMSPE.pdf}
+    \end{subfigure}
+    \caption{Root mean square prediction error (RMSPE) for the filtering mean in the high-dimensional advection-diffusion model with $n=90{,}000$ in Section \ref{sec:big-simul}}
+    \label{fig:linear-scores-big}
+\end{figure}
+
+
+%%%%%%%%%%%%%
+\subsection{Nonlinear evolution with non-Gaussian data\label{sec:lorenz}}
+
+%Simple model for testing: https://arxiv.org/abs/1708.08794 %Simulations: see Model III in http://journals.ametsoc.org/doi/abs/10.1175/jas3430.1 
+
+Our final set of our simulations involves the most general model \eqref{eq:obs}-\eqref{eq:evol} with nonlinear evolution $\evol_t$. Specifically, we considered a complicated model \citep[][Sect.~3]{Lorenz2005} that realistically replicates many features of atmospheric variables along a latitudinal band. A special case of this model \citep{Lorenz1996} is an important benchmark for data-assimilation techniques. %\citep{Houtekamer2016, Bannister2017,Carrassi2018}
+The model dynamics are described by
+\begin{equation}
+\textstyle    \frac{\partial }{\partial t} \tilde x_i = \frac{1}{K^2} \sum_{l=-K/2}^{K/2}\sum_{j=-K/2}^{K/2} -\tilde x_{i-2K-l}\tilde x_{i-K-j} + \tilde x_{i-K+j-l}\tilde x_{i+K+j} - \tilde x_i + F,
+    \label{eq:Lorenz04-1}
+\end{equation}
+where
+$\tilde x_{-i} = \tilde x_{n-i}$, and we used $K=32$ and $F=10$.
+By solving \eqref{eq:Lorenz04-1} on a regular grid of size $n=960$ on a circle with unit circumference using a 4-th order Runge-Kutta scheme, with five internal steps of size $dt=0.005$, and setting $x_i = b\tilde x_i$ with $b=0.2$, we obtained the evolution operator $\evol_t$. We also calculated an analytic expression for its derivative $\nabla\evol_t$, which is necessary for Algorithm \ref{alg:eKVLfilter}.
+
+To complete our state-space model \eqref{eq:obs}-\eqref{eq:evol}, we assumed $\bQ_{t;i,j} = 0.2 \exp(-\|\bs_i - \bs_j\|/0.15)$, we randomly selected $n_t = n/10 = 96$ observation indices at each $t$, and we took the initial moments $\bfmu_{0|0}$ and $\bfSigma_{0|0}$ to be the corresponding sample moments from a long simulation from \eqref{eq:Lorenz04-1}. We simulated 40 datasets from the state-space model, each at $T=20$ time steps, and for each of the four exponential-family likelihoods, using $\tau^2=0.2$ in the Gaussian case.
+
+%A sample realization of the process at selected timepoints is shown in Figure \ref{fig:lorenz}
+
+%\begin{figure}
+%    \begin{subfigure}{0.95\textwidth}
+%        \includegraphics[width=1.0\textwidth]{plots/lorenz-20.pdf}
+%        %\caption{difference in log score}
+%    \end{subfigure}
+%    \caption{A sample trajectory generated from the Lorenz model described in Section ref{sec:lorenz}. Black %dots indicate observations including a Gaussian noise with std. deviation equal to $b=0.33$. \todo{will have to %remove this before submission. supplement? or just refer to lorenz paper for plots of the model trajectories?}}
+%    \label{fig:lorenz}
+%\end{figure}
+
+For each data set obtained in this way, we applied the three filtering methods described in Section \ref{sec:simul-general}. We used $N=39$, and for the EKVL filter (Algorithm \ref{alg:eKVLfilter}) we set $J=2$, $M=7$, and $\lvert \sx_\jm \rvert$ equal to 5, 5, 5, 5, 6, 6, 6, respectively, for $m=0, 1, \dots, M-1$, and $\lvert \sx_\jM\rvert \leq 1$. The average scores over the 40 simulations are shown in Figure \ref{fig:lorenz-scores}.
+Our method (HV) compared favorably to the low-rank filter and provided excellent approximation accuracy as evidenced by very low RRMSPE and dLS scores.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{1.0\textwidth}
+        \includegraphics[trim=0mm 6mm 0mm 0mm, clip,width=1.0\textwidth]{plots/lorenz-RRMSPE.pdf}
+        %\caption{RRMSPE (relative to pure Laplace approximation)}
+    \end{subfigure}
+    \begin{subfigure}{1.0\textwidth}
+        \includegraphics[trim=0mm 0mm 0mm 12mm, clip,width=1.0\textwidth]{plots/lorenz-dLS.pdf}
+        %\caption{difference in log score}
+    \end{subfigure}
+    \caption{Accuracy of filtering distribution $\bx_t | \by_{1:t}$ for the Lorenz model in Section \ref{sec:lorenz}}
+    \label{fig:lorenz-scores}
+\end{figure}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusions\label{sec:conclusion}}
+
+We specified the relationship between ordered conditional independence and sparse (inverse) Cholesky factors. Next, we described a hierarchical Vecchia approximation and showed that it exhibits equivalent sparsity in the Cholesky factors of both its precision and covariance matrices. Due to this remarkable property, the approximation is suitable for high-dimensional spatio-temporal filtering.
+The hierarchical Vecchia approximation can be computed using a simple and fast incomplete Cholesky decomposition. Further, by combining the approach with a Laplace approximation and the extended Kalman filter, we obtained scalable filters for non-Gaussian and non-linear spatio-temporal state-space models.
+
+Our methods can also be directly applied to spatio-temporal point patterns modeled using log-Gaussian Cox processes, which can be viewed as Poisson data after discretization of the spatial domain, resulting in accurate Vecchia-Laplace-type approximations \citep{Zilber2019}.
+We plan on investigating an extension of our methods to retrospective smoothing over a fixed time period. Another interesting extension would be to combine our methodology with the unscented Kalman filter \citep[][]{Julier1997} for strongly nonlinear evolution.
+Finally, while we focused our attention on spatio-temporal data, our work can be extended to other applications, as long as a sensible hierarchical partitioning of the state vector can be obtained as in Section \ref{sec:hv-intro}.
+
+Code implementing our methods and reproducing our numerical experiments is available at \url{https://github.com/katzfuss-group/vecchiaFilter}.
+
+
+\FloatBarrier
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\footnotesize
+\appendix
+\section*{Acknowledgments}
+
+The authors were partially supported by National Science Foundation (NSF) Grant DMS--1654083. Katzfuss' research was also partially supported by NSF Grant DMS--1953005. We would like to thank Yang Ni, Florian Sch\"afer, and Mohsen Pourahmadi for helpful comments and discussions. We are also grateful to Edward Ott and Seung-Jong Baek for code, and Phil Taffet for advice for our implementation of the Lorenz model.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%
+\section{Glossary of graph theory terms\label{app:graph}}
+
+We briefly review here some graph terminology necessary for our exposition and proofs, following \citet{lauritzen1996graphical}.
+
+If $a \rightarrow b$ then we say that $a$ is a \emph{parent} of $b$ and, conversely, that $b$ is a \emph{child} of $a$. Moreover, if there is a sequence of distinct vertices $h_1, \dots, h_k$ such that $h_i \rightarrow h_{i+1}$ or $h_i \leftarrow h_{i+1}$ for all $i<k$, then we say that $h_1, \dots, h_k$ is a \emph{path}. If all arrows point to the right, we say that $h_k$ is a \emph{descendant} of $h_i$ for $i<k$, while each $h_i$ is an \emph{ancestor} of $h_k$.
+
+A \emph{moral graph} is an undirected graph obtained from a DAG by first finding the pairs of parents of a common child that are not connected, adding an edge between them, and then by removing the directionality of all edges. If no edges need to be added to a DAG to make it moral, we call it a \emph{perfect graph}.
+
+Let $G=(V,E)$ be a directed graph with vertices $V$ and edges $E$. If $V_1$ is a subset of $V$, then the \emph{ancestral set} of $V_1$, denoted $\An(V_1)$, is the smallest subset of $V$ that contains $V_1$ and such that for each $v \in \An(V_1)$ all ancestors of $v$ are also in $\An(V_1)$. 
+
+Finally, consider three disjoint sets of vertices $A, B, C$ in an undirected graph. We say that $C$ \emph{separates} $A$ and $B$ if, for every pair of vertices $a \in A$ and $b \in B$, every path connecting $a$ and $b$ passes through $C$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Proofs \label{app:proofs}}
+
+
+\begin{proof}[Proof of Claim \ref{claim:cond-indep}]
+~~ \\ \vspace{-5mm}
+    \begin{enumerate}
+        \item This proof is based on \citet[][Sect.~3.2]{Schafer2017}. Split $\bw = (w_1,\ldots,w_n)^\top$ into two vectors, $\bu=\bw_{1:j-1}$ and $\bv=\bw_{j:n}$. Then,
+\begin{eqnarray*}
+\bL & = & \bK^{\frac{1}{2}} = \text{chol}\left( \begin{array}{cc} \bK_{uu} & \bK_{uv} \\ \bK_{vu} & \bK_{vv} \end{array}\right) \\
+ & = & \text{chol}\left( \left(\begin{array}{cc} \bI & \bfzero \\ \bK_{vu}\bK_{uu}^{-1} & \bI \end{array}\right) \left(\begin{array}{cc} \bK_{uu} & \bfzero \\ \bfzero & \bK_{vv} - \bK_{vu}\bK_{uu}^{-1}\bK_{uv} \end{array}\right) \left(\begin{array}{cc} \bI & \bK_{uu}^{-1}\bK_{uv} \\ \bfzero & \bI \end{array}\right)  \right) \\
+& = & \left(\begin{array}{cc} \bK_{uu}^\frac{1}{2} & \bfzero \\ 
+\bK_{vu}\bK_{uu}^{-\frac{1}{2}} & \left( \bK_{vv} - \bK_{vu}\bK^{-1}_{uu} \bK_{vu}\right)^\frac{1}{2}\end{array}\right). \label{eq:blockchol}
+\end{eqnarray*}
+Note that $\bL_{i,j}$ is the $(i-j+1)$-th element in the first column of $\left( \bK_{vv} - \bK_{vu}\bK^{-1}_{uu} \bK_{vu}\right)^\frac{1}{2}$, which is the Cholesky factor of $\var(\bv|\bu) = \bK_{vv} - \bK_{vu}\bK^{-1}_{uu} \bK_{vu}$. Careful examination of the Cholesky factorization of a generic matrix $\bA$, which is described in Algorithm \ref{alg:ic0} when setting $s_{i,j}=0$ for all $(i,j)$, shows that the computations applied to the first column of $\bA$ are fairly simple. In particular, this implies that 
+\[
+\bL_{i,j} = \big(\chol(\var(\bv|\bu))\big)_{i-j+1,1} =  \frac{\cov(w_i,w_j|\bw_{1:j-1})}{\sqrt{\var(w_j|\bw_{1:j-1})}},
+\]
+because $w_j = \bv_1$ and $w_i = \bv_{i-j+1}$. Thus, $\bL_{i,j}=0 \iff \cov(w_i,w_j|\bw_{1:j-1})=0 \iff w_i \perp w_j \, | \, \bw_{1:j-1}$ because $\bw$ was assumed to be jointly normal.
+    \item Thm.~12.5 in \citet{Rue2010} implies that for a Cholesky factor $\breve{\bU}$ of a precision matrix $\bP\bK^{-1}\bP$ of a normal random vector $\breve{\bw} = \bP\bw$, we have $\breve{\bU}_{i,j}=0 \iff \breve{w}_i \perp \breve{w}_j \,|\, \{\breve{\bw}_{j+1:i-1}, \breve{\bw}_{i+1:n}\}$. Equivalently, because $\bU = \bP\breve{\bU}\bP$, we conclude that $\bU_{j,i}=0 \iff w_i \perp w_j \,|\, \{\bw_{1:j-1}, \bw_{j+1:i}\}$.
+    \end{enumerate}
+\end{proof}
+
+
+
+%%%%%%%%%%%%%%
+
+\begin{proof}[Proof of Proposition \ref{prop:same-sparsity-factors}]
+
+The fact that $\hat p(\bx)$ is jointly normal holds for any Vecchia approximation \citep[e.g.,][Prop.~1]{Datta2016,Katzfuss2017a}.
+\begin{enumerate}
+\item First, note that $\bL$ and $\bU$ are lower- and upper-triangular matrices, respectively. Hence, we assume in the following that $j < i$ but $x_j \not \in \condset_i$, and then show the appropriate conditional-independence results. 
+    \begin{enumerate}
+        \item
+By Claim \ref{claim:cond-indep}, we only need to show that $x_i \perp x_j | \bx_{1:j-1}$. Let $G$ be the graph corresponding to factorization \eqref{eq:vecchia-approx} and denote by $G_{\An(A)}^m$ the moral graph of the ancestral set of $A$. By Corollary 3.23 in \citet{lauritzen1996graphical}, it is enough to show that $\left\{x_1, \dots, x_{j-1}\right\}$ separates $x_i$ and $x_j$ in $G_{An\left(\left\{x_1, \dots, x_j, x_i\right\}\right)}^m$. In the rest of the proof we label each vertex by its index, to simplify notation.
+
+We make three observations which can be easily verified. [1] $\An\left(\left\{1, \dots, j, i\right\}\right) \subset \left\{1, \dots, i\right\}$; [2] Given the ordering of variables described in Section \ref{sec:hv-intro}, if $k \rightarrow l$ then $k<l$; [3] $G$ is a perfect graph, so $G_{An\left(\left\{1, \dots, j, i\right\}\right)}^m$ is a subgraph of $G$ after all edges are turned into undirected ones.
+
+We now prove Proposition \ref{prop:same-sparsity-factors}.1.a by contradiction. Assume that $\left\{x_1, \dots, x_{j-1}\right\}$ does not separate $x_i$ and $x_j$, which means that there exists a path $(h_1, \dots, h_k)$ in $\left\{x_1, \dots, x_i\right\}$ connecting $x_i$ and $x_j$ such that $h_k \in \An(\left\{1, \dots, j, i\right\})$ and $j+1 \leq h_k \leq i-1$.
+
+There are four cases we need to consider and we show that each one of them leads to a contradiction. First, assume that the last edge in the path is $h_k \rightarrow j$. This violates observation [2]. Second, assume that the first edge is $i \leftarrow h_1$. But because of [1] we know that $h_1<i$, and by [2] we get a contradiction again. Third, let the path be of the form $i \rightarrow h_1 \leftarrow \dots \leftarrow h_k \leftarrow j$ (i.e., all edges are of the form $h_r \leftarrow h_{r+1}$). However, this would mean that $\sx_\jl \subset \sa_\im$, for $x_i\in \sx_\im$ and $x_j\in \sx_\jl$. This implies that $j \in \condset_i$, which in turn contradicts the assumption of the proposition. Finally, the only possibility we have not excluded yet is a path such that $i\leftarrow h_1 \dots h_k \leftarrow j$ with some edges of the form $h_r \rightarrow h_{r+1}$. Consider the largest $r$ for which this is true. Then by [3] there has to exist an edge $h_r \leftarrow h_p$ where $h_p \in \{h_{r+2}, \dots, h_k, j\}$. But this means that $j$ is an ancestor of $h_r$ so the path can be reduced to $i \rightarrow h_1, \dots h_r \rightarrow j$. We continue in this way for each edge "$\leftarrow$" which reduces this path to case 3 and leads to a contradiction. 
+
+Thus we showed that all paths in $G_{An\left(\left\{1, \dots, j, i\right\}\right)}^m$ connecting $i$ and $j$ necessarily have be contained in $\left\{1, \dots, j-1\right\}$, which proves Proposition \ref{prop:same-sparsity-factors}.1.a.
+
+    \item 
+Like in part (a), we note that by Claim \ref{claim:cond-indep} it it enough to show that $x_i \perp x_j | \bx_{1:j-1, j+1:i-1}$. Therefore, proceeding in a way similar to the previous case, we need to show that $\{1, \dots, j-1, j+1, \dots, i\}$ separates $i$ and $j$ in $G_{An\left(\left\{1, \dots, i\right\}\right)}^m$. 
+    However, notice that it can be easily verified that $\An(\{1, \dots, i\}) \subset \{1, \dots, i\})$, which means that $\An(\{1, \dots, i\}) = \{1, \dots, i\})$. Moreover, observe that the subgraph of $G$ generated by $\An(\{1, \dots, i\})$ is already moral, which means that if two vertices did not have a connecting edge in the original DAG, they also do not share an edge in $G^m_{1, \dots, i}$. Thus $i$ and $j$ are separated by $\{1, \dots, j-1, j+1, \dots, i-1\}$ in $G^m_{1, \dots, i}$, which by Corollary 3.23 in \citep{lauritzen1996graphical} proves part (b).
+
+\end{enumerate}
+
+\item 
+Let $\bP$ be the reverse-ordering permutation matrix.
+Let $\bB = \chol(\bP\hat{\bfSigma}^{-1}\bP)$. Then $\bU = \bP\bB\bP$. By the definition of $\bB$, we know that $\bB\bB^\top = \bP\hat{\bfSigma}^{-1}\bP$, and consequently $\bP\bB\bB^\top\bP = \hat{\bfSigma}^{-1}$. Therefore, $\hat{\bfSigma} = \left(\bP\bB\bB'\bP\right)^{-1}$. However, we have $\bP\bP = \bI$ and $\bP = \bP^\top$, and hence $
+\hat{\bfSigma} = \left((\bP\bB\bP)(\bP\bB^\top\bP)\right)^{-1}$. So we conclude that $\hat{\bfSigma} = (\bU\bU^\top)^{-1} = (\bU^\top)^{-1}\bU^{-1} = (\bU^{-1})^\top\bU^{-1}$ and $(\bU^{-1})^\top = \bL$, or alternatively $\bL^{-\top} = \bU$.
+\end{enumerate}
+\end{proof}
+
+
+
+
+%%%%%%%%%%%%%%
+
+\begin{proof}[Proof of Proposition \ref{prop:posterior}]
+~~ \\ \vspace{-5mm}
+\begin{enumerate}
+\item 
+We observe that hierarchical Vecchia satisfies the sparse general Vecchia requirement specified in \citet[][Sect.~4]{Katzfuss2017a}, because the nested ancestor sets imply that $\condset_j \subset \condset_i$ for all $j<i$ with $i,j \in \condset_k$.
+Hence, reasoning presented in \citet[][proof of Prop.~6]{Katzfuss2017a} allow us to conclude that $\widetilde{\bU}_{j,i}= 0$ if $\bU_{j,i}= 0$.
+
+\item 
+
+%We prove this property by applying Claim \ref{clm:nnz} to the conditional distribution $\left[ \bx | \by \right]$. Then it is enough to show that if $x_j \not\in \condset_i$ then $x_j \perp x_i | \bx_{1:j-1}, \by$. 
+
+As the observations in $\by$ are conditionally independent given $\bx$, we have
+\begin{equation}
+\textstyle \hat{p}(\bx|\by) \propto \hat{p}(\bx) p(\by|\bx) = \big( \prod_{i=1}^n p(x_i|\condset_i) \big) \big( \prod_{i \in \obs} p(y_i|x_i) \big),
+\label{eq:posterior-factorization}
+\end{equation}
+
+Let $G$ be the graph representing factorization \eqref{eq:vecchia-approx}, and let $\tilde{G}$ be the DAG corresponding to \eqref{eq:posterior-factorization}. We order vertices in $\tilde{G}$ such that vertices corresponding to $\by$ have numbers $n+1, n+2, \dots, n+|\mathcal{I}|$. For easier notation we also define $\tilde{\obs} = \{i+n : i\in \obs\}$.
+% While the proposition still holds if the so-called IW ordering is used instead (see \citet{Zilber2019}), this particular ordering simplifies notation because we can use consecutive integers to label the vertices corresponding to elements of $\bx$. 
+Similar to the proof of Proposition \ref{prop:same-sparsity-factors}.1, we suppress the names of variables and use the numbers of vertices instead (i.e., we refer to the vertex $x_k$ as $k$ and $y_j$ as $n+j$). Using this notation, and following the proof of Proposition 1, it is enough to show that $\{1, \dots, j-1\} \cup \tilde{\obs}$ separate $i$ and $j$ in $\tilde{\mathcal{G}}^m$, where  $\tilde{\mathcal{G}} \colonequals G_{\An(\{1, \dots, j, i\} \cup \tilde{\obs})}$.
+
+We first show that $1, \dots, j-1$ separate $i$ and $j$ in $G$. Assume the opposite, that there exists a path $(h_1, \dots, h_k)$ in $\{j+1, \dots, i-1, i+1, \dots, n\}$ connecting $x_i$ and $x_j$. Let us start with two observations. First, note that the last arrow has to go toward $j$ (i.e., $h_k \rightarrow j$), because $h_k>j$. Second, let $p_0 = \max\{p < k: h_p \rightarrow h_{p+1}\}$, the index of the last vertex with an arrow pointing toward $j$ that is not $h_k$. If $p_0$ exists, then $(h_1, \dots, h_{p_0})$ is also a path connecting $i$ and $j$. This is because $h_{p_0}$ and $j$ are parents of $h_{p_0+1}$, and so $h_{p_0} \rightarrow j$, because G is perfect and $h_p > j$.
+
+Now notice that a path $(h_1)$ (i.e., one consisting of a single vertex) cannot exist, because we would either have $i \rightarrow h_1 \rightarrow j$ or $i \leftarrow h_1 \leftarrow j$. The first case implies that $i \rightarrow j$, because in $G$ a node is a direct parent of all its descendants. Similarly in the second case, because $G$ is perfect and $j<i$, we also have that $i \leftarrow j$. In either case the assumption $j \not\in \condset_i$ is violated.
+
+Now consider the general case of a path $(h_1, \dots, h_k)$ and recall that by observation 1 also  $h_k \leftarrow j$. But then the path $(h_1)$ also exists because by \ref{eq:vecchia-approx} all descendants are also direct children of their ancestors. As shown in the previous paragraph, we thus have a contradiction.
+
+Finally, consider the remaining case such that $p_0 = \max\{p:h_p \rightarrow h_{p+1}\}$ exists. But then $(h_1, \dots, h_{p_0})$ is also a path connecting $i$ and $j$. 
+If all arrows in this reduced paths are to the left, we already showed it produces a contradiction. If not, we can again find $\max\{p: h_p \rightarrow h_{p+1}\}$ and continue the reduction until all arrows are in the same direction, which leads to a contradiction again. 
+
+Thus we show that $i$ and $j$ are separated by $\{1, \dots, j-1\}$ in $G$. This implies that they are separated by this set in every subgraph of $G$ that contains vertices $\{1, \dots, j, i\}$ and in particular in $\mathcal{G} \colonequals G_{An(\{1, \dots, j-1\} \cup \{j\}\cup \{i\}\cup \tilde{\obs})}$. Recall that we showed in Proposition 1 that $G$ is perfect, which means that $\mathcal{G} = \mathcal{G}^m$.
+
+Next, for a directed graph $\mathcal{F} = (V, E)$ define the operation of \emph{adding a child} as extending $\mathcal{F}$ to $\tilde{\mathcal{F}} = \left(V \cup \{w\}, E \cup \{v \rightarrow w\}\right)$ where $v \in V$. In other words, we add one vertex and one edge such that one of the old vertices is a parent and the new vertex is a child. Note that a perfect graph with an added child is still perfect. Moreover, because the new vertex is connected to only a single existing one, adding a child does not create any new connections between the old vertices. It follows that if $C$ separates $A$ and $B$ in $\mathcal{F}$, then $C \cup \{w\}$ does so in $\bar{\mathcal{F}}$ as well.
+
+Finally, notice that $\tilde{\mathcal{G}}$, the graph we are ultimately interested in, can be obtained from $\mathcal{G}$ using a series of child additions. Because these operations preserve separation even after adding the child to the separating set, we conclude that $i$ and $j$ are separated by $\{1, \dots, j-1\} \cup \tilde{\obs}$ in $\tilde{\mathcal{G}}$. Moreover, because $\mathcal{G}$ was perfect and because graph perfection is preserved under child addition, we have that $\tilde{\mathcal{G}} = \tilde{\mathcal{G}}^m$. 
+
+\end{enumerate}
+\end{proof}
+
+
+%%%%%%%%%%%%%%
+
+
+
+\begin{claim}
+Assuming the joint distribution $\hat{p}(\bx)$ as in \eqref{eq:vecchia-approx-ind}, we have $\hat{p}(x_i, x_j)=p(x_i, x_j)$ if $x_j \in \condset_i$; that is, the marginal bivariate distribution of a pair of variables is exact if one of the variables is in the conditioning set of the other.
+\label{claim:marginals}
+\end{claim}
+\begin{proof}
+First, consider the case where $x_i, x_j \in \sx_\jm$. Then note that $\hat{p}(\sx_\jm) = \int \hat{p}(\bx) d\bx_{-\sx_\jm}$. Furthermore, notice that given the decomposition \eqref{eq:vecchia-approx} and combining appropriate terms we can write 
+$$\hat{p}(\bx)=p\left(\sx_\jm|\sa_\jm\right)p\left(\sa_\jm\right)p\left(\bx_{-\left\{\sx_\jm\cup \sa_\jm\right\}}\right).$$
+Using these two observations, we conclude that
+$$ \textstyle \hat{p}(\sx_\jm) = \int \hat{p}(\bx) d\bx_{-\sx_\jm} = \int \prod_{k=0}^m p(\sx_\jm|\sa_\jm) d(\sx, \sx_{j_1}, \ldots, \sx_\jmm) = p(\sx_\jm),
+$$
+which proves that $\hat{p}(x_i, x_j)=p(x_i, x_j)$ if $x_i, x_j \in \sx_\jm$.
+
+Now let $x_i \in \sx_\jm$ and $x_j \in \sx_\jl$ with $\ell < m$, because $x_j \in \condset_i$ implies that $j<i$.
+%We also set $\tilde{\bx} = \bx(\bigcup_{k=0}^m \knots_\jm)$ and slightly abusing notation we write $p(\knots_\jm)$ when we mean $p(\bx(\knots_\jm))$. Finally, we set $P=\mathcal{P}_\jl$. 
+Then,
+\begin{align*}
+\hat{p}(\sx_\jm, \sx_\jl) & \textstyle =\int \hat{p}(\bx) d\bx_{-\{\sx_\jm \cup \sx_\jl\}} = \\
+   & \textstyle = \int \prod_{k=0}^M \prod_\jk p(\sx_\jk|\sa_\jk) d\bx_{-\{\sx_\jm \cup \sx_\jl\}} \\
+   & \textstyle = \int \prod_{k=0}^m p(\sx_\jk|\sa_\jk) d(A_\jl\cup\sx_\jlp \cup \dots \cup \sx_\jmm).
+\end{align*}
+The second equality uses \eqref{eq:vecchia-approx}, the definition of $\hat{p}$; the last equation is obtained by integrating out $\sx^{0:M}\setminus \bigcup_{k=0}^m \sx_\jk$.
+Note that $\sa_\jm = \sa_\jl \cup \bigcup_{k=\ell}^{m-1} \sx_\jk$. Therefore, by Bayes law, for any $k>\ell$:
+\begin{align*}
+    p(\sx_\jk|\sa_\jk) & \textstyle = p\left(\sx_\jk|\sa_\jl \cup (\sa_\jk\setminus \sa_\jl)\right) \\
+   & \textstyle = \frac{p\left(\sa_\jl | \sx_\jk \cup (\sa_\jk\setminus \sa_\jl)\right)p(\sx_\jk|\sa_\jk\setminus\sa_\jl)}{p(\sa_\jl|\sa_\jk \setminus \sa_\jl)} \\ 
+   & \textstyle =\frac{p(\sa_\jl|\sa_\jkp \setminus \sa_\jl)p(\sx_\jk|\sa_\jk\setminus \sa_\jl)}{p(\sa_\jl|\sa_\jk \setminus \sa_\jl)} = (*)
+\end{align*}
+The last equality holds because $\sx_\jm \cup \sa_\jm = \sa_\jmp$. As a consequence
+\begin{align*}
+    \textstyle \prod_{k=0}^m p(\sx_\jk|\sa_\jk) & \textstyle = \prod_{k=0}^m p(\sx_\jk|\sa_\jk\setminus \sa_\jl) p(\sa_\jl) \\
+    & \textstyle = \prod_{k=0}^m p(\sx_\jk \rvert \bigcup_{s=k-1}^\ell \sx_\js) p(\sa_\jl)
+\end{align*}
+and
+\begin{align*}
+(*) & \textstyle = \int \prod_{k=0}^m p(\sx_\jm|\sa_\jm) p(\sa_\jl) d(\sa_\jl\cup\sx_\jlp \cup \dots, \cup \sx_\jmm)  \\
+ & \textstyle = \int p(\sx_\jm, \sx_\jmm, \dots, \sx_\jl, \sa_\jl) d(\sa_\jl\cup\sx_\jlp \cup \dots, \cup \sx_\jmm) \\ 
+ & = p(\sx_\jm, \sx_\jl)    
+\end{align*}
+This means that $\hat{p}(\sx_\jm, \sx_\jl) = p(\sx_\jm, \sx_\jl)$, or that the marginal distribution of $\sx_\jm$ and $\sx_\jl$ in \eqref{eq:vecchia-approx} is the same as in the true distribution $p$.
+Because $p$ is Gaussian, it follows that
+$
+\hat{p}(x_i, x_j) = p(x_i, x_j).
+$
+ This ends the proof.
+
+\end{proof}
+
+
+
+
+
+%%%%%%%%%%%%%%
+
+\begin{proof}[Proof of Proposition \ref{prop:chol-lemma}]
+We use $l^\text{inc}_{i,j}$, $l_{i,j}$, $\sigma_{i,j}$, $\hat{\sigma}_{i,j}$ to denote the $(i,j)$-th elements of $\bL^\text{inc} = \ichol(\bfSigma, \bS)$, $\bL = \chol(\hat\bfSigma)$, $\bfSigma$, $\hat{\bfSigma}$, respectively. It can be seen easily in Algorithm \ref{alg:ic0} that $\chol(\bfSigma)=\ichol(\bfSigma, \bS^{\bm{1}})$, where $\bS^{\bm{1}}_{i,j} = 1$ for $i\geq j$ and $0$ otherwise.
+
+We prove that $l^\text{inc}_{i,j}=l_{i,j}$ by induction over the elements of the Cholesky factor, following the order in which they are computed. First, we observe that $l^\text{inc}_{1,1}=l_{1,1}$. Next, consider the computation of the $(i,j)$-th entry, assuming that we have $l^\text{inc}_{k,q}=l_{k,q}$ for all previously computed entries. According to Algorithm \ref{alg:ic0}, we have
+\begin{equation}
+\textstyle l_{i,j} = \frac{1}{l_{j,j}} \big( \hat{\sigma}_{i,j} - \sum_{k=1}^{j-1}l_{i,k}l_{j,k} \big), \quad\quad l^{inc}_{i,j} = \frac{s_{i,j}}{l_{j,j}} \big( \sigma_{i,j} - \sum_{k=1}^{j-1}l_{i,k}l_{j,k} \big).
+\end{equation}
+Now, if $s_{i,j}=1 \iff x_j \in \condset_i$, then Claim \ref{claim:marginals} tells us that $\sigma_{i,j} = \hat{\sigma}_{i,j}$, and hence $l_{i,j} = l^\text{inc}_{i,j}$. If $s_{i,j}=0 \iff x_j \not\in \condset_i$, then $l^\text{inc}_{i,j}=0$, and also $l_{i,j}=0$ by Proposition \ref{prop:same-sparsity-factors}.1(a). This completes the proof via induction.
+\end{proof}
+
+
+
+%%%%%%%%%%%%%%
+\begin{claim}
+    Let $\bx$ have density $\hat{p}(\bx)$ as in \eqref{eq:vecchia-approx}, and let each conditioning set $\condset_i$ have size at most $N$. Then $\bfLambda$, the precision matrix of $\bx$, has $\mathcal{O}(nN)$ nonzero elements. Moreover, the columns of $\bU = \rchol(\bfLambda)$ and the rows of $\bL = \chol(\bfLambda^{-1})$ each have at most $N$ nonzero elements.
+    \label{clm:nnz}
+\end{claim}
+
+\begin{proof}
+    Because the precision matrix is symmetric, it is enough to show that there are only $\mathcal{O}(nN)$ nonzero elements $\bfLambda_{i,j}$ in the upper triangle (i.e., with $i<j$). Let $x_i \not\in \condset_j$. This means that $x_i \not\rightarrow x_j$ and because by \eqref{eq:vecchia-approx} all edges go from a lower index to a higher index, $x_i$ and $x_j$ are not connected. Moreover because $\sa_\jm \supset \sa_\jmm$ there is also no $x_k$ with $k>\max(i,j)$ such that $x_i \rightarrow x_k$ and $x_j \rightarrow x_k$. Thus, using Proposition 3.2 in \citet{Katzfuss2017a} we conclude that $\bfLambda_{i,j}=0$ for $x_i \not\in \condset_j$. This means that each row $i$ has at most $|\condset_i|\leq N$ nonzero elements, and the entire lower triangle has $\mathcal{O}(nN)$ nonzero values.
+    %Because the precision matrix is symmetric, it is enough to show that there are only $\mathcal{O}(nN)$ nonzero elements $\bfLambda_{i,j}$ in the lower triangle (i.e., with $i>j$). Notice that for $i,j$ such that $x_j \not\in \condset_i$ and $x_i \in \sx_\im$, Claim \ref{clm:markov-prop} says that $x_i \perp x_j \,|\, \sa_\im$. This means that, in particular, $x_i \perp x_j | \bx_{-i,j}$ so $\bfLambda_{i,j}=0$. Therefore each row $i$ has at most $|\condset_i|\leq N$ nonzero elements, and the entire lower triangle has $\mathcal{O}(nN)$ nonzero values.
+
+    Proposition \ref{prop:same-sparsity-factors} implies that the $i$-th column of $\bU$ has at most as many nonzero entries as there elements in the conditioning set $\condset_i$, which we assumed to be of size at most $N$. Similarly, the $i$-th row of $\bL$ has at most as many nonzero entries as the number of elements in the conditioning set $\condset_i$.
+\end{proof}
+
+
+\begin{claim}
+    Let $\bA$ be an $n \times n$ lower triangular matrix with at most $N<n$ nonzero elements in each row at known locations. Letting $a_{ij}$ and $\tilde{a}_{ij}$ be the $(i,j)$-th element of $\bA$ and $\bA^{-1}$, respectively, assume that $\tilde{a}_{i,j}=0$ if $a_{i,j}=0$. Then, the cost of calculating $\bA^{-1}$ from $\bA$ is $\mathcal{O}(nN^2)$.
+    \label{clm:triangular-sparse-inverse}
+\end{claim}
+
+\begin{proof}
+    Notice that calculating $\tilde{\ba}_k$, the $k$th column of $\bA^{-1}$, is equivalent to solving a linear system of the form
+    \begin{equation}
+        \left[\begin{array}{ccccc}
+            a_{11} & 0 & 0 & \dots & 0 \\
+            a_{21} & a_{22} & 0 & \dots & 0 \\
+            a_{31} & a_{32} & a_{33} & \dots & 0 \\
+            \vdots & \vdots & \vdots & \ddots & \vdots \\
+            a_{n1} & a_{n2} & a_{n3} & \dots & a_{nn}
+        \end{array}\right]
+        \left[\begin{array}{c} \tilde{a}_{1k} \\ \tilde{a}_{2k} \\ \tilde{a}_{3k} \\ \vdots \\ \tilde{a}_{nk} \end{array}\right]
+        =
+        e_k,
+    \end{equation}
+    where $e_{ik} = 1$ if $k=i$ and 0 otherwise. Using forward substitution, the $i$-th element of $\tilde{\ba}_k$ can be calculated as $\tilde{a}_{ik} = \frac{1}{a_{kk}}\left(e_{ik} - \sum_{j=1}^{i-1}a_{ij}\tilde{a}_{jk}\right)$. This requires $\mathcal{O}(N)$ time, because our assumptions imply that there are at most $N$ nonzero terms under the summation. Moreover, we also assumed that $\tilde{\ba}_k$ has at most $N$ nonzero elements at known locations, and so we only need to calculate those. Thus computing $\tilde{\ba}_k$ has $\mathcal{O}(N^2)$ time complexity. As there are $n$ columns to calculate, this ends the proof.
+\end{proof}
+
+
+%%%%%%%%%%%%%%
+
+\begin{proof}[Proof of Proposition \ref{prop:complexity-vf}]
+
+    Starting with the ichol() procedure in Line 1, obtaining each nonzero element $l_{i,j}$ requires calculating the outer product of previously computed segments of rows $i$ and $j$. Because Claim \ref{clm:nnz} implies that each row of $\bL$ has at most $N$ nonzero elements, obtaining $l_{i,j}$ is $\mathcal{O}(N)$. Claim \ref{clm:nnz} also shows that for each $i$, there are at most $N$ nonzero elements $s_{i,j}=1$, which implies that each row of the incomplete Cholesky factor can be calculated in $\mathcal{O}(N^2)$. Finally, because the matrix to be decomposed has $n$ rows, the overall cost of the algorithm is $\mathcal{O}(nN^2)$.
+    In Line 2, because $\bL^{-1} = \bU^\top$, Proposition \ref{prop:same-sparsity-factors} tells us exactly which elements of $\bL^{-1}$ need to be calculated (i.e., are non-zero), and that there are only $N$ of them (Claim \ref{clm:nnz}). Using Claim \ref{clm:triangular-sparse-inverse}, this means that computing $\bL^{-1}$ can be accomplished in $\mathcal{O}(nN^2)$ time. Analogous reasoning and Proposition 2 allow us to conclude that computing $\widetilde{\bL}$ in Line 5 has the same complexity.
+    The cost of Line 3 is dominated by taking the outer product of $\bU$, because $\bH$ and $\bR$ are assumed to have only one non-zero element in each row. However, $\bU\bU^\top$ is by definition equal to the precision matrix of $\bx$ under \eqref{eq:vecchia-approx}. Therefore, by Claim \ref{clm:nnz} there are at most $\mathcal{O}(nN)$ elements to calculate and each requires multiplication of two rows with at most $N$ nonzero elements. This means that this step can be accomplished in $\mathcal{O}(nN^2)$ time.
+    The most expensive operation in Line 4 is taking the Cholesky factor. However, its cost proportional to the square of the number of nonzero elements in each column \citep[e.g.,][Thm.~2.2]{Toledo2007}, which by Claim \ref{clm:nnz} we know to be $N$. As there are $n$ columns, this step requires $\mathcal{O}(nN^2)$ time.
+    Finally, the most expensive operation in Line 6 is the multiplication of a vector by matrix $\widetilde\bL$. By Proposition \ref{prop:posterior}, $\widetilde{\bL}$ has the same number of nonzero elements per row as $\bL$, which is at most $N$ by Claim \ref{clm:nnz}. Thus, multiplication of $\widetilde{\bL}$ and any dense vector can be performed in $\mathcal{O}(nN)$ time.
+    To conclude, each line of Algorithm \ref{alg:VF} can be computed in at most $\order(nN^2)$ time, and so the total time complexity of the algorithm is also $\mathcal{O}(nN^2)$.
+    
+    Regarding memory complexity, notice that by Claims \ref{clm:nnz} and \ref{prop:same-sparsity-factors}, matrices $\bL$, $\bU$, $\widetilde{\bL}$, $\widetilde{\bU}$, and $\bfLambda$ have $\order(nN)$ nonzero elements, and \eqref{eq:gobs} implies that matrices $\bH$ and $\bR$ have at most $n$ entries. Further, the incomplete Cholesky decomposition in Line 1 requires only those elements of $\bfSigma$ that correspond to the nonzero elements of $\bS$. Because $\bS$ has at most $N$ non-zero elements in each row by construction, each of the matrices that are decomposed can be stored using $\mathcal{O}(nN)$ memory, and so the memory requirement for Algorithm \ref{alg:VF} is $\mathcal{O}(nN)$.
+\end{proof}
+
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{apalike}
+\bibliography{mendeley,additionalrefs}
+
+\end{document}

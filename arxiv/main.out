@@ -1,0 +1,20 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Sparsity of Cholesky factors}{}% 2
+\BOOKMARK [1][-]{section.3}{Hierarchical Vecchia for large Gaussian spatial data}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{The hierarchical Vecchia approximation}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Sparsity of the hierarchical Vecchia approximation}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.3}{Fast computation using incomplete Cholesky factorization}{section.3}% 6
+\BOOKMARK [1][-]{section.4}{Extensions to non-Gaussian spatial data using the Laplace approximation}{}% 7
+\BOOKMARK [1][-]{section.5}{Fast filters for spatio-temporal models}{}% 8
+\BOOKMARK [2][-]{subsection.5.1}{Linear evolution}{section.5}% 9
+\BOOKMARK [2][-]{subsection.5.2}{An extended filter for nonlinear evolution}{section.5}% 10
+\BOOKMARK [2][-]{subsection.5.3}{A particle-EKVL filter in case of unknown parameters}{section.5}% 11
+\BOOKMARK [1][-]{section.6}{Numerical comparison}{}% 12
+\BOOKMARK [2][-]{subsection.6.1}{Methods and criteria}{section.6}% 13
+\BOOKMARK [2][-]{subsection.6.2}{Spatial-only data}{section.6}% 14
+\BOOKMARK [2][-]{subsection.6.3}{Linear temporal evolution}{section.6}% 15
+\BOOKMARK [2][-]{subsection.6.4}{Simulations using a very large n}{section.6}% 16
+\BOOKMARK [2][-]{subsection.6.5}{Nonlinear evolution with non-Gaussian data}{section.6}% 17
+\BOOKMARK [1][-]{section.7}{Conclusions}{}% 18
+\BOOKMARK [1][-]{appendix.A}{Glossary of graph theory terms}{}% 19
+\BOOKMARK [1][-]{appendix.B}{Proofs }{}% 20

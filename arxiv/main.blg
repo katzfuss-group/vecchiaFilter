@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2017/Debian)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: main.aux
+The style file: apalike.bst
+Database file #1: mendeley.bib
+Database file #2: additionalrefs.bib
+Warning--there's a number but no series in Doucet2011
+Warning--can't use both volume and number fields in Johannesson2003
+You've used 58 entries,
+            1935 wiz_defined-function locations,
+            864 strings with 13516 characters,
+and the built_in function-call counts, 23370 in all, are:
+= -- 2307
+> -- 927
+< -- 46
++ -- 305
+- -- 303
+* -- 1996
+:= -- 4036
+add.period$ -- 180
+call.type$ -- 58
+change.case$ -- 430
+chr.to.int$ -- 56
+cite$ -- 60
+duplicate$ -- 883
+empty$ -- 1654
+format.name$ -- 399
+if$ -- 4590
+int.to.chr$ -- 3
+int.to.str$ -- 0
+missing$ -- 65
+newline$ -- 293
+num.names$ -- 180
+pop$ -- 368
+preamble$ -- 1
+purify$ -- 437
+quote$ -- 0
+skip$ -- 685
+stack$ -- 0
+substring$ -- 1693
+swap$ -- 124
+text.length$ -- 12
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 332
+warning$ -- 2
+while$ -- 195
+width$ -- 0
+write$ -- 750
+(There were 2 warnings)

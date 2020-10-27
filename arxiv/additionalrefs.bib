@@ -1,0 +1,167 @@
+%%%  add references here that do not appear in mendeley.bib  %%%
+@article{delsole2010state,
+  title={State and parameter estimation in stochastic dynamical models},
+  author={DelSole, Timothy and Yang, Xiaosong},
+  journal={Physica D: Nonlinear Phenomena},
+  volume={239},
+  number={18},
+  pages={1781--1788},
+  year={2010},
+  publisher={Elsevier}
+}
+
+@article{Bannister2017,
+  title={A review of operational methods of variational and ensemble-variational data assimilation},
+  author={Bannister, RN},
+  journal={Quarterly Journal of the Royal Meteorological Society},
+  volume={143},
+  number={703},
+  pages={607--633},
+  year={2017},
+  publisher={Wiley Online Library}
+}
+
+@article{Carrassi2018,
+  title={Data assimilation in the geosciences: An overview of methods, issues, and perspectives},
+  author={Carrassi, Alberto and Bocquet, Marc and Bertino, Laurent and Evensen, Geir},
+  journal={Wiley Interdisciplinary Reviews: Climate Change},
+  volume={9},
+  number={5},
+  pages={e535},
+  year={2018},
+  publisher={Wiley Online Library}
+}
+
+
+
+
+@article{khare2012sparse,
+  title={Sparse matrix decompositions and graph characterizations},
+  author={Khare, Kshitij and Rajaratnam, Bala},
+  journal={Linear Algebra and its Applications},
+  volume={437},
+  number={3},
+  pages={932--947},
+  year={2012},
+  publisher={Elsevier}
+}
+
+@book{koller2009,
+  title={Probabilistic Graphical Models: Principles and Techniques},
+  author={Koller, D. and Friedman, N.},
+  isbn={9780262258357},
+  series={Adaptive Computation and Machine Learning series},
+  url={https://books.google.com/books?id=dOruCwAAQBAJ},
+  year={2009},
+  publisher={MIT Press}
+}
+
+
+@article{Fong2010,
+    author = {Fong, Youyi and Rue, Håvard and Wakefield, Jon},
+    title = "{Bayesian inference for generalized linear mixed models}",
+    journal = {Biostatistics},
+    volume = {11},
+    number = {3},
+    pages = {397-412},
+    year = {2010},
+    month = {07},
+    abstract = "{Generalized linear mixed models (GLMMs) continue to grow in popularity due to their ability to directly acknowledge multiple levels of dependency and model different data types. For small sample sizes especially, likelihood-based inference can be unreliable with variance components being particularly difficult to estimate. A Bayesian approach is appealing but has been hampered by the lack of a fast implementation, and the difficulty in specifying prior distributions with variance components again being particularly problematic. Here, we briefly review previous approaches to computation in Bayesian implementations of GLMMs and illustrate in detail, the use of integrated nested Laplace approximations in this context. We consider a number of examples, carefully specifying prior distributions on meaningful quantities in each case. The examples cover a wide range of data types including those requiring smoothing over time and a relatively complicated spline model for which we examine our prior specification in terms of the implied degrees of freedom. We conclude that Bayesian inference is now practically feasible for GLMMs and provides an attractive alternative to likelihood-based approaches such as penalized quasi-likelihood. As with likelihood-based approaches, great care is required in the analysis of clustered binary data since approximation strategies may be less accurate for such data.}",
+    issn = {1465-4644},
+    doi = {10.1093/biostatistics/kxp053},
+    url = {https://doi.org/10.1093/biostatistics/kxp053},
+    eprint = {https://academic.oup.com/biostatistics/article-pdf/11/3/397/18604192/kxp053.pdf},
+}
+
+
+@article{Bonat2016,
+author = {Bonat, Wagner Hugo and Ribeiro Jr, Paulo Justiniano},
+title = {Practical likelihood analysis for spatial generalized linear mixed models},
+journal = {Environmetrics},
+volume = {27},
+number = {2},
+pages = {83-89},
+keywords = {spatial data, likelihood inference, Laplace approximation, random effects},
+doi = {10.1002/env.2375},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/env.2375},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/env.2375},
+abstract = {We investigate an algorithm for maximum likelihood estimation of spatial generalized linear mixed models based on the Laplace approximation. We compare our algorithm with a set of alternative approaches for two datasets from the literature. The Rhizoctonia root rot and the Rongelap are, respectively, examples of binomial and count datasets modeled by spatial generalized linear mixed models. Our results show that the Laplace approximation provides similar estimates to Markov Chain Monte Carlo likelihood, Monte Carlo expectation maximization, and modified Laplace approximation. Some advantages of Laplace approximation include the computation of the maximized log-likelihood value, which can be used for model selection and tests, and the possibility to obtain realistic confidence intervals for model parameters based on profile likelihoods. The Laplace approximation also avoids the tuning of algorithms and convergence analysis, commonly required by simulation-based methods. Copyright © 2015 John Wiley \& Sons, Ltd.},
+year = {2016}
+}
+
+
+@article{LiAmbikasaran2014,
+author = {Judith Yue Li and Sivaram Ambikasaran and Eric F. Darve and Peter K. Kitanidis},
+title = {{A Kalman filter powered by H-matrices for quasi-continuous data assimilation problems}},
+journal = {Water Resources Research},
+volume = {50},
+number = {5},
+pages = {3734-3749},
+year={2014},
+keywords = {stochastic inverse modeling, subsurface monitoring, data assimilation, time series analysis, numerical linear algebra, large‐scale problems},
+doi = {10.1002/2013WR014607},
+url = {https://agupubs.onlinelibrary.wiley.com/doi/abs/10.1002/2013WR014607},
+eprint = {https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1002/2013WR014607},
+abstract = {Abstract Continuously tracking the movement of a fluid or a plume in the subsurface is a challenge that is often encountered in applications, such as tracking a plume of injected CO2 or of a hazardous substance. Advances in monitoring techniques have made it possible to collect measurements at a high frequency while the plume moves, which has the potential advantage of providing continuous high‐resolution images of fluid flow with the aid of data processing. However, the applicability of this approach is limited by the high computational cost associated with having to analyze large data sets within the time constraints imposed by real‐time monitoring. Existing data assimilation methods have computational requirements that increase superlinearly with the size of the unknowns m. In this paper, we present the HiKF, a new Kalman filter (KF) variant powered by the hierarchical matrix approach that dramatically reduces the computational and storage cost of the standard KF from to , while producing practically the same results. The version of HiKF that is presented here takes advantage of the so‐called random walk dynamical model, which is tailored to a class of data assimilation problems in which measurements are collected quasi‐continuously. The proposed method has been applied to a realistic CO2 injection model and compared with the ensemble Kalman filter (EnKF). Numerical results show that HiKF can provide estimates that are more accurate than EnKF and also demonstrate the usefulness of modeling the system dynamics as a random walk in this context.}
+}
+
+@article{Saibaba2015,
+  author={Arvind K Saibaba and Eric L Miller and Peter K Kitanidis},
+  title={Fast{ K}alman filter using hierarchical matrices and a low-rank perturbative approach},
+  journal={Inverse Problems},
+  volume={31},
+  number={1},
+  pages={015009},
+  url={http://stacks.iop.org/0266-5611/31/i=1/a=015009},
+  year={2015},
+  abstract={We develop a fast algorithm for a Kalman filter applied to the random walk forecast model. The key idea is an efficient representation of the estimate covariance matrix at each time step as a weighted sum of two contributions—the process noise covariance matrix and a low-rank term computed from a generalized eigenvalue problem, which combines information from the noise covariance matrix and the data. We describe an efficient algorithm to update the weights of the preceding terms and the computation of eigenmodes of the generalized eigenvalue problem. The resulting algorithm for the Kalman filter with a random walk forecast model scales as ##IMG## [http://ej.iop.org/images/0266-5611/31/1/015009/ip503821ieqn1.gif] {$\mathcal{O}(N)$} in memory and ##IMG## [http://ej.iop.org/images/0266-5611/31/1/015009/ip503821ieqn2.gif] {$\mathcal{O}(N{\rm log} N)$} in computational cost, where N is the number of grid points. We show how to efficiently compute measures of uncertainty and conditional realizations from the state distribution at each time step. An extension to the case with nonlinear measurement operators is also discussed. Numerical experiments demonstrate the performance of our algorithms, which are applied to a synthetic example from monitoring CO 2 in the subsurface using travel-time tomography.}
+}
+
+@article{WikleCressie1999,
+    author = {Wikle, CK and Cressie, N},
+    title = "{A dimension-reduced approach to space-time Kalman filtering}",
+    journal = {Biometrika},
+    volume = {86},
+    number = {4},
+    pages = {815-829},
+    year = {1999},
+    month = {12},
+    abstract = "{Many physical/biological processes involve variability over both space and time. As a result of difficulties caused by large datasets and the modelling of space, time and spatio-temporal interactions, traditional space-time methods are limited. In this paper, we present an approach to space-time prediction that achieves dimension reduction and uses a statistical model that is temporally dynamic and spatially descriptive. That is, it exploits the unidirectional flow of time, in an autoregressive framework, and is spatially 'descriptive' in that the autoregressive process is spatially coloured. With the inclusion of a measurement equation, this formulation naturally leads to the development of a spatio-temporal Kalman filter that achieves dimension reduction in the analysis of large spatio-temporal datasets. Unlike other recent space-time Kalman filters, our model also allows a non-dynamic spatial component. The method is applied to a dataset of near-surface winds over the topical Pacific ocean. Spatial predictions with this dataset are improved by considering the additional non-dynamic spatial process. The improvement becomes more pronounced as the signal-to-noise ratio decreases.}",
+    issn = {0006-3444},
+    doi = {10.1093/biomet/86.4.815},
+    url = {https://doi.org/10.1093/biomet/86.4.815},
+    eprint = {http://oup.prod.sis.lan/biomet/article-pdf/86/4/815/773466/860815.pdf},
+}
+
+
+@article{Sigrist2014,
+author = {Sigrist, Fabio and Künsch, Hans R. and Stahel, Werner A.},
+title = {Stochastic partial differential equation based modelling of large space–time data sets},
+journal = {Journal of the Royal Statistical Society: Series B (Statistical Methodology)},
+volume = {77},
+number = {1},
+pages = {3-33},
+keywords = {Advection–diffusion equation, Gaussian process, Numerical weather prediction, Physics-based model, Spatiotemporal model, Spectral methods},
+doi = {10.1111/rssb.12061},
+url = {https://rss.onlinelibrary.wiley.com/doi/abs/10.1111/rssb.12061},
+eprint = {https://rss.onlinelibrary.wiley.com/doi/pdf/10.1111/rssb.12061},
+abstract = {Summary Increasingly larger data sets of processes in space and time ask for statistical models and methods that can cope with such data. We show that the solution of a stochastic advection–diffusion partial differential equation provides a flexible model class for spatiotemporal processes which is computationally feasible also for large data sets. The Gaussian process defined through the stochastic partial differential equation has, in general, a non-separable covariance structure. Its parameters can be physically interpreted as explicitly modelling phenomena such as transport and diffusion that occur in many natural processes in diverse fields ranging from environmental sciences to ecology. To obtain computationally efficient statistical algorithms, we use spectral methods to solve the stochastic partial differential equation. This has the advantage that approximation errors do not accumulate over time, and that in the spectral space the computational cost grows linearly with the dimension, the total computational cost of Bayesian or frequentist inference being dominated by the fast Fourier transform. The model proposed is applied to post-processing of precipitation forecasts from a numerical weather prediction model for northern Switzerland. In contrast with the raw forecasts from the numerical model, the post-processed forecasts are calibrated and quantify prediction uncertainty. Moreover, they outperform the raw forecasts, in the sense that they have a lower mean absolute error.},
+year = {2015}
+}
+
+@book{lauritzen1996graphical,
+  title={Graphical Models},
+  author={Lauritzen, S.L.},
+  isbn={9780191591228},
+  series={Oxford Statistical Science Series},
+  url={https://books.google.com/books?id=mGQWkx4guhAC},
+  year={1996},
+  publisher={Clarendon Press}
+}
+
+@article{kincaid1991numerical,
+  title={Numerical analysis: mathematics of scientific computing},
+  author={Kincaid, David and Cheney, Ward},
+  year={1991},
+  publisher={Brooks/Cole Publishing Co.}
+}
