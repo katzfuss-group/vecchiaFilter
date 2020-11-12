@@ -40,19 +40,6 @@ getConfInt = function(preds, alpha){
 }
 
 
-getConfInt = function(preds, alpha){
-  
-  D = Matrix::diag(Matrix::solve(preds$W))
-  mu = preds$state
-  z = qnorm(1 - alpha/2)
-  #browser()
-  ub = mu + z*sqrt(D)
-  lb = mu - z*sqrt(D)
-  
-  return(list(ub = ub, lb = lb))
-}
-
-
 
 
 
