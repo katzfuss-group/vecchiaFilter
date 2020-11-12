@@ -1,4 +1,4 @@
-setwd("~/HVLF")
+setwd("~/vecchiaFilter")
 source("plotting-functions.r")
 resultsDir="simulations-spatial"
 data.models = c("gauss")

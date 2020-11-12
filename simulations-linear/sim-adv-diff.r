@@ -112,7 +112,7 @@ filter = function(approx.name, XY){
 
 
 
-setwd("~/HVLF")
+setwd("~/vecchiaFilter")
 source('aux-functions.r')
 source('getMatCov.r')
 Rcpp::sourceCpp('src/getMatCovFromFactor.cpp')

@@ -1,5 +1,5 @@
-source("~/HVLF/simulations-spatial/data_generating_functions.R")
-source("~/HVLF/simulations-spatial/data_generating_functions2.R")
+source("~/vecchiaFilter/simulations-spatial/data_generating_functions.R")
+source("~/vecchiaFilter/simulations-spatial/data_generating_functions2.R")
 
 # This code takes a set of parameters defining some simulation scenario,
 # such as data model, covariance parameters, and sample size, then simulates

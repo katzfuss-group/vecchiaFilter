@@ -1,7 +1,7 @@
 rm(list=ls())
 library(VEnKF)
 library(rootSolve)
-setwd("~/HVLF/simulations-lorenz")
+setwd("~/vecchiaFilter/simulations-lorenz")
 
 generateInit = T
     

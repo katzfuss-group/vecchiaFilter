@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 library(GPvecchia)
-source("~/HVLF/simulations-spatial/run_scenario.R")
+source("~/vecchiaFilter/simulations-spatial/run_scenario.R")
 
 ##########################################################################
 ##################### Compare models:  MSE and Log score  ########################

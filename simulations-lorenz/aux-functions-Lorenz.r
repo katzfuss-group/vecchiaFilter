@@ -1,4 +1,4 @@
-getX0 = function(N, Force, K, dt, dir = '~/HVLF/simulations-lorenz/'){
+getX0 = function(N, Force, K, dt, dir = '~/vecchiaFilter/simulations-lorenz/'){
   
   fileName = paste("init_Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep="_")
   filePath = paste(dir, fileName, sep="")
@@ -36,7 +36,7 @@ center_operator = function(x) {
 
 getLRMuCovariance = function(N, Force, dt, K){
 
-  fileName.all = paste("~/HVLF/simulations-lorenz/Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep = "_")
+  fileName.all = paste("~/vecchiaFilter/simulations-lorenz/Lorenz04_N", N, "F", Force, "dt", dt, "K", K, sep = "_")
   X = Matrix::Matrix(scan(fileName.all, quiet = TRUE), nrow = N)
   Xbar = matrix(rowMeans(as.matrix(X)), ncol=1)
   X = center_operator(X)

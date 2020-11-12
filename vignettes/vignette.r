@@ -1,4 +1,4 @@
-setwd("~/HVLF")
+setwd("~/vecchiaFilter")
 rm(list = ls())
 source("aux-functions.r")
 source("simulations-lorenz/aux-functions-Lorenz.r")

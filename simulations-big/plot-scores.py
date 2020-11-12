@@ -91,7 +91,7 @@ def plotScore(scoresDict, name):
 
 
 HOME = Path.home()
-os.chdir(os.path.join(HOME, "HVLF/simulations-big/paper_results"))
+os.chdir(os.path.join(HOME, "vecchiaFilter/simulations-big/paper_results"))
 
 families = ["gauss", "logistic", "poisson", "gamma"]
 RMSPE = {}
