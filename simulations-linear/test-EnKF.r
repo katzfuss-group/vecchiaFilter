@@ -1,5 +1,6 @@
 setwd("~/vecchiaFilter")
 source("filtering.r")
+source("filtering-EnKF.r")
 source('aux-functions.r')
 source('getMatCov.r')
 source('plotting.r')
@@ -64,30 +65,22 @@ approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
 RMSPE = list(); LogSc = list()
-scores = foreach( iter=1:max.iter) %dopar% {
-#for (iter in 1:max.iter) {  
+#scores = foreach( iter=1:max.iter) %dopar% {
+for (iter in 1:max.iter) {  
 
     XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
 
     cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
     predsE = filter('exact', XY, saveUQ="W")
-    cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
-    predsMRA = filter('mra', XY, saveUQ="W")
     cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
-    predsLR  = filter('low.rank', XY, saveUQ="W")
-    cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
-    predsEnKF  = filterEnKF(XY, saveUQ="W")
+    predsEnKF  = filterEnKF('exact', XY, saveUQ="W")
 
 
-    
-    RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
-    LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
-
-    write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep=""))
-    write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep=""))
+    RRMSPE = calculateRRMSPE(predsE, predsE, predsEnKF, XY$x)
+    LogSc = calculateLSs(predsE, predsE, predsEnKF, XY$x)
 
     if(iter==1){
-        plotResults2d(XY, predsMRA, predsLR, data.model, resultsDir, "MRA", "LR")        
+        plotResults2d(XY, predsE, predsEnKF, data.model, resultsDir, "Kalman", "EnKF")        
     }
 
     list(RRMSPE, LogSc)
