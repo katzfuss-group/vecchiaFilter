@@ -1,10 +1,10 @@
 setwd("~/vecchiaFilter")
+library(Matrix)
 source('aux-functions.r')
+source('covFunts.r')
 source('getMatCov.r')
 Rcpp::sourceCpp('src/getMatCovFromFactor.cpp')
 source('scores.r')
-
-
 
 
 saveResults = function(preds.aux, L.tt, saveUQ){
@@ -20,90 +20,45 @@ saveResults = function(preds.aux, L.tt, saveUQ){
 
 
 
-
 ########## filtering ##########
-filterEnKF = function(approx.name, XY, saveUQ=""){
+filterEnKF = function(Nens, XY){
 
-
-  ensemble = matrix(0.5*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
-                                                 x = locs[,1], y = locs[,2], spConform = FALSE), ncol = 1)
-  
-  
-    
-    
-  approx = approximations[[approx.name]]
-  preds = list()
-  cat(paste("filtering: t=1\n", sep = ""))
-  cat("\tCalculate covariance elements from function: ")
-  t0 = proc.time()
-  covmodel = getMatCov(approx, covfun.d)
-  t1 = proc.time()
-  cat(paste((t1 - t0)[3], "\n"))
-  
-  mu.tt1 = rep(0, n)
-  obs.aux = as.numeric(XY$y[[1]])
-  
-  cat("\tcalculate posterior: ")
-  t0 = proc.time()
-  preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = mu.tt1, likelihood_model = data.model, covmodel = covmodel, covparms = covparms, likparms = lik.params, return_all = TRUE)
-  t1 = proc.time()
-  cat(paste((t1 - t0)[3], "\n"))
-
-
-  cat("\tstore results\n")
-  cat("\t\textract L.tt matrix\n")
-  L.tt = getLtt(approx, preds.aux)
-  cat("\t\textract mean vector\n")
-  mu.tt = matrix(preds.aux$mean, ncol = 1)
-  preds[[1]] = saveResults(preds.aux, L.tt, saveUQ)
-
-  
-  if ( Tmax > 1 ) {
-    
-    for (t in 2:Tmax) {
-      
-      cat(paste("filtering: t=", t, "\n", sep = ""))
-      obs.aux = as.numeric(XY$y[[t]])
-      
-      cat("\tevolve the L.tt matrix:\n")
-      t0 = proc.time()
-      cat("\t\tbuild the evolution matrix\n")
-      E = evolFun(Matrix::Diagonal(n))
-      cat("\t\tmultpily E by L\n")
-      Fmat = E %*% L.tt
-      t1 = proc.time()      
-      
-      cat("\tCalculate covariance elements from factor: ")
-      t0 = proc.time()
-      
-      M1 = getMatCov(approx, Matrix::t(Fmat), factor = TRUE)
-      t1 = proc.time()
-      cat(paste((t1 - t0)[3], "\n"))
-      cat("\t... from function: ")
-      t0 = proc.time()
-      M2 = getMatCov(approx, covfun.d)
-      t1 = proc.time()
-      cat(paste((t1 - t0)[3], "\n"))
-      covmodel = M1 + M2
-      
-      mu.tt1 = E %*% mu.tt
-      
-      cat("\tcalculate posterior: ")
-      t0 = proc.time()
-      preds.aux = GPvecchia::calculate_posterior_VL( obs.aux, approx, prior_mean = mu.tt1, likelihood_model = data.model, covmodel = covmodel, covparms = covparms, likparms = lik.params, return_all = TRUE)
-      t1 = proc.time()
-      cat(paste((t1 - t0)[3], "\n"))
-      
-      cat("\tstore results\n")
-      cat("\t\textract L.tt matrix\n")
-      L.tt = getLtt(approx, preds.aux)
-      cat("\t\textract mean vector\n")
-      mu.tt = matrix(preds.aux$mean, ncol = 1)
-        
-      preds[[t]] = saveResults(preds.aux, L.tt, saveUQ)
-      
+    preds = list()
+    n = length(XY$y[[1]])
+    ensemble = w = v = Matrix::Matrix(rep(0, n*Nens), ncol=Nens)
+    for(i in 1:Nens){
+        ensemble[,i] = RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
+                                              x = locs[,1], y = locs[,2], spConform = FALSE) 
     }
     
-  }
-  return( preds )
+    Tmat = KanterCovFun(locs, Nens)
+    
+    for (t in 1:Tmax) {
+        
+        for(i in 1:Nens){
+          w[,i] = sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
+                                         x = locs[,1], y = locs[,2], spConform = FALSE) 
+        }
+        E = evolFun(Matrix::Diagonal(n))
+        fensemble = E %*% ensemble + w
+        
+        fcovmat = Matrix::Matrix(Tmat * tcrossprod( fensemble, fensemble ), sparse=TRUE)
+        
+        obs.inds = which(!is.na(XY$y[[t]]))
+        y = XY$y[[t]][obs.inds]
+        n.obs = length(y)
+        
+        H = Matrix::Diagonal(n)[obs.inds,]
+        R = Matrix::Diagonal(n.obs)*me.var
+        K = fcovmat %*% t(H) %*% solve( H %*% fcovmat %*% t(H) + R )
+
+        v = Matrix(me.var * rnorm(n.obs * Nens), ncol=Nens)
+        y.tilde = apply(v, 2, '+', y)
+        ensemble = fensemble + K %*% ( y.tilde - H %*% fensemble)
+        
+        preds[[ t ]] = list(state = apply(ensemble, 1, mean),
+                            covmat = Matrix::Matrix(Tmat * tcrossprod( ensemble, ensemble ), sparse=TRUE) )
+      
+    }
+    return( preds )   
 }
