@@ -137,7 +137,7 @@ simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL, sig2=1, 
         if (!is.null(Q)) {
           w =  t(Qc) %*% matrix(rnorm(n), ncol = 1)
         } else {
-          w = matrix(sig2*RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range),
+          w = matrix(RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range, var = sig2),
                                             x = locs[,1], y = locs[,2], spConform = FALSE), ncol=1)
         } 
       } else {
