@@ -53,7 +53,7 @@ XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smo
 ## predsLR = filter('low.rank', XY)
 ## predsE = filter('exact', XY)
 predsMRA = filter('mra', XY)
-#save(predsMRA, file="particles.data")
+save(predsMRA, file="particles.data")
 
 uq = apply(predsMRA$particles, 2, `quantile`, 0.9)
 means = colMeans(predsMRA$particles)
