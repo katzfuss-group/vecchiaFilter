@@ -1,6 +1,6 @@
 plotResults2d = function(XY, preds1, preds2, data.model, resultsDir, name1, name2){
 
-    Tmax = length(XY$x)
+    Tmax = lenght(XY$x)
     m = M = 0
     for (t in 1:Tmax) {
         zrange = range(c(unlist(lapply(XY$x, function(t) range(t, na.rm=TRUE)))))
