@@ -8,8 +8,8 @@ source('aux-functions.r')
 set.seed(1988)
 n = 34**2
 m = 50
-frac.obs = 0.3
-Tmax = 20
+frac.obs = 0.2
+Tmax = 10
 diffusion = 0.00004
 advection = 0.01
 evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
@@ -27,7 +27,7 @@ covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
 
 ## likelihood settings
 me.var = 0.25;
-data.model = "gauss"  
+data.model = "gamma"  
 lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha=2)
 
 
@@ -60,9 +60,10 @@ means = colMeans(predsMRA$particles)
 lq = apply(predsMRA$particles, 2, `quantile`, 0.1)
 
 
-pdf("particles-over-time.pdf")
+pdf("particles-over-time.pdf", width=6, height=4)
 time = 1:Tmax
-ylim = range(c(uq, lq, range))
+                                        #ylim = range(c(uq, lq, range))
+ylim = c(0, 0.3)
 plot(time, uq, type="l", lty=2, ylim=ylim, ylab="range")
 lines(time, means, type="l")
 lines(time, lq, type="l", lty=2)

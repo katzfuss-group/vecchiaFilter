@@ -72,6 +72,7 @@ for (iter in 1:max.iter) {
     XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
 
     cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
+
     predsE = filter('exact', XY, saveUQ="L")
     #cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
     #predsMRA = filter('mra', XY, saveUQ="W")
@@ -79,7 +80,6 @@ for (iter in 1:max.iter) {
     #predsLR  = filter('low.rank', XY, saveUQ="W")
     #cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
     #predsEnKF  = filterEnKF(XY, saveUQ="W")
-
 
     
     #RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)

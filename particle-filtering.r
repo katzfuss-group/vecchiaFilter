@@ -40,9 +40,9 @@ filter = function(approx.name, XY, saveUQ="L"){
         prop.mean = log(particles)
         pdf(sprintf("histograms-%d.pdf", t))
         par(mfrow=c(1, 2))
-        hist(particles, main=sprintf("resampled particles from previous time"), xlim=c(0,0.6), ylim=c(0, 100))
+        hist(particles, main=sprintf("resampled particles from previous time"), xlim=c(0,0.6), ylim=c(0, 1), freq=TRUE)
         particles = exp(rnorm(Nparticles, sd=prop.sd) + prop.mean)
-        hist(particles, main=sprintf("sampled particles at t=%d", t), xlim=c(0, 0.6), ylim=c(0, 100))
+        hist(particles, main=sprintf("sampled particles at t=%d", t), xlim=c(0, 0.6), ylim=c(0, 1), freq=TRUE)
         dev.off()
         yt = as.numeric(XY$y[[t]])
         
