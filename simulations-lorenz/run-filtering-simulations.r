@@ -21,10 +21,10 @@ AllParamsAsString = list()
 
 ######### set parameters #########
 set.seed(1988)
-n = 96
+n = 960
 m = 20
 frac.obs = 0.1
-Tmax = 20
+Tmax = 2
 
 ## evolution function ##
 Force = 10
@@ -106,8 +106,8 @@ low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, ord
 approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
-scores = foreach( iter=1:max.iter) %dopar% {
-#for (iter in 1:max.iter) {
+#scores = foreach( iter=1:max.iter) %dopar% {
+for (iter in 1:max.iter) {
 
     cat("Simulating data\n")
     XY = simulate.xy(x0, evolFun, Sigt, frac.obs, lik.params, Tmax)
@@ -123,6 +123,12 @@ scores = foreach( iter=1:max.iter) %dopar% {
     predsE = filter('exact', XY)
     d = as.numeric(proc.time() - start)
     cat(paste("Exact filtering took ", d[3], "s\n", sep = ""))
+
+    #cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
+    #start = proc.time()
+    #predsLR  = filter('low.rank', XY)
+    #d = as.numeric(proc.time() - start)
+    #cat(paste("Low-rank filtering took ", d[3], "s\n", sep = ""))
 
     cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
     start = proc.time()

@@ -50,7 +50,7 @@ getLRMuCovariance = function(N, Force, dt, K){
 
 
 
-filter = function(approx.name, XY){
+filterLorenz = function(approx.name, XY){
   
   approx = approximations[[approx.name]]
     
@@ -84,7 +84,7 @@ filter = function(approx.name, XY){
     obs.aux = as.numeric(XY$y[[t]])
 
     cat("\t\tcalculating gradient...\n")
-    Et = Matrix::Matrix(exactGradient(mu.tt, K, M, dt, Force))
+    Et = Matrix::Matrix(VEnKF::exactGradient(mu.tt, K, M, dt, Force))
 
     cat("\t\tcalculating forecast moments\n")
     forecast = evolFun(mu.tt)

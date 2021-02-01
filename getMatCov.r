@@ -1,3 +1,5 @@
+Rcpp::sourceCpp('src/getMatCovFromFactor.cpp')
+
 getMatCov = function(V, covariances, factor=FALSE){
   
   if (factor){
@@ -25,7 +27,7 @@ getMatCovFromFunction = function(V, covfun){
   
   revNNarray = V$U.prep$revNNarray
   rows = c()
-  cols = c()
+  ncols = c()
   n = nrow(revNNarray)
   m = ncol(revNNarray)-1
   

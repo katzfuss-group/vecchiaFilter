@@ -48,25 +48,29 @@ getConfInt = function(preds, alpha){
 evolAdvDiff = function(state, adv=0, diff=0){
   # we assume that there is the same number of grid points
   # along each dimension
+
+    if(is.null(dim(state))) {
+        N = length(state)
+    } else {
+        N = dim(state)[1]
+    }
+    Ny = Nx = sqrt(N)
   
-  N = dim(state)[1]
-  Ny = Nx = sqrt(N)
+    dx = dy = 1/Nx
+    d = diff/(dx**2)
+    
+    c1 = 1 + 2*(d + d) - adv*(1/dx + 1/dy)
+    c2 = - d + adv*(1/dy)
+    c3 = - d
   
-  dx = dy = 1/Nx
-  d = diff/(dx**2)
+    diags = list(rep(c2, N-Nx), rep(c2, N-1), rep(c1, N), rep(c3, N-1), rep(c3,N-Nx) )
+    E = Matrix::bandSparse(N, k=c(-Nx, -1, 0, 1, Nx), diag=diags)
   
-  c1 = 1 + 2*(d + d) - adv*(1/dx + 1/dy)
-  c2 = - d + adv*(1/dy)
-  c3 = - d
-  
-  diags = list(rep(c2, N-Nx), rep(c2, N-1), rep(c1, N), rep(c3, N-1), rep(c3,N-Nx) )
-  E = Matrix::bandSparse(N, k=c(-Nx, -1, 0, 1, Nx), diag=diags)
-  
-  if (class(state) == 'matrix' || methods::is(state, 'sparseMatrix')){
-    return( E %*% state )
-  } else {
-    return( as.numeric(E %*% as.matrix(state)) )
-  }
+    if (class(state) == 'matrix' || methods::is(state, 'sparseMatrix')){
+        return( E %*% state )
+    } else {
+        return( as.numeric(E %*% as.matrix(state)) )
+    }
 }
 
   

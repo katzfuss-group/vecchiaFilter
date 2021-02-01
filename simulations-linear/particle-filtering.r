@@ -5,6 +5,38 @@ library(doParallel)
 registerDoParallel(cores = 15)
 
 
+## implements systematic resampling scheme; this is generally better than multinomial
+## resampling. which is what you get if you use
+## sample(particles, Nparticles, prob=weights, replace=TRUE)
+## See: "A tutorial on particle filtering and smoothing"
+resample = function(weights){
+
+    Rcpp::cppFunction('int min_index(NumericVector v, double a){
+                            NumericVector::iterator low=std::lower_bound (v.begin(), v.end(), a);
+                            return (low - v.begin());
+                       }')
+
+    N = length(weights)
+    u = runif(1)/N
+    us = c(u, (1:(N-1))/N + u)
+
+    cumweights = cumsum(weights)
+    assignments = sapply(us, function(t) min_index(cumweights, t))
+
+
+    tab = table(assignments)
+    counts = rep(0, N)
+    inds = as.numeric(names(tab))+1
+    counts[inds] = as.numeric(tab)
+    resampled.indices = rep(1:N, counts)
+    return( resampled.indices )
+        
+}
+
+    
+
+
+
 
 saveResults = function(preds.aux, L.tt, saveUQ){
 
@@ -31,25 +63,22 @@ filter = function(approx.name, XY, saveUQ="L"){
     particles.all = matrix(rep(range, Nparticles*Tmax), ncol=Tmax)
     particles = exp(rnorm(Nparticles, mean=log(range), sd=prior.sd))           
 
-    logliks = matrix(rep(0, Nparticles*Tmax), ncol=Tmax)
     preds = list()
 
     for (t in 1:Tmax) {
         cat(sprintf("Filtering for t=%d\n", t))
         
         prop.mean = log(particles)
-        pdf(sprintf("histograms-%d.pdf", t))
-        par(mfrow=c(1, 2))
-        hist(particles, main=sprintf("resampled particles from previous time"), xlim=c(0,0.6), ylim=c(0, 1), freq=TRUE)
+
         particles = exp(rnorm(Nparticles, sd=prop.sd) + prop.mean)
-        hist(particles, main=sprintf("sampled particles at t=%d", t), xlim=c(0, 0.6), ylim=c(0, 1), freq=TRUE)
-        dev.off()
+        
         yt = as.numeric(XY$y[[t]])
         
+
         results = foreach( l = 1:Nparticles ) %dopar% {
-            
+
             covparms[2] = particles[l]    
-            covfun.d = function(D) GPvecchia::MaternFun(D, covparms)                
+            covfun.d = function(D) GPvecchia::MaternFun(D, covparms)        
             covmodel = getMatCov(approx, covfun.d)
             mu.tt1 = rep(0, n)
                 
@@ -76,26 +105,30 @@ filter = function(approx.name, XY, saveUQ="L"){
             list(logweight, loglik, preds.tt)
         }
        
-        logliks[,t] = sapply(results, `[[`, 2)
-        preds = lapply(results, `[[`, 3)
+        preds = lapply(results, `[[`, 3)       
         
         logweights = sapply(results, `[[`, 1)        
         logweights = logweights - mean(logweights)
         weights = exp(logweights) / sum(exp(logweights))
-        resampled.indices = sample(1:Nparticles, Nparticles, prob=weights, replace=TRUE)
+        resampled.indices = resample(weights)
         
-        preds = preds[ resampled.indices ]
-        particles = particles[ resampled.indices ]
-        particles.all[,t] = particles
-        logliks[,t] = logliks[ resampled.indices, t ]
-        cat(sprintf("\tNo. of unique particles after resampling: %d\n", length(unique(particles.all[, t]))))
-        if( length(unique(particles.all[, t])) < 5 ){
+        #resampled.indices = sample(1:Nparticles, Nparticles, prob=weights, replace=TRUE)
+               
+        no.unique = length(unique(resampled.indices))
+        cat(sprintf("\tNo. of unique particles after resampling: %d\n", no.unique))
+        if( no.unique < 5 ){
+            logliks = lapply(results, `[[`, 2)
             stop( "Less than 5 unique particles are left" )
+        } else {
+            preds = preds[ resampled.indices ]
+            particles = particles[ resampled.indices ]
+            particles.all[,t] = particles
         }
+
     }
 
     # for parallel for we have to transpose the list
     #preds = purrr::transpose(preds)
-    return( list(particles = particles.all, logliks = logliks) )
+    return( list(particles = particles.all) )
     #return( list(preds = preds, particles = particles.all, logliks = logliks) )
 }

@@ -1,6 +1,6 @@
 setwd("~/vecchiaFilter")
 source("plotting.r")
-source("particle-filtering.r")
+source("simulations-linear/particle-filtering.r")
 source('aux-functions.r')
 
 
@@ -8,8 +8,8 @@ source('aux-functions.r')
 set.seed(1988)
 n = 34**2
 m = 50
-frac.obs = 0.2
-Tmax = 10
+frac.obs = 1.0
+Tmax = 20
 diffusion = 0.00004
 advection = 0.01
 evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
@@ -27,7 +27,7 @@ covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
 
 ## likelihood settings
 me.var = 0.25;
-data.model = "gamma"  
+data.model = "gauss"  
 lik.params = list(data.model = data.model, sigma = sqrt(me.var), alpha=2)
 
 
@@ -53,14 +53,14 @@ XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smo
 ## predsLR = filter('low.rank', XY)
 ## predsE = filter('exact', XY)
 predsMRA = filter('mra', XY)
-save(predsMRA, file="particles.data")
+save(predsMRA, file=sprintf("%s.particles.data", data.model))
 
 uq = apply(predsMRA$particles, 2, `quantile`, 0.9)
 means = colMeans(predsMRA$particles)
 lq = apply(predsMRA$particles, 2, `quantile`, 0.1)
 
 
-pdf("particles-over-time.pdf", width=6, height=4)
+pdf(sprintf("%s-particles-over-time.pdf", data.model), width=6, height=4)
 time = 1:Tmax
                                         #ylim = range(c(uq, lq, range))
 ylim = c(0, 0.3)
