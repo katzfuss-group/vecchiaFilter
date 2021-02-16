@@ -21,18 +21,30 @@ prop     = list(a = list(sd = 0),
 
 
 
-log.dist.eval = function( name, particles, distributions ){
+log.dist.eval = function( name, particles, distributions, l ){
 
     value = particles[[name]]
     distribution = distributions[[name]]
 
     if( distribution[["sd"]]==0 ){
         1e8
-    } else if( name %in% c("a", "sig2", "range", "nu") ) {
-        sum(dnorm( log(value), distribution$mean, distribution$sd, log=TRUE ))
-    } else if( name=="c" ) {
-        sum(dnorm( value, distribution$c$mean, distribution$c$sd, log=TRUE ))
     }
+    if( name %in% c("a", "sig2", "range", "nu") ) {
+        value = log(value)
+    }
+    if( length(distribution$mean) > 1 ){
+        m = distribution$mean[l]
+    } else {
+        m = distribution$mean[1]
+    }
+
+    if( length(distribution$sd) > 1 ){
+        s = distribution$sd[l]
+    } else {
+        s = distribution$sd[1]
+    }
+    
+    dnorm( value, m, s, log=TRUE )
     
 }
 
@@ -55,10 +67,11 @@ update.sampling = function( p, prop ){
 
 sample.particles = function( Np, distr ){
 
+    
     a      = exp( rnorm( Np, distr[["a"]][["mean"]], distr[["a"]][["sd"]] ) )
     c      = rnorm( Np, distr[["c"]][["mean"]], distr[["c"]][["sd"]] )
     sig2   = exp( rnorm( Np, distr[["sig2"]][["mean"]], distr[["sig2"]][["sd"]] ) )
-    range  = c(0.148, 0.15)#exp( rnorm( Np, distr[["range"]][["mean"]], distr[["range"]][["sd"]] ) )
+    range  = exp( rnorm( Np, distr[["range"]][["mean"]], distr[["range"]][["sd"]] ) )
     nu     = exp( rnorm( Np, distr[["nu"]][["mean"]], distr[["nu"]][["sd"]] ) )
     
     new.parts = matrix( c(a, c, sig2, range, nu), ncol=5, byrow=FALSE )

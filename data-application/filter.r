@@ -6,15 +6,15 @@ source('aux-functions.r')
 
 
 ######### set parameters #########
-set.seed(1988)
+set.seed(1996)
 n = 34**2
 m = 50
 frac.obs = 1.0
-Tmax = 2
+Tmax = 10
 diffusion = 0.00004
 advection = 0.01
 evolFun = function(X) evolAdvDiff(X, adv = advection, diff = diffusion)
-Np = 2
+Np = 50
 
 
 ## covariance parameters
@@ -42,21 +42,16 @@ x0 = matrix(RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth,
 
 
 ## define Vecchia approximation
-#exact = GPvecchia::vecchia_specify(locs, n - 1, conditioning = 'firstm', verbose = TRUE)
 mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra')
-#low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, conditioning = 'firstm', verbose = TRUE)
-#approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 approximations = list(mra = mra)
 
 
 XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
-## predsLR = filter('low.rank', XY)
-## predsE = filter('exact', XY)
 cat("=== Running the new filter ===\n")
 predsMRAnew = filter('mra', XY, saveUQ="L", old=FALSE)
 cat("=== Running the old filter ===\n")
 predsMRAold = filter('mra', XY, saveUQ="L", old=TRUE)
-#save(predsMRA, file=sprintf("%s.particles.data", data.model))
+
 
 
 uq.old = apply(predsMRAold$particles, 2, `quantile`, 0.9)
@@ -80,7 +75,7 @@ lines( time, uq.old, type="l", lty=2, col="blue" )
 lines( time, lq.old, type="l", lty=2, col="blue" )
 lines( time, means.old, type="l", col="blue")
 
-legend(1, 95, legend=c("true value", "old method", "new method"),
-       col=c("red", "blue", "black"), cex=0.8)
+legend(1, 0.165, lty=1, legend=c("true value", "old method", "new method"),
+       col=c("red", "blue", "black"))
 abline(h = range, col="red")
 #dev.off()

@@ -48,13 +48,13 @@ saveResults = function(preds.aux, L.tt, saveUQ){
 
 
 
-getWeight = function( p, samp.dist ){
+getWeight = function( p, samp.dist, l ){
 
-    logweight = log.dist.eval( "a", p, prior ) -         log.dist.eval( "a", p, samp.dist )
-    logweight = log.dist.eval( "c", p, prior ) -         log.dist.eval( "c", p, samp.dist ) + logweight
-    logweight = log.dist.eval( "sig2", p, prior ) -   log.dist.eval( "sig2", p, samp.dist ) + logweight
-    logweight = log.dist.eval( "range", p, prior ) - log.dist.eval( "range", p, samp.dist ) + logweight
-    logweight = log.dist.eval( "nu", p, prior ) -       log.dist.eval( "nu", p, samp.dist ) + logweight
+    #logweight = log.dist.eval( "a", p, prior ) -         log.dist.eval( "a", p, samp.dist )
+    #logweight = log.dist.eval( "c", p, prior ) -         log.dist.eval( "c", p, samp.dist ) + logweight
+    #logweight = log.dist.eval( "sig2", p, prior ) -   log.dist.eval( "sig2", p, samp.dist ) + logweight
+    logweight = log.dist.eval( "range", p, prior, l ) - log.dist.eval( "range", p, samp.dist, l ) #+ logweight
+    #logweight = log.dist.eval( "nu", p, prior ) -       log.dist.eval( "nu", p, samp.dist ) + logweight
 
     if( length( logweight ) > 1 ){
         stop("something went wrong with calculating the weight in the getWeight() funciton")
@@ -99,16 +99,17 @@ filter = function(approx.name, XY, saveUQ="L", old=TRUE){
     preds = list()
 
     for (t in 1:Tmax) {
-        cat(sprintf("Filtering for t=%d\n", t))
+        cat(sprintf("+++ Filtering for t=%d +++\n", t))
 
-        if( old  ){
+        if( old ){
             prop.mean = log(particles)
-            particles = exp(rnorm(Np, sd=sample.sd) + prop.mean)
-            print(particles)
+            particles = exp(rnorm(Np, mean=prop.mean, sd=sample.sd))
+            #cat(sprintf("Range particles sampled at time %d:\n", t))
+            #print(particles)
         } else {
             particles = sample.particles( Np, sampling.d )
-            cat(sprintf("Range particles sampled at time %d:\n", t))
-            print(particles[,"range"])
+            #cat(sprintf("Range particles sampled at time %d:\n", t))
+            #print(particles[,"range"])
         }
         
         yt = as.numeric(XY$y[[t]])
@@ -121,7 +122,7 @@ filter = function(approx.name, XY, saveUQ="L", old=TRUE){
             } else {
                 p = particles[l,]
                 covparms = p[c("sig2", "range", "nu")]
-                lik.params[[ "alpha" ]] = p["a"]
+                lik.params[[ "alpha" ]] = p["a"]                
             }
 
             covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
@@ -153,14 +154,14 @@ filter = function(approx.name, XY, saveUQ="L", old=TRUE){
             L.tt = getLtt(approx, preds.aux)
             mu.tt = matrix(preds.aux$mean, ncol = 1)
             preds.tt = saveResults(preds.aux, L.tt, saveUQ)
-            
+
             # we do not include the weight from the previous step because the particles were resampled so weights are the same
             if( old ){
                 logweight = loglik +
                     dnorm(log(particles[l]), prior[["range"]][["mean"]], prior[["range"]][["sd"]], log = TRUE) -
                     dnorm(log(particles[l]), prop.mean[l], prop[["range"]][["sd"]], log = TRUE)
             } else {
-                logweight = loglik + getWeight(p, sampling.d)
+                logweight = loglik + getWeight(p, sampling.d, l)
                 if( length(logweight) > 1 ){
                     stop("incorrect weight length")
                 }
@@ -174,8 +175,8 @@ filter = function(approx.name, XY, saveUQ="L", old=TRUE){
         logweights = sapply(results, `[[`, 1)        
         logweights = logweights - mean(logweights)
         weights = exp(logweights) / sum(exp(logweights))
-        cat(sprintf("Weights at time %d:\n", t))
-        print(weights)
+        #cat(sprintf("Weights at time %d:\n", t))
+        #print(weights)
         resampled.indices = resample(weights)
 
 
@@ -195,6 +196,7 @@ filter = function(approx.name, XY, saveUQ="L", old=TRUE){
                     sampling.d = update.sampling( particles, sampling.d )
                 }
         }
+        
     }
 
     # for parallel for we have to transpose the list
