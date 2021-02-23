@@ -50,12 +50,11 @@ saveResults = function(preds.aux, L.tt, saveUQ){
 
 getWeight = function( p, samp.dist, l ){
 
-    #logweight = log.dist.eval( "a", p, prior, l ) - log.dist.eval( "a", p, samp.dist, l )
-    #logweight = log.dist.eval( "a", p, prior ) -         log.dist.eval( "a", p, samp.dist )
-    #logweight = log.dist.eval( "c", p, prior ) -         log.dist.eval( "c", p, samp.dist ) + logweight
-    #logweight = log.dist.eval( "sig2", p, prior ) -   log.dist.eval( "sig2", p, samp.dist ) + logweight
-    logweight = log.dist.eval( "range", p, prior, l ) - log.dist.eval( "range", p, samp.dist, l ) #+ logweight
-    #logweight = log.dist.eval( "nu", p, prior ) -       log.dist.eval( "nu", p, samp.dist ) + logweight
+    logweight = log.dist.eval( "a", p, prior, l ) - log.dist.eval( "a", p, samp.dist, l )
+    logweight = log.dist.eval( "c", p, prior, l ) -         log.dist.eval( "c", p, samp.dist, l ) + logweight
+    logweight = log.dist.eval( "sig2", p, prior, l ) -   log.dist.eval( "sig2", p, samp.dist, l ) + logweight
+    logweight = log.dist.eval( "range", p, prior, l ) - log.dist.eval( "range", p, samp.dist, l ) + logweight
+    logweight = log.dist.eval( "nu", p, prior, l ) -       log.dist.eval( "nu", p, samp.dist, l ) + logweight
 
     if( length( logweight ) > 1){
         stop("something went wrong with calculating the weight in the getWeight() funciton")
@@ -73,7 +72,7 @@ getWeight = function( p, samp.dist, l ){
 ## Here is a list of all parameters: likelihood params, c (multiplicative constant
 ## of the temporal evolution), covparms (constants in the matern model); that's the
 ## total of k=6.
-filter = function(appr, XY, Np, lik.params, saveUQ="L", old=TRUE){
+filter = function(appr, XY, Np, lik.params, saveUQ="L"){
 
 
     if( is.null(approx) ){
@@ -99,21 +98,16 @@ filter = function(appr, XY, Np, lik.params, saveUQ="L", old=TRUE){
 
 
             p = particles[l,]
-            covparms = p[c("sig2", "range", "smooth")]
+            covparms = p[c("sig2", "range", "nu")]
             lik.params[[ "alpha" ]] = as.numeric(p["a"])
-            
+
             covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
             covmodel = getMatCov(appr, covfun.d)
             mu.tt1 = rep(0, n)
             
             if( t>1 ) {
-
-                if( old ) {
-                    E = evolFun(Matrix::Diagonal(n))
-                } else {
-                    evolFun = function(X) as.numeric(p["c"]) * evolAdvDiff(X, adv = advection, diff = diffusion)
-                    E = evolFun(Matrix::Diagonal(n))
-                }
+                evolFun = function(X) as.numeric(p["c"]) * evolAdvDiff(X, adv = advection, diff = diffusion)
+                E = evolFun(Matrix::Diagonal(n))
                 
                 mu.tt1 = as.numeric(E %*% preds[[l]]$state)
                 Fmat = E %*% preds[[l]]$L

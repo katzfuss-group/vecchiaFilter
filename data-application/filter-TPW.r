@@ -10,7 +10,7 @@ source("data-application/data/process-data.r")
 set.seed(1996)
 n.test = 34**2
 m = 50
-Np = 100
+Np = 50
 
 ## starting values
 testing = FALSE
@@ -19,7 +19,7 @@ testing.locs = TRUE
 
 
 ## temporal model settings
-Tmax = 20
+Tmax = 10
 #diffusion = 0.000001
 #advection = 0.01
 diffusion = 0#0.000001
@@ -90,37 +90,42 @@ if( testing ){
 x0 = matrix(x0, ncol=1)
 
 ## simulate data
-XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
+if( testing.locs ) {
+    XY = simulate.xy(x0, evolFun, NULL, frac.obs, lik.params, Tmax, sig2 = sig2, smooth = smooth, range = range, locs = locs)
+} else {
+    print("load data")   
+}
 
-## Plot the simulated data
-pdf("simulated-plots.pdf")
-#oldpar = par(mfrow=c(3, 8), oma=c(1, 1, 0, 0) + 1, mar=c(0, 0, 1, 1) + 1)
-#k = ceiling(Tmax / prod(par("mfrow")))
-oldpar = par(mfrow=c(2, 4), oma=c(1, 1, 0, 0) + 1, mar=c(0, 0, 1, 1) + 1)
-k = ceiling( Tmax / par("mfrow")[2] )
-zlim = range(sapply(XY$x, range))
-for( t in 1:Tmax ){
-    if( t %% k == 1 ) {
-        fields::quilt.plot( locs, as.numeric(XY$x[[t]]), zlim = zlim, nx = nx, ny = ny, main = sprintf("true field at t=%d",t), axes=FALSE )
+if( testing.locs) {
+    ## Plot the simulated data
+    #pdf("simulated-plots.pdf")
+    #oldpar = par(mfrow=c(3, 8), oma=c(1, 1, 0, 0) + 1, mar=c(0, 0, 1, 1) + 1)
+    #k = ceiling(Tmax / prod(par("mfrow")))
+    oldpar = par(mfrow=c(2, 4), oma=c(1, 1, 0, 0) + 1, mar=c(0, 0, 1, 1) + 1)
+    k = ceiling( Tmax / par("mfrow")[2] )
+    zlim = range(sapply(XY$x, range))
+    for( t in 1:Tmax ){
+        if( t %% k == 1 ) {
+            fields::quilt.plot( locs, as.numeric(XY$x[[t]]), zlim = zlim, nx = nx, ny = ny, main = sprintf("true field at t=%d",t), axes=FALSE )
+        }
     }
+    for( t in 1:Tmax ){
+        if(t %% k == 1) {
+            inds.obs = which( !is.na(XY$y[[t]]) )
+            fields::quilt.plot( locs[inds.obs,], as.numeric(XY$y[[t]])[inds.obs], nx = nx, ny = ny, main = sprintf("observations at t=%d",t) )
+        }
+    }
+    par(oldpar)
+    #dev.off()
 }
-for( t in 1:Tmax ){
-   if(t %% k == 1) {
-       inds.obs = which( !is.na(XY$y[[t]]) )
-       fields::quilt.plot( locs[inds.obs,], as.numeric(XY$y[[t]])[inds.obs], nx = nx, ny = ny, main = sprintf("observations at t=%d",t) )
-   }
-}
-par(oldpar)
-#dev.off()
-
 
 
 ## define Vecchia approximation
 mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra')
-predsMRA = filter(mra, XY, Np, lik.params, saveUQ="L", old=FALSE)
+predsMRA = filter(mra, XY, Np, lik.params, saveUQ="L")
 
 par(mfrow=c(2, 2))
-pdf(sprintf("%s-particles-over-time.pdf", data.model), width=6, height=4)
+#pdf(sprintf("%s-particles-over-time.pdf", data.model), width=6, height=4)
 for( par.name in colnames(predsMRA$particles[[1]]) ) {
 
     time = 1:Tmax
@@ -140,4 +145,4 @@ for( par.name in colnames(predsMRA$particles[[1]]) ) {
     lines(time, means, type="l")
     lines(time, lq, type="l", lty=2)    
 }
-dev.off()
+#dev.off()
