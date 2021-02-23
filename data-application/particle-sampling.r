@@ -6,18 +6,18 @@ params = matrix(c(ranges, as, sigs), byrow=FALSE, ncol=3)
 colnames(params) = c("range", "a", "sig2")
 
 
-prior    = list(a = list(mean = log(2), sd = 0),
-                c = list(mean = 1.0, sd = 0),
-                sig2 = list(mean = log(1.0), sd = 0),
-                range = list(mean = log(0.15), sd = 0.01),
-                nu = list(mean = log(0.5), sd = 0))
+prior    = list(a = list(mean = log(2), sd = 0.1),
+                c = list(mean = 0.8, sd = 0.11),
+                sig2 = list(mean = log(5.0), sd = 0.1),
+                range = list(mean = log(7), sd = 0.1),
+                smooth = list(mean = log(1.5), sd = 0))
 
 
-prop     = list(a = list(sd = 0),
-                c = list( sd = 0 ),
-                sig2 = list( sd = 0 ),
-                range = list( sd = 0.01 ),
-                nu = list(sd = 0))
+prop     = list(a = list(sd = 0.1),
+                c = list( sd = 0.1 ),
+                sig2 = list( sd = 0.1 ),
+                range = list( sd = 0.1 ),
+                smooth = list(sd = 0))
 
 
 
@@ -27,9 +27,9 @@ log.dist.eval = function( name, particles, distributions, l ){
     distribution = distributions[[name]]
 
     if( distribution[["sd"]]==0 ){
-        1e8
+        return(1e8)
     }
-    if( name %in% c("a", "sig2", "range", "nu") ) {
+    if( name %in% c("a", "sig2", "range", "smooth") ) {
         value = log(value)
     }
     if( length(distribution$mean) > 1 ){
@@ -55,14 +55,10 @@ update.sampling = function( p, prop ){
     prop$c$mean = p[,"c"]
     prop$sig2$mean = log(p[,"sig2"])
     prop$range$mean = log(p[,"range"])
-    prop$nu$mean = log(p[,"nu"])
+    prop$smooth$mean = log(p[,"smooth"])
 
     return( prop )
 }
-
-
-
-
 
 
 sample.particles = function( Np, distr ){
@@ -72,11 +68,11 @@ sample.particles = function( Np, distr ){
     c      = rnorm( Np, distr[["c"]][["mean"]], distr[["c"]][["sd"]] )
     sig2   = exp( rnorm( Np, distr[["sig2"]][["mean"]], distr[["sig2"]][["sd"]] ) )
     range  = exp( rnorm( Np, distr[["range"]][["mean"]], distr[["range"]][["sd"]] ) )
-    nu     = exp( rnorm( Np, distr[["nu"]][["mean"]], distr[["nu"]][["sd"]] ) )
+    smooth     = exp( rnorm( Np, distr[["smooth"]][["mean"]], distr[["smooth"]][["sd"]] ) )
     
-    new.parts = matrix( c(a, c, sig2, range, nu), ncol=5, byrow=FALSE )
-    colnames( new.parts ) = c("a", "c", "sig2", "range", "nu")
-
+    new.parts = matrix( c(a, c, sig2, range, smooth), ncol=5, byrow=FALSE )
+    colnames( new.parts ) = c("a", "c", "sig2", "range", "smooth")
+    
     return( new.parts )
     
 }
