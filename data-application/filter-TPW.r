@@ -34,6 +34,7 @@ if( testing ) {
 } else {
     sig_02 = 25.0
     sig2 = 5.0; range = 7; smooth = 1.5
+    prior.covparms = c(sig_02, range, smooth)
 }
 
 ## likelihood settings
@@ -51,9 +52,9 @@ evolFun = function(X) c*evolAdvDiff(X, adv = advection, diff = diffusion)
 
 
 ## covariance
-covparms = c(sig2,range,smooth)
-covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
-covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
+#covparms = c(sig2,range,smooth)
+#covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs),covparms)
+#covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
 
 
 ## generate locations
@@ -122,7 +123,7 @@ if( testing.locs) {
 
 ## define Vecchia approximation
 mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra')
-predsMRA = filter(mra, XY, Np, lik.params, saveUQ="L")
+predsMRA = filter(mra, XY, Np, lik.params, prior.covparms, saveUQ="L")
 
 par(mfrow=c(2, 2))
 #pdf(sprintf("%s-particles-over-time.pdf", data.model), width=6, height=4)

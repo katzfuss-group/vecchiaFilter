@@ -72,7 +72,7 @@ getWeight = function( p, samp.dist, l ){
 ## Here is a list of all parameters: likelihood params, c (multiplicative constant
 ## of the temporal evolution), covparms (constants in the matern model); that's the
 ## total of k=6.
-filter = function(appr, XY, Np, lik.params, saveUQ="L"){
+filter = function(appr, XY, Np, lik.params, prior.covparms, prior.mean=0, saveUQ="L"){
 
 
     if( is.null(approx) ){
@@ -96,11 +96,16 @@ filter = function(appr, XY, Np, lik.params, saveUQ="L"){
         #for( l in 1:Np ){
         results = foreach( l = 1:Np ) %dopar% {
 
-
             p = particles[l,]
-            covparms = p[c("sig2", "range", "nu")]
-            lik.params[[ "alpha" ]] = as.numeric(p["a"])
 
+            if( t>1 ){
+                covparms = p[c("sig2", "range", "nu")]
+            } else {
+                covparms = prior.covparms
+            }
+
+            lik.params[[ "alpha" ]] = as.numeric(p["a"])
+            
             covfun.d = function(D) GPvecchia::MaternFun(D, covparms)
             covmodel = getMatCov(appr, covfun.d)
             mu.tt1 = rep(0, n)
@@ -114,12 +119,10 @@ filter = function(appr, XY, Np, lik.params, saveUQ="L"){
 
                 M1 = getMatCov(appr, Matrix::t(Fmat), factor = TRUE)
                 covmodel = covmodel + M1
-
             }
 
-            loglik = GPvecchia::vecchia_laplace_likelihood( yt, appr, prior_mean = mu.tt1, likelihood_model = lik.params[["data.model"]], covmodel = covmodel, likparms = lik.params)
-            preds.aux = GPvecchia::calculate_posterior_VL( yt, appr, prior_mean = mu.tt1, likelihood_model = lik.params[["data.model"]], covmodel = covmodel, likparms = lik.params, return_all = TRUE)
-            
+            preds.aux = GPvecchia::calculate_posterior_VL( yt, appr, prior_mean = mu.tt1, likelihood_model = lik.params[["data.model"]], covmodel = covmodel, likparms = lik.params, return_all = TRUE, max.iter=100)
+            loglik = GPvecchia::vecchia_laplace_likelihood_from_posterior( yt, preds.aux, appr, prior_mean = mu.tt1, likelihood_model = lik.params[["data.model"]], covmodel = covmodel, likparms = lik.params)            
             
             L.tt = getLtt(appr, preds.aux)
             mu.tt = matrix(preds.aux$mean, ncol = 1)
@@ -136,8 +139,8 @@ filter = function(appr, XY, Np, lik.params, saveUQ="L"){
         logweights = sapply(results, `[[`, 1)        
         logweights = logweights - mean(logweights)
         weights = exp(logweights) / sum(exp(logweights))
-        #ocat(sprintf("Weights at time %d:\n", t))
-        #print(weights)
+        cat(sprintf("Weights at time %d:\n", t))
+        print(weights)
         resampled.indices = resample(weights)
 
         no.unique = length(unique(resampled.indices))
