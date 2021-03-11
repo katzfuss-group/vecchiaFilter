@@ -6,17 +6,17 @@ params = matrix(c(ranges, as, sigs), byrow=FALSE, ncol=3)
 colnames(params) = c("range", "a", "sig2")
 
 
-prior    = list(a = list(mean = log(2), sd = 0.1),
+prior    = list(a = list(mean = log(0.12), sd = 0),
                 c = list(mean = 0.8, sd = 0.11),
-                sig2 = list(mean = log(5.0), sd = 0.1),
-                range = list(mean = log(7), sd = 0.1),
+                sig2 = list(mean = log(10), sd = 0.1),
+                range = list(mean = log(1), sd = 0.1),
                 nu = list(mean = log(1.5), sd = 0))
 
 
-prop     = list(a = list(sd = 0.1),
-                c = list( sd = 0.1 ),
-                sig2 = list( sd = 0.1 ),
-                range = list( sd = 0.1 ),
+prop     = list(a = list(sd = 0),
+                c = list( sd = 0 ),
+                sig2 = list( sd = 1 ),
+                range = list( sd = 1 ),
                 nu = list(sd = 0))
 
 
@@ -62,21 +62,26 @@ update.sampling = function( p, prop ){
 
 
 sample.particles = function( Np, distr ){
-
     
-    a      = exp( rnorm( Np, distr[["a"]][["mean"]], distr[["a"]][["sd"]] ) )
-    c      = rnorm( Np, distr[["c"]][["mean"]], distr[["c"]][["sd"]] )
-    sig2   = exp( rnorm( Np, distr[["sig2"]][["mean"]], distr[["sig2"]][["sd"]] ) )
-    range  = exp( rnorm( Np, distr[["range"]][["mean"]], distr[["range"]][["sd"]] ) )
-    nu     = exp( rnorm( Np, distr[["nu"]][["mean"]], distr[["nu"]][["sd"]] ) )
+    ## a      = exp( rnorm( Np, distr[["a"]][["mean"]], distr[["a"]][["sd"]] ) )
+    ## c      = rnorm( Np, distr[["c"]][["mean"]], distr[["c"]][["sd"]] )
+    ## sig2   = exp( rnorm( Np, distr[["sig2"]][["mean"]], distr[["sig2"]][["sd"]] ) )
+    ## range  = exp( rnorm( Np, distr[["range"]][["mean"]], distr[["range"]][["sd"]] ) )
+    ## nu     = exp( rnorm( Np, distr[["nu"]][["mean"]], distr[["nu"]][["sd"]] ) )
+    ## new.parts = matrix( c(a, c, sig2, range, nu), ncol=5, byrow=FALSE )    
+    np = Np**(1/2)
+    #c = seq(0.5, 1.5, length.out = np)
+    sig2 = seq(10, 35, length.out = np)
+    range = seq(0.1, 3, length.out = np)
+    new.parts = expand.grid(sig2, range)
+    #new.parts = expand.grid(c, sig2)
+    #new.parts = as.matrix(cbind(0.12, new.parts, 6.5, 1.5))o
+    new.parts = as.matrix(cbind(0.12, 1, new.parts, 1.5))
     
-    new.parts = matrix( c(a, c, sig2, range, nu), ncol=5, byrow=FALSE )
     colnames( new.parts ) = c("a", "c", "sig2", "range", "nu")
-    
     return( new.parts )
     
 }
-
 
 #cat("Test: 10 sample particles \n")
 #print(sample.particles( 10, prior ))
