@@ -1,53 +1,26 @@
 ## imports ------------------------------------
 setwd("~/vecchiaFilter")
 source("data-application/particle-filtering.r")
-source('aux-functions.r')
+source("aux-functions.r")
+source("data-application/settings.r")
 library(doParallel)
-registerDoParallel(cores = 8)
+registerDoParallel(cores = NCORES)
 
 
-
-## settings -----------------------------------
-#set.seed(1988)
-N = 34 ** 2
-COND_SET_SIZE = 50
-FRAC_OBS = 1.0
-TMAX = 5
-N_PARTS = 20
-
-## covariance parameters
-SIG_02 = 0.8
-SIG2 = 0.36; RANGE = 0.15; SMOOTH = 0.5
 covparms = c(SIG_02, RANGE, SMOOTH)
-
-## evolution function
-C = 0.8
-DIFFUSION = 0#.00004
-ADVECTION = 0#.01
-evolFun = function(X) C * X#evolAdvDiff(X, adv = ADVECTION, diff = DIFFUSION)
-
-## likelihood 
-DATA_MODEL = "gamma"
-ALPHA = 2
-lik.params = list(data.model = DATA_MODEL, alpha = ALPHA)
-## DATA_MODEL = "gauss"
-## ME_VAR = 1e-12
-## lik.params = list(data.model = DATA_MODEL, sigma = sqrt(ME_VAR))
-
+evolFun = function(X) C * X
+lik.params = list(data.model = DATA_MODEL, alpha = ALPHA, sigma = sqrt(ME_VAR))
 
 
 ## simulate data --------------------------------
 grid.oneside = seq(0, 1, length = round(sqrt(N)))
 locs = as.matrix(expand.grid(grid.oneside, grid.oneside))
-
-
 mu0 = matrix(rep(0, N), ncol = 1)
 XY = simulate.xy(mu0, SIG_02, RANGE, SMOOTH, evolFun, NULL, FRAC_OBS, lik.params, TMAX, sig2 = SIG2, smooth = SMOOTH, range = RANGE, locs = locs)
   
 
 ## filter ---------------------------------------
 mra = GPvecchia::vecchia_specify(locs, COND_SET_SIZE, conditioning = 'mra')
-pcovmodel = getMatCov(mra, function(D) GPvecchia::MaternFun(D, c(0.99, RANGE, SMOOTH)))
 predsMRA = filter(mra, XY$y, N_PARTS, lik.params, covparms, saveUQ = "L")
 
 

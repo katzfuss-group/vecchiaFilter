@@ -1,9 +1,8 @@
-source('~/vecchiaFilter/aux-functions.r')
-source('~/vecchiaFilter/getMatCov.r')
+## requires: settings.r, particle-sampling.r and doParallel
+
+## Imports -----------------------------------------
 source('~/vecchiaFilter/data-application/particle-sampling.r')
-Rcpp::sourceCpp('~/vecchiaFilter/src/getMatCovFromFactor.cpp')
-library(doParallel)
-registerDoParallel(cores = 8)
+
 
 
 # Systematic resampling scheme; this is generally better than multinomial
@@ -70,14 +69,14 @@ forecastStep = function(appr, prior_mean, prior_covmodel, Qcovparms, evolFun) {
 
     n = nrow(appr$locs)
     covfun.d = function(D) GPvecchia::MaternFun(D, Qcovparms)
-    Qcovmodel = getMatCov(appr, covfun.d)
+    Qcovmodel = GPvecchia::getMatCov(appr, covfun.d)
     
     E = evolFun(Matrix::Diagonal(n))
         
     mu.tt1 = as.numeric(E %*% prior_mean)
     Fmat = E %*% prior_covmodel
         
-    priorMatCov = getMatCov(appr, Matrix::t(Fmat), factor = TRUE)
+    priorMatCov = GPvecchia::getMatCov(appr, Matrix::t(Fmat), factor = TRUE)
     covmodel = Qcovmodel + priorMatCov
 
     ##     browser()
