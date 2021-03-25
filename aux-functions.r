@@ -5,8 +5,9 @@
 ### This function is used mainly for testing.
 ### It takes the entire covariance matrix and creates
 ### a matrix of covariances
-getL00 = function(vecchia.approx, covfun, locs){
-  Sig.sel = GPvecchia::getMatCov(vecchia.approx, covfun(locs))
+#getL00 = function(vecchia.approx, covfun, locs){
+getL00 = function(vecchia.approx, covfun){
+  Sig.sel = GPvecchia::getMatCov(vecchia.approx, covfun(vecchia.approx$locs))
   inds = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray - 1)))
   ptrs = c(0, cumsum(apply(vecchia.approx$U.prep$revNNarray, 1, function(r) sum(!is.na(r)))))
   cov.vals = Filter(function(i) !is.na(i), c(t(Sig.sel)))
@@ -146,37 +147,41 @@ simulate.y = function(x, frac.obs, lik.params){
 
 
 ## simulate x
-simulate.xy = function(x0, E, Q, frac.obs, lik.params, Tmax, seed=NULL, sig2=1, smooth = 0.5, range = 1, locs = NULL){
+simulate.xy = function(init_mean, sig02, range0, nu0, E, Q, frac.obs, lik.params, Tmax, seed=NULL, sig2=1, smooth = 0.5, range = 1, locs = NULL){
 
     if (!is.null(seed)) set.seed(seed)
-    n = nrow(x0);
+    n = nrow(init_mean);
     x = list(); y = list()
-    x[[1]] = x0
-    y[[1]] = simulate.y(x0, frac.obs, lik.params)
-    
-    
-    if (Tmax > 1) { 
-        if (!is.null(Q) && any(Q)) {
-            Qc = Matrix::chol(Q)
-        } 
+
+    x0 = matrix(RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = nu0, scale = range0, var = sig02),
+                                         x = locs[,1], y = locs[,2], spConform = FALSE), ncol=1) + init_mean
         
-        for (t in 2:Tmax) {
-            cat(sprintf("simulating at time t=%d\n", t))
-            if (sig2 > 0 || (!is.null(Q) && sum(abs(Q))>0)) {
-                if (!is.null(Q)) {
-                    w =  t(Qc) %*% matrix(rnorm(n), ncol = 1)
-              } else {
-                  w = matrix(RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range, var = sig2),
-                                                      x = locs[,1], y = locs[,2], spConform = FALSE), ncol=1)
-              } 
-            } else {
-                w = matrix(rep(0, n), ncol=1)
-            }
-            x[[t]] = E(x[[t - 1]]) + w
-            y[[t]] = simulate.y(x[[t]], frac.obs, lik.params)
-        } 
-    }
     
-    return(list(x = x, y = y))
+    if (!is.null(Q) && any(Q)) {
+        Qc = Matrix::chol(Q)
+    } 
+    
+    for (t in 1:Tmax) {
+        cat(sprintf("simulating at time t=%d\n", t))
+        if (sig2 > 0 || (!is.null(Q) && sum(abs(Q))>0)) {
+            if (!is.null(Q)) {
+                w =  t(Qc) %*% matrix(rnorm(n), ncol = 1)
+            } else {
+                w = matrix(RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range, var = sig2),
+                                                    x = locs[,1], y = locs[,2], spConform = FALSE), ncol=1)
+            } 
+        } else {
+            w = matrix(rep(0, n), ncol=1)
+        }
+
+        if (t==1) {
+            x[[t]] = E(x0) + w
+        } else {
+            x[[t]] = E(x[[t - 1]]) + w
+        }
+        y[[t]] = simulate.y(x[[t]], frac.obs, lik.params)
+    } 
+    
+    return(list(x = x, y = y, x0 = x0))
     
 }
