@@ -1,14 +1,10 @@
 ## settings -----------------------------------
-set.seed(1988)
+#set.seed(1988)
 N = 34 ** 2
 COND_SET_SIZE = 50
 FRAC_OBS = 1.0
 TMAX = 1
 N_PARTS = 50
-
-## covariance parameters
-SIG_02 = 0.8
-SIG2 = 0.36; RANGE = 0.15; SMOOTH = 0.5
 
 
 ## evolution function
@@ -16,6 +12,17 @@ C = 0.8
 DIFFUSION = 0#.00004
 ADVECTION = 0#.01
 evolFun = function(X) C * X#evolAdvDiff(X, adv = ADVECTION, diff = DIFFUSION)
+
+
+
+## covariance parameters
+SIG_02 = 0.1/C
+SIG2 = 1 - C*SIG_02
+RANGE = 0.15
+SMOOTH = 1.5
+
+
+
 
 ## likelihood 
 ## DATA_MODEL = "gamma"
@@ -33,7 +40,7 @@ NCORES = 8
 prior    = list(a     = list(mean = log(ALPHA),  sd = 0),
                 c     = list(mean = C,           sd = 0),
                 sig2  = list(mean = log(SIG2),   sd = 0),
-                range = list(mean = log(RANGE),  sd = 0.3),
+                range = list(mean = log(RANGE),  sd = 0.2),
                 nu    = list(mean = log(SMOOTH), sd = 0))
 
 

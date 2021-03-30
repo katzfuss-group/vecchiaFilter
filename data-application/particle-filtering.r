@@ -215,7 +215,7 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
             ## these two should be swapped and this is only for exploring the likelihood space
             particles = particles[resampled.indices, ]
 
-            sampling.d = update.sampling(particles, sampling.d)
+            sampling.d = update.sampling(particles, PROP)
         }
 
     }

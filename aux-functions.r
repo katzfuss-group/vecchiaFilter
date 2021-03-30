@@ -14,7 +14,7 @@ getL00 = function(vecchia.approx, covfun){
   vals = GPvecchia::ic0(ptrs, inds, cov.vals)
   Laux = Matrix::sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
   ro = order(vecchia.approx$ord)
-  return(Laux)
+  return(Laux[ro, ro])
 }
 
 
@@ -152,6 +152,7 @@ simulate.xy = function(init_mean, sig02, range0, nu0, E, Q, frac.obs, lik.params
     if (!is.null(seed)) set.seed(seed)
     n = nrow(init_mean);
     x = list(); y = list()
+
 
     x0 = matrix(RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = nu0, scale = range0, var = sig02),
                                          x = locs[,1], y = locs[,2], spConform = FALSE), ncol=1) + init_mean
