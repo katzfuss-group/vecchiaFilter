@@ -153,8 +153,7 @@ simulate.xy = function(init_mean, sig02, range0, nu0, E, Q, frac.obs, lik.params
     n = nrow(init_mean);
     x = list(); y = list()
 
-
-    x0 = matrix(RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = nu0, scale = range0, var = sig02),
+    x0 = matrix(RandomFields::RFsimulate(model = RandomFields::RMwhittle(nu = nu0, scale = range0, var = sig02),
                                          x = locs[,1], y = locs[,2], spConform = FALSE), ncol=1) + init_mean
         
     
