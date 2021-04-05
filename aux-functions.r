@@ -15,6 +15,7 @@ getL00 = function(vecchia.approx, covfun){
   Laux = Matrix::sparseMatrix(j=inds, p=ptrs, x=vals, index1=FALSE)
   ro = order(vecchia.approx$ord)
   return(Laux[ro, ro])
+  #return(L)
 }
 
 
@@ -167,7 +168,7 @@ simulate.xy = function(init_mean, sig02, range0, nu0, E, Q, frac.obs, lik.params
             if (!is.null(Q)) {
                 w =  t(Qc) %*% matrix(rnorm(n), ncol = 1)
             } else {
-                w = matrix(RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range, var = sig2),
+                w = matrix(RandomFields::RFsimulate(model = RandomFields::RMwhittle(nu = smooth, scale = range, var = sig2),
                                                     x = locs[,1], y = locs[,2], spConform = FALSE), ncol=1)
             } 
         } else {
