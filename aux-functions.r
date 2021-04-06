@@ -7,7 +7,7 @@
 ### a matrix of covariances
 #getL00 = function(vecchia.approx, covfun, locs){
 getL00 = function(vecchia.approx, covfun){
-  Sig.sel = GPvecchia::getMatCov(vecchia.approx, covfun(vecchia.approx$locs))
+  Sig.sel = GPvecchia::getMatCov(vecchia.approx, covfun)
   inds = Filter(function(i) !is.na(i), as.vector(t(vecchia.approx$U.prep$revNNarray - 1)))
   ptrs = c(0, cumsum(apply(vecchia.approx$U.prep$revNNarray, 1, function(r) sum(!is.na(r)))))
   cov.vals = Filter(function(i) !is.na(i), c(t(Sig.sel)))

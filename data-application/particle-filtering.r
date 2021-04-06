@@ -1,3 +1,4 @@
+
 ## requires: settings.r, particle-sampling.r and doParallel
 
 ## Imports -----------------------------------------
@@ -75,14 +76,9 @@ forecastStep = function(appr, prior_mean, prior_covmodel, Qcovparms, evolFun) {
         
     mu.tt1 = as.numeric(E %*% prior_mean)
     Fmat = E %*% prior_covmodel
-        
     priorMatCov = GPvecchia::getMatCov(appr, Matrix::t(Fmat), factor = TRUE)
+    
     covmodel = Qcovmodel + priorMatCov
-
-    ##     browser()
-    ## p = parent.frame(2)
-    ## pcm = get("pcovmodel", envir = p)
-    ## d = sum(abs(pcm - Qcovmodel - priorMatCov), na.rm=TRUE)
     
     return(list(mean = mu.tt1, covmodel = covmodel))
 }
@@ -149,8 +145,8 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
 
     # this can be modified to accomodate sampling particles for unknown
     # prior covariance models
-    covfun = function(locs) GPvecchia::MaternFun(fields::rdist(locs), prior_covparms)
-    prior_covmodel = getL00(appr, covfun)
+    covfun.d = function(D) GPvecchia::MaternFun(D, prior_covparms)
+    prior_covmodel = getL00(appr, covfun.d)
     
     for (t in 1:Tmax) {
 

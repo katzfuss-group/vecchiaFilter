@@ -74,7 +74,9 @@ dev.off()
 
 
 ## likelihood
-ranges = predsMRA$particles[[1]][, "range"]
-ord = order(ranges)
-plot(ranges[ord], predsMRA$logliks[[1]][ord], type = "l")
-abline(v = RANGE, col = "red")
+param = "sig2"
+truth = list(c = C, sig2 = SIG2, range = RANGE)
+params = predsMRA$particles[[TMAX]][, param]
+ord = order(params)
+plot(params[ord], predsMRA$logliks[[1]][ord], type = "l", xlab = param, ylab = "likelihood")
+abline(v = truth[[param]], col = "red")
