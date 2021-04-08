@@ -142,7 +142,8 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
     
     preds = list()
     logliks = list()
-
+    indices = list()
+    
     # this can be modified to accomodate sampling particles for unknown
     # prior covariance models
     covfun.d = function(D) GPvecchia::MaternFun(D, prior_covparms)
@@ -154,10 +155,10 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         particles = sample.particles( Np, sampling.d )
 
         results = list();
-        for (l in 1:Np) {
-        #results = foreach( l = 1:Np ) %dopar% {
+        #for (l in 1:Np) {
+        results = foreach( l = 1:Np ) %dopar% {
             
-            cat(sprintf("\tWorking on particle %d\n", l))
+            #cat(sprintf("\tWorking on particle %d\n", l))
             p = particles[l, ]
             
             Qcovparms = p[c("sig2", "range", "nu")]
@@ -196,7 +197,7 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         logweights = logweights - mean(logweights, na.rm=TRUE)
         weights = exp(logweights) / sum(exp(logweights))
         resampled.indices = resample(weights)
-        
+        indices[[t]] = resampled.indices
         
         no.unique = length(unique(resampled.indices))
         cat(sprintf("\tNo. of unique particles after resampling: %d\n", no.unique))
@@ -207,14 +208,16 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
             preds.all[[t]] = preds[[which.max(weights)]]
             preds = preds[ resampled.indices ]
 
-            particles.all[[t]] = particles            
-            ## these two should be swapped and this is only for exploring the likelihood space
+
+            particles.all[[t]] = particles
+            # these two might ultimately be swapped but this is easier for testing
             particles = particles[resampled.indices, ]
+
 
             sampling.d = update.sampling(particles, PROP)
         }
 
     }
 
-    return(list(particles = particles.all, logliks = logliks, preds = preds.all))
+    return(list(particles = particles.all, logliks = logliks, preds = preds.all, resampled.indices = indices))
 }
