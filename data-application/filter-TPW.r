@@ -1,90 +1,61 @@
 setwd("~/vecchiaFilter")
-#source("plotting.r")
-suppressPackageStartupMessages(library(tidyverse))
+source("data-application/settings.r")
 source("data-application/particle-filtering.r")
-source('aux-functions.r')
+source("aux-functions.r")
 source("data-application/data/process-data.r")
+source("data-application/plot-results.r")
+suppressPackageStartupMessages(library(doParallel))
+suppressPackageStartupMessages(library(tidyverse))
+registerDoParallel(cores = NCORES)
 
 
-######### set parameters #########
-set.seed(1996)
-#n.test = 34**2
-m = 50
-Np = 36
+init_covparms = c(SIG_02, RANGE, SMOOTH)
+lik.params = list(data.model = DATA_MODEL, alpha = ALPHA)
 
-## starting values
-testing = FALSE
-testing.locs = FALSE
 
 X_UPPER_LIMIT = -21.76952
-LOC_QUANTILE = 0.5
-
-## temporal model settings
-Tmax = 2
-
-
-## model error covariance
-sig_02 = 25.0
-sig2 = 5.0; range = 5; smooth = 1.5
-covparms = c(sig_02, range, smooth)
-
-## likelihood settings
-data.model = "gamma"
-a = 0.12
-lik.params = list(data.model = data.model, alpha=a)
-frac.obs = 1.0
-
-
-## temporal evolution
-#c = 0.8
-#evolFun = function(X) c*X#evolAdvDiff(X, adv = advection, diff = diffusion)
-
+LOC_QUANTILE = 1.0
 
 TPW = readr::read_csv("TPW_10k.csv")
 #TPW = readr::read_csv("data-application/data/TPW.csv") %>%
 #    dplyr::filter( x < X_UPPER_LIMIT ) %>%
 #    dplyr::filter( x < quantile(x, LOC_QUANTILE), y < quantile(y, LOC_QUANTILE) ) %>%
 #    sample_n(size = 10000)
+#readr::write_csv(TPW, sprintf("TPW_%fk.csv", nrow(TPW)/1000))
+
 
 locs = TPW %>% select(x, y) %>% data.matrix()
-Y = lapply(split.default(TPW, colnames(TPW))[as.character(1:Tmax)], function(t) remove.mean( t %>% pull()) )
 nx = length(unique(locs[,1]))
 ny = length(unique(locs[,2]))
 
+listOfDataColumns = split.default(TPW, colnames(TPW))[as.character(1:TMAX)]
 
-## set initial state
-#cat(sprintf("simulating at time t=%d\n", 1))
-#x0 = RandomFields::RFsimulate(model = RandomFields::RMmatern(nu = smooth, scale = range, var = sig_02),
-#                              x = locs[,1], y = locs[,2], spConform = FALSE)
-#x0 = matrix(x0, ncol=1)
-
-
-## ## define Vecchia approximation
-mra = GPvecchia::vecchia_specify(locs, m, conditioning = 'mra')
-predsMRA = filter(mra, Y, Np, lik.params, covparms, saveUQ="L")
-
-save(predsMRA, file="predsMRA2")
-
-## oldpar = par(mfrow=c(2, 3))
-## for( par.name in colnames(predsMRA$particles[[1]]) ) {
-    
-##     time = 1:Tmax
-    
-##     uq = sapply(predsMRA$particles, function( t ) as.numeric(quantile(t[ , par.name ], 0.9)))
-##     means = sapply(predsMRA$particles, function( t ) as.numeric(mean(t[ , par.name ])))
-##     lq = sapply(predsMRA$particles, function( t ) as.numeric(quantile(t[ , par.name ], 0.1)))
-
-##     if( all(uq==lq) ){
-##        cat(sprintf("%s was not sampled\n", par.name))
-##        next()
-##     }
-    
-##     ylim = range(c(uq, lq))
-##     ylim[2] = 1.1*ylim[2]
-##     plot(time, uq, type="l", lty=2, ylim=ylim, ylab=par.name, main=par.name)
-##     lines(time, means, type="l")
-##     lines(time, lq, type="l", lty=2)    
-## }
-## par(oldpar)
+preProcessColumn = function(column){
+    column = column %>% pull()
+    column[column==0] = 1
+    column = as.numeric(remove.mean(column))
+}
 
 
+Y = lapply(listOfDataColumns, preProcessColumn)
+
+       
+
+## filter ---------------------------------------
+mra = GPvecchia::vecchia_specify(locs, COND_SET_SIZE, conditioning = 'mra')
+predsMRA = filter(mra, Y, N_PARTS, lik.params, init_covparms, saveUQ = "L")
+
+
+YY = list(x = Y, y = Y)
+#true_params = list(c = 0.8)
+plotFields(YY, predsMRA$preds, locs)
+#plotParamPaths(predsMRA$particles, predsMRA$resampled.indices, DATA_MODEL, true_params)
+#plot1dLogLikelihood(predsMRA$particles, predsMRA$logliks, true_params)
+#plotMarginalDistribution(predsMRA$particles, predsMRA$resampled.indices, true_params)
+par(mfcol = c(4, 5))
+for (t in 1:TMAX) {
+    logliks = predsMRA$logliks[[t]]
+    logliks = logliks - max(logliks)
+    plot(predsMRA$particles[[t]][, "c"], exp(logliks), pch = 16, main = t, ylab = "likelihood", type = "l", xaxt = "n", xlab = "")
+    plot(predsMRA$particles[[t]][, "c"], logliks, pch = 16, xlab = "c", ylab = "log-likelihood", type = "l")
+}

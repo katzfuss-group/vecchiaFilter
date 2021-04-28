@@ -1,4 +1,3 @@
-
 ## requires: settings.r, particle-sampling.r and doParallel
 
 ## Imports -----------------------------------------
@@ -88,15 +87,16 @@ forecastStep = function(appr, prior_mean, prior_covmodel, Qcovparms, evolFun) {
     
 updateStep = function(y, appr, forecast_mean, forecast_covmodel, lik.params, saveUQ) {
 
-    preds.tt = rep(NA, length(appr$locs))
-    loglik = NA
-    
-    ## We need this because for some parameter values the posterior cannot be reasonably evaluated
+    loglik = NA    
+    ## We need this because for some parameter values the posterior cannot be reasonably evaluated    
     tryCatch({
-        preds.aux = GPvecchia::calculate_posterior_VL( y, appr, prior_mean = forecast_mean, likelihood_model = lik.params[["data.model"]], covmodel = forecast_covmodel, likparms = lik.params, return_all = TRUE, max.iter=100)
-        #loglik = GPvecchia::vecchia_laplace_likelihood_from_posterior( y, preds.aux, appr, prior_mean = forecast_mean, likelihood_model = lik.params[["data.model"]], covmodel = forecast_covmodel, likparms = lik.params)
-        loglik = GPvecchia::vecchia_laplace_likelihood( y, appr, prior_mean = forecast_mean, likelihood_model = lik.params[["data.model"]], covmodel = forecast_covmodel, likparms = lik.params)            
-        
+        preds.aux = GPvecchia::calculate_posterior_VL( y, appr, prior_mean = forecast_mean, likelihood_model = lik.params[["data.model"]], covmodel = forecast_covmodel, likparms = lik.params, return_all = TRUE, max.iter=1000)
+        if (!preds.aux$cnvgd) {
+            stop("Posterior estimation did not converge")
+        }
+        loglik = GPvecchia::vecchia_laplace_likelihood_from_posterior( y, preds.aux, appr, prior_mean = forecast_mean, likelihood_model = lik.params[["data.model"]], covmodel = forecast_covmodel, likparms = lik.params)
+        #print(sprintf("iter: %d, loglik = %f", preds.aux$iter, loglik))
+
         L.tt = getLtt(appr, preds.aux)
         mu.tt = matrix(preds.aux$mean, ncol = 1)
         preds.tt = saveResults(preds.aux, L.tt, saveUQ)
@@ -154,42 +154,44 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         cat(sprintf("+++ Filtering for t = %d +++\n", t))
         particles = sample.particles( Np, sampling.d )
 
-        results = list();
+        #results = list();
         #for (l in 1:Np) {
         results = foreach( l = 1:Np ) %dopar% {
             
-            #cat(sprintf("\tWorking on particle %d\n", l))
+            cat(sprintf("\tWorking on particle %d\n", l))
             p = particles[l, ]
             
             Qcovparms = p[c("sig2", "range", "nu")]
             if (t > 1) {
                 prior_mean = preds[[l]]$state
                 prior_covmodel = preds[[l]]$L
-            }   
+            }
+
             evolFun = function(X) as.numeric(p["c"]) * X
             forecasted = forecastStep(appr, prior_mean, prior_covmodel, Qcovparms, evolFun)
-            
-            lik.params[["alpha"]] = as.numeric(p["a"])
+
+            lik.params[["alpha"]] = as.numeric(p["a"]) + 1e-3 * runif(1)
+
             updated = updateStep(Y[[t]], appr, forecasted$mean, forecasted$covmodel, lik.params, saveUQ)
 
             # We do not include the weight from the previous step because the particles
             # were resampled so weights are the same.
             logweight = updated$loglik + getWeight(p, sampling.d, l)   
-            #list(logweight, updated$loglik, updated$preds)
-            results[[l]] = list(logweight, updated$loglik, updated$preds)
+            list(logweight, updated$loglik, updated$preds)
+            #results[[l]] = list(logweight, updated$loglik, updated$preds)
         }
-
+        
         if (any(sapply(results, is.null))) {
             cat(sprintf("The following particles led to errors:\n"))
             print(which(is.null(results)))
             stop("Parallelization error. Computations for certain particles failed")
         }
-
+        
         preds = lapply(results, `[[`, 3)
 
         logliks[[t]] = sapply(results, `[[`, 2, simplify=TRUE)        
         logweights = sapply(results, `[[`, 1)
-
+        
         # we need this because for some particles the likelihood is so small or has not been computed
         infinite.weights = which(!is.finite(logweights))
         logweights[infinite.weights] = 10*min(logweights[is.finite(logweights)])
@@ -201,22 +203,25 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         
         no.unique = length(unique(resampled.indices))
         cat(sprintf("\tNo. of unique particles after resampling: %d\n", no.unique))
-        if( no.unique < 1 ){
-            logliks = lapply(results, `[[`, 2)
-            stop( "Less than 1 unique particles are left" )
-        } else {
-            preds.all[[t]] = preds[[which.max(weights)]]
-            preds = preds[ resampled.indices ]
+        
+        if( no.unique == 1 ){
+            warning( "Only one unique particles is left." )
+            #return(list(particles = particles, logliks = logliks, preds = preds, resampled.indices = indices))
+        } #else {
 
+        preds.all[[t]] = preds[[which.max(weights)]]
+        
+        ## this commented out line is for testing only
+        #preds = preds[rep(which.max(weights), Np)]
+        #preds = preds[ resampled.indices ]
 
-            particles.all[[t]] = particles
-            # these two might ultimately be swapped but this is easier for testing
-            particles = particles[resampled.indices, ]
-
-
-            sampling.d = update.sampling(particles, PROP)
-        }
-
+        
+        particles.all[[t]] = particles
+        # these two might ultimately be swapped but this is easier for testing
+        particles = particles[resampled.indices, ]
+        
+        sampling.d = update.sampling(particles, PROP)
+        #}
     }
 
     return(list(particles = particles.all, logliks = logliks, preds = preds.all, resampled.indices = indices))

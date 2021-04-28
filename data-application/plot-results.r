@@ -1,19 +1,21 @@
-plotFields = function(XY, preds, locs) {
+plotFields = function(XY, preds, locs, x0 = NULL) {
 
     Tmax = length(XY$x)
     N = nrow(locs)
     if (round(sqrt(N)) != sqrt(N)) {
         warning("The size of the grid is not a square of an integer. Plots might look weird")
     }
-    
-    zlim_x = range(sapply(1:Tmax, function(t) range(XY$x[[t]])), XY$x0)
-    zlim_y = range(sapply(1:Tmax, function(t) range(XY$y[[t]])))
+
+    zlim_x = range(sapply(1:Tmax, function(t) range(XY$x[[t]], na.rm = TRUE)), XY$x0)
+    zlim_y = range(sapply(1:Tmax, function(t) range(XY$y[[t]], na.rm = TRUE)))
     zlim_p = range(sapply(1:Tmax, function(t) range(preds[[t]]$state)))
 
 
-    pdf(sprintf("data-application/tests/init-field.pdf"))
-    fields::quilt.plot(locs[, 1], locs[, 2], as.numeric(XY$x0), zlim = zlim_x, nx = sqrt(N), ny = sqrt(N), main = "init")
-    dev.off()
+    if (!is.null(x0)) {
+        pdf(sprintf("data-application/tests/init-field.pdf"))
+        fields::quilt.plot(locs[, 1], locs[, 2], as.numeric(XY$x0), zlim = zlim_x, nx = sqrt(N), ny = sqrt(N), main = "init")
+        dev.off()
+    }
 
     for (t in 1:Tmax) {
         pdf(sprintf("data-application/tests/test-field-%d.pdf", t), width=18, height=6)
@@ -101,7 +103,7 @@ plotMarginalDistribution = function(all_particles, all_indices, truth) {
     inds = all_indices[[length(all_indices)]]
     particles = all_particles[[length(all_particles)]]
     all_params = colnames(particles)
-    
+
     params = c()
     for (par_name in all_params) {
         unique_particles = unique(particles[, par_name])
