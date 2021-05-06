@@ -30,7 +30,7 @@ log.dist.eval = function( name, particles, distributions, l ){
 update.sampling = function( p, prop ){
     
     prop$a$mean = log(p[,"a"])
-    prop$c$mean = p[,"c"]
+    prop$c$mean = log(p[,"c"])
     prop$sig2$mean = log(p[,"sig2"])
     prop$range$mean = log(p[,"range"])
     prop$nu$mean = log(p[,"nu"])
@@ -41,12 +41,12 @@ update.sampling = function( p, prop ){
 
 sample.particles = function( Np, distr ){
     
-    a      = exp( rnorm( Np, distr[["a"]][["mean"]], distr[["a"]][["sd"]] ) )
-    c      = rnorm( Np, distr[["c"]][["mean"]], distr[["c"]][["sd"]] )
-    sig2   = exp( rnorm( Np, distr[["sig2"]][["mean"]], distr[["sig2"]][["sd"]] ) )
-    range  = exp( rnorm( Np, distr[["range"]][["mean"]], distr[["range"]][["sd"]] ) )
-    nu     = exp( rnorm( Np, distr[["nu"]][["mean"]], distr[["nu"]][["sd"]] ) )
-    new.parts = matrix( c(a, c, sig2, range, nu), ncol=5, byrow=FALSE )    
+    a      = exp(rnorm(Np, distr[["a"]][["mean"]], distr[["a"]][["sd"]]))
+    c      = exp(rnorm(Np, distr[["c"]][["mean"]], distr[["c"]][["sd"]]))
+    sig2   = exp(rnorm(Np, distr[["sig2"]][["mean"]], distr[["sig2"]][["sd"]]))
+    range  = exp(rnorm(Np, distr[["range"]][["mean"]], distr[["range"]][["sd"]]))
+    nu     = exp(rnorm(Np, distr[["nu"]][["mean"]], distr[["nu"]][["sd"]]))
+    new.parts = matrix(c(a, c, sig2, range, nu), ncol=5, byrow = FALSE)    
     
     colnames( new.parts ) = c("a", "c", "sig2", "range", "nu")
     return( new.parts )
