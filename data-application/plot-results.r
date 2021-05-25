@@ -6,9 +6,12 @@ plotFields = function(XY, preds, locs, x0 = NULL) {
         warning("The size of the grid is not a square of an integer. Plots might look weird")
     }
 
+    inds = sapply(1:TMAX, function(t) which(sapply(predsMRA$preds[[t]], function(s) length(s))>1)[1])
+
+
     zlim_x = range(sapply(1:Tmax, function(t) range(XY$x[[t]], na.rm = TRUE)), XY$x0)
     zlim_y = range(sapply(1:Tmax, function(t) range(XY$y[[t]], na.rm = TRUE)))
-    zlim_p = range(sapply(1:Tmax, function(t) range(preds[[t]]$state)))
+    zlim_p = range(sapply(1:Tmax, function(t) range(preds$preds[[t]][[inds[t]]]$state)))
 
 
     if (!is.null(x0)) {
@@ -22,7 +25,7 @@ plotFields = function(XY, preds, locs, x0 = NULL) {
         oldpar = par(mfrow = c(1, 3))
         fields::quilt.plot(locs[, 1], locs[, 2], as.numeric(XY$x[[t]]), zlim = zlim_x, nx = sqrt(N), ny = sqrt(N), main = sprintf("truth %d", t))
         fields::quilt.plot(locs[, 1], locs[, 2], as.numeric(XY$y[[t]]), zlim = zlim_y, nx = sqrt(N), ny = sqrt(N), main = sprintf("data %d", t))
-        fields::quilt.plot(locs[, 1], locs[, 2], as.numeric(preds[[t]]$state), zlim = zlim_p, nx = sqrt(N), ny = sqrt(N), main = "reconstruction")
+        fields::quilt.plot(locs[, 1], locs[, 2], as.numeric(preds$preds[[t]][[inds[t]]]$state), zlim = zlim_p, nx = sqrt(N), ny = sqrt(N), main = "reconstruction")
         par(oldpar)
         dev.off()
     }

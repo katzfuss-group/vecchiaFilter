@@ -1,11 +1,14 @@
 setwd("~/vecchiaFilter")
+source("getMatCov.r")
 source("data-application/settings.r")
+#source("data-application/particle-filtering-recompute.r")
 source("data-application/particle-filtering.r")
 source("aux-functions.r")
 source("data-application/data/process-data.r")
 source("data-application/plot-results.r")
 suppressPackageStartupMessages(library(doParallel))
 suppressPackageStartupMessages(library(tidyverse))
+
 registerDoParallel(cores = NCORES)
 
 
@@ -14,13 +17,13 @@ lik.params = list(data.model = DATA_MODEL, alpha = ALPHA)
 
 
 X_UPPER_LIMIT = -21.76952
-LOC_QUANTILE = 1.0
+LOC_QUANTILE = 0.2
 
-TPW = readr::read_csv("TPW_10k.csv")
-#TPW = readr::read_csv("data-application/data/TPW.csv") %>%
-#    dplyr::filter( x < X_UPPER_LIMIT ) %>%
-#    dplyr::filter( x < quantile(x, LOC_QUANTILE), y < quantile(y, LOC_QUANTILE) ) %>%
-#    sample_n(size = 10000)
+#TPW = readr::read_csv("TPW_10k.csv")
+TPW = readr::read_csv("data-application/data/TPW.csv") %>%
+    dplyr::filter( x < X_UPPER_LIMIT ) %>%
+    dplyr::filter( x < quantile(x, LOC_QUANTILE), y > quantile(y, 1-LOC_QUANTILE) ) #%>%
+    #sample_n(size = 100000)
 #readr::write_csv(TPW, sprintf("TPW_%fk.csv", nrow(TPW)/1000))
 
 
@@ -32,30 +35,32 @@ listOfDataColumns = split.default(TPW, colnames(TPW))[as.character(1:TMAX)]
 
 preProcessColumn = function(column){
     column = column %>% pull()
-    column[column==0] = 1
-    column = as.numeric(remove.mean(column))
+    #column[column==0] = 1
+    #column = as.numeric(remove.mean(column))
 }
-
-
 Y = lapply(listOfDataColumns, preProcessColumn)
 
        
 
 ## filter ---------------------------------------
 mra = GPvecchia::vecchia_specify(locs, COND_SET_SIZE, conditioning = 'mra')
+#predsMRA = filter_lean(mra, Y, N_PARTS, lik.params, prior_mean = rep(MEAN, nrow(locs)), init_covparms, saveUQ = "L")
 predsMRA = filter(mra, Y, N_PARTS, lik.params, init_covparms, saveUQ = "L")
 
 
+
+
+true_params = list(c = 0.5)
 YY = list(x = Y, y = Y)
-#true_params = list(c = 0.8)
-plotFields(YY, predsMRA$preds, locs)
+plotFields(YY, predsMRA, locs)
 #plotParamPaths(predsMRA$particles, predsMRA$resampled.indices, DATA_MODEL, true_params)
 #plot1dLogLikelihood(predsMRA$particles, predsMRA$logliks, true_params)
 #plotMarginalDistribution(predsMRA$particles, predsMRA$resampled.indices, true_params)
-par(mfcol = c(4, 5))
-for (t in 1:TMAX) {
-    logliks = predsMRA$logliks[[t]]
-    logliks = logliks - max(logliks)
-    plot(predsMRA$particles[[t]][, "c"], exp(logliks), pch = 16, main = t, ylab = "likelihood", type = "l", xaxt = "n", xlab = "")
-    plot(predsMRA$particles[[t]][, "c"], logliks, pch = 16, xlab = "c", ylab = "log-likelihood", type = "l")
-}
+## par(mfcol = c(2, TMAX))
+## for (t in 1:(TMAX)) {
+##    logliks = predsMRA$logliks[[t]]
+##    logliks = logliks - max(logliks)
+##    o = order(predsMRA$particles[[t]][, "c"])
+##    plot(predsMRA$particles[[t]][o, "c"], exp(logliks[o]), pch = 16, main = t, ylab = "likelihood", type = "l", xaxt = "n", xlab = "")
+##    plot(predsMRA$particles[[t]][o, "c"], logliks[o], pch = 16, xlab = "c", ylab = "log-likelihood", type = "l")
+## }
