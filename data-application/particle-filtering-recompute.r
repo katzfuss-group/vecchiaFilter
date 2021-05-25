@@ -16,7 +16,7 @@ resample = function(weights) {
                        }')
     
     N = length(weights)
-    set.seed(weights[1])
+    set.seed(round(100*weights[1]))
     u = runif(1) / N
     us = c(u, (1:(N - 1))/N + u)
 
@@ -87,10 +87,11 @@ forecastStep = function(appr, prior_mean, prior_covmodel, Qcovparms, evolFun) {
     
 updateStep = function(y, appr, forecast_mean, forecast_covmodel, lik.params, saveUQ) {
 
-    loglik = NA    
+    loglik = NA
+    preds.tt = list()
     ## We need this because for some parameter values the posterior cannot be reasonably evaluated    
     tryCatch({
-        preds.aux = GPvecchia::calculate_posterior_VL(y, appr, prior_mean = forecast_mean, likelihood_model = lik.params[["data.model"]], covmodel = forecast_covmodel, likparms = lik.params, return_all = TRUE, max.iter=1000)
+        preds.aux = GPvecchia::calculate_posterior_VL(y, appr, prior_mean = forecast_mean, likelihood_model = lik.params[["data.model"]], covmodel = forecast_covmodel, likparms = lik.params, return_all = TRUE, max.iter=100)
         if (!preds.aux$cnvgd) {
             stop("Posterior estimation did not converge")
         }
@@ -109,7 +110,8 @@ updateStep = function(y, appr, forecast_mean, forecast_covmodel, lik.params, sav
             logweight <<- -Inf
             loglik <<- -Inf
         } else {
-            stop(errMsg)
+            loglik <<- -Inf
+            #stop(errMsg)
         }
     })
 
@@ -186,14 +188,14 @@ filter_lean = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NUL
         }
         particles = sample.particles( Np, sampling.d )
 
-        results = list();
-        for (l in 1:Np) {
-            #results = foreach(l = 1:Np) %dopar% {
+        #results = list();
+        #for (l in 1:Np) {
+        results = foreach(l = 1:Np) %dopar% {
             p = particles[l, ]
             cat(sprintf("\tWorking on particle %d, %f\n", l, p["c"]))
             res = getResultsForParticle(p, l, indices, preds, appr, Y[[t]], saveUQ, t, sampling.d, prior_mean, prior_covmodel)
-            #list(res$logweight, res$loglik)
-            results[[l]] = list(res$logweight, res$loglik)
+            list(res$logweight, res$loglik)
+            #results[[l]] = list(res$logweight, res$loglik)
         }
         if (any(sapply(results, is.null))) {
             cat(sprintf("The following particles led to errors:\n"))
@@ -204,12 +206,12 @@ filter_lean = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NUL
 
         logweights = sapply(results, `[[`, 1)
         logliks[[t]] = sapply(results, `[[`, 2)
-        
+
         # we need this because for some particles the likelihood is so small or has not been computed
         infinite.weights = which(!is.finite(logweights))
         logweights[infinite.weights] = 10*min(logweights[is.finite(logweights)])
 
-        logweights = logweights - mean(logweights, na.rm=TRUE)
+        logweights = logweights - max(logweights, na.rm=TRUE)
         weights = exp(logweights) / sum(exp(logweights))
         resampled.indices = resample(weights)
         
@@ -224,13 +226,15 @@ filter_lean = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NUL
         cat("\tRecomputing moments for remaining particles\n")
         preds.new = list()
         IndsOfParticlesToRecompute = unique(resampled.indices)
-        for (l in 1:Np) {
+        preds.new = foreach(l=1:Np) %dopar% {
+            res = list()
             if (l %in% IndsOfParticlesToRecompute) {
                 res = getResultsForParticle(particles[l, ], l, indices, preds, appr, Y[[t]], saveUQ, t, sampling.d, prior_mean, prior_covmodel)
-                preds.new[[l]] = res$preds
+                res$preds
             } else {
-                preds.new[[l]] = list(NULL)
+                res[["preds"]] = list(NULL)
             }
+            res$preds
         }
 
         preds = preds.new
@@ -239,7 +243,7 @@ filter_lean = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NUL
         particles.all[[t]] = particles
         # these two might ultimately be swapped but this is easier for testing
         particles = particles[resampled.indices, ]
-
+        
         sampling.d = update.sampling(particles, PROP)
 
         #}
@@ -247,3 +251,4 @@ filter_lean = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NUL
 
     return(list(particles = particles.all, logliks = logliks, preds = preds.all, resampled.indices = indices))
 }
+      

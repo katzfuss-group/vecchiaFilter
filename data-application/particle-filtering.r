@@ -4,7 +4,6 @@
 source('~/vecchiaFilter/data-application/particle-sampling.r')
 
 
-
 # Systematic resampling scheme; this is generally better than multinomial
 # resampling. which is what you get if you use
 # sample(particles, Np, prob=weights, replace=TRUE)
@@ -17,6 +16,8 @@ resample = function(weights) {
                        }')
 
     N = length(weights)
+    if (N == 1) return(1)
+    #set.seed(weights[1])
     u = runif(1) / N
     us = c(u, (1:(N - 1))/N + u)
 
@@ -65,17 +66,18 @@ getWeight = function(p, samp.dist, l) {
 }
 
 
+
 forecastStep = function(appr, prior_mean, prior_covmodel, Qcovparms, evolFun) {
 
     n = nrow(appr$locs)
     covfun.d = function(D) GPvecchia::MaternFun(D, Qcovparms)
-    Qcovmodel = GPvecchia::getMatCov(appr, covfun.d)
+    Qcovmodel = getMatCov(appr, covfun.d)
     
     E = evolFun(Matrix::Diagonal(n))
         
     mu.tt1 = as.numeric(E %*% prior_mean)
     Fmat = E %*% prior_covmodel
-    priorMatCov = GPvecchia::getMatCov(appr, Matrix::t(Fmat), factor = TRUE)
+    priorMatCov = getMatCov(appr, Matrix::t(Fmat), factor = TRUE)
     
     covmodel = Qcovmodel + priorMatCov
     
@@ -94,8 +96,8 @@ updateStep = function(y, appr, forecast_mean, forecast_covmodel, lik.params, sav
         if (!preds.aux$cnvgd) {
             stop("Posterior estimation did not converge")
         }
-        loglik = GPvecchia::vecchia_laplace_likelihood_from_posterior( y, preds.aux, appr, prior_mean = forecast_mean, likelihood_model = lik.params[["data.model"]], covmodel = forecast_covmodel, likparms = lik.params)
-        #print(sprintf("iter: %d, loglik = %f", preds.aux$iter, loglik))
+        loglik = GPvecchia::vecchia_laplace_likelihood_from_posterior( y, preds.aux, appr, prior_mean = forecast_mean, covmodel = forecast_covmodel)
+        print(sprintf("iter: %d, loglik = %f", preds.aux$iter, loglik))
 
         L.tt = getLtt(appr, preds.aux)
         mu.tt = matrix(preds.aux$mean, ncol = 1)
@@ -124,7 +126,7 @@ updateStep = function(y, appr, forecast_mean, forecast_covmodel, lik.params, sav
 # Here is a list of all parameters: likelihood params, c (multiplicative constant
 # of the temporal evolution), covparms (constants in the matern model); that's the
 # total of k=6.
-filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, saveUQ = "L"){
+filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, saveUQ = "L", seed = NULL){
 
     if (is.null(appr)) {
         stop("No vecchia approximation provided")
@@ -148,47 +150,51 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
     # prior covariance models
     covfun.d = function(D) GPvecchia::MaternFun(D, prior_covparms)
     prior_covmodel = getL00(appr, covfun.d)
-    
+
     for (t in 1:Tmax) {
 
         cat(sprintf("+++ Filtering for t = %d +++\n", t))
+
         particles = sample.particles( Np, sampling.d )
 
-        #results = list();
-        #for (l in 1:Np) {
-        results = foreach( l = 1:Np ) %dopar% {
+        results = list();
+        for (l in 1:Np) {
+        #results = foreach(l = 1:Np) %dopar% {
             
-            cat(sprintf("\tWorking on particle %d\n", l))
             p = particles[l, ]
+            cat(sprintf("\tWorking on particle %d, %f\n", l, p["c"]))
             
             Qcovparms = p[c("sig2", "range", "nu")]
             if (t > 1) {
-                prior_mean = preds[[l]]$state
-                prior_covmodel = preds[[l]]$L
+                previous_ind = indices[[t-1]][l]
+                prior_mean = preds[[previous_ind]]$state
+                prior_covmodel = preds[[previous_ind]]$L
             }
 
             evolFun = function(X) as.numeric(p["c"]) * X
             forecasted = forecastStep(appr, prior_mean, prior_covmodel, Qcovparms, evolFun)
 
-            lik.params[["alpha"]] = as.numeric(p["a"]) + 1e-3 * runif(1)
+            lik.params[["alpha"]] = as.numeric(p["a"])
 
             updated = updateStep(Y[[t]], appr, forecasted$mean, forecasted$covmodel, lik.params, saveUQ)
 
             # We do not include the weight from the previous step because the particles
             # were resampled so weights are the same.
             logweight = updated$loglik + getWeight(p, sampling.d, l)   
-            list(logweight, updated$loglik, updated$preds)
-            #results[[l]] = list(logweight, updated$loglik, updated$preds)
+            #list(logweight, updated$loglik, updated$preds)
+            results[[l]] = list(logweight, updated$loglik, updated$preds)
         }
         
         if (any(sapply(results, is.null))) {
             cat(sprintf("The following particles led to errors:\n"))
             print(which(is.null(results)))
-            stop("Parallelization error. Computations for certain particles failed")
+            warning("Parallelization error. Computations for certain particles failed")
+            browser()
         }
-        
+
         preds = lapply(results, `[[`, 3)
 
+        
         logliks[[t]] = sapply(results, `[[`, 2, simplify=TRUE)        
         logweights = sapply(results, `[[`, 1)
         
@@ -203,24 +209,27 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         
         no.unique = length(unique(resampled.indices))
         cat(sprintf("\tNo. of unique particles after resampling: %d\n", no.unique))
-        
+
         if( no.unique == 1 ){
             warning( "Only one unique particles is left." )
             #return(list(particles = particles, logliks = logliks, preds = preds, resampled.indices = indices))
         } #else {
-
-        preds.all[[t]] = preds[[which.max(weights)]]
         
+        preds[-unique(resampled.indices)] = list(NULL)
+        preds.all[[t]] = preds#[unique(resampled.indices)]
         ## this commented out line is for testing only
         #preds = preds[rep(which.max(weights), Np)]
         #preds = preds[ resampled.indices ]
-
-        
+     
         particles.all[[t]] = particles
         # these two might ultimately be swapped but this is easier for testing
-        particles = particles[resampled.indices, ]
+        particles = particles[resampled.indices, , drop = FALSE]
+
+        
+
         
         sampling.d = update.sampling(particles, PROP)
+
         #}
     }
 
