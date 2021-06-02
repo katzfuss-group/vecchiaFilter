@@ -2,6 +2,11 @@ plotFields = function(XY, preds, locs, x0 = NULL) {
 
     Tmax = length(XY$x)
     N = nrow(locs)
+
+    nx = length(unique(locs[1,]))
+    ny = length(unique(locs[2,]))
+
+    
     if (round(sqrt(N)) != sqrt(N)) {
         warning("The size of the grid is not a square of an integer. Plots might look weird")
     }

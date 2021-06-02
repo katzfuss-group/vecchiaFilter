@@ -68,15 +68,17 @@ getWeight = function(p, samp.dist, l) {
 
 
 forecastStep = function(appr, prior_mean, prior_covmodel, Qcovparms, evolFun) {
-
+    cat(sprintf("\tForecast step\n"))
     n = nrow(appr$locs)
     covfun.d = function(D) GPvecchia::MaternFun(D, Qcovparms)
+    cat(sprintf("\t\tCalculating Q matcov\n"))
     Qcovmodel = getMatCov(appr, covfun.d)
     
     E = evolFun(Matrix::Diagonal(n))
         
     mu.tt1 = as.numeric(E %*% prior_mean)
     Fmat = E %*% prior_covmodel
+    cat(sprintf("\t\tCalculating forecast matcov\n"))
     priorMatCov = getMatCov(appr, Matrix::t(Fmat), factor = TRUE)
     
     covmodel = Qcovmodel + priorMatCov
@@ -88,33 +90,45 @@ forecastStep = function(appr, prior_mean, prior_covmodel, Qcovparms, evolFun) {
 
     
 updateStep = function(y, appr, forecast_mean, forecast_covmodel, lik.params, saveUQ) {
-
+    cat(sprintf("\tUpdate step\n"))
     loglik = NA    
     ## We need this because for some parameter values the posterior cannot be reasonably evaluated    
     tryCatch({
+        cat(sprintf("\t\tCalculating posterior\n"))
         preds.aux = GPvecchia::calculate_posterior_VL( y, appr, prior_mean = forecast_mean, likelihood_model = lik.params[["data.model"]], covmodel = forecast_covmodel, likparms = lik.params, return_all = TRUE, max.iter=1000)
         if (!preds.aux$cnvgd) {
-            stop("Posterior estimation did not converge")
+            warning("Posterior estimation did not converge")
         }
+        browser()
+        cat(sprintf("\t\tCalculating likelihood\n"))
         loglik = GPvecchia::vecchia_laplace_likelihood_from_posterior( y, preds.aux, appr, prior_mean = forecast_mean, covmodel = forecast_covmodel)
-        print(sprintf("iter: %d, loglik = %f", preds.aux$iter, loglik))
+        if (abs(loglik) > 1e8){
+            loglik = -Inf
+        }
+        cat(sprintf("\t\titer: %d, loglik = %f\n", preds.aux$iter, loglik))
 
         L.tt = getLtt(appr, preds.aux)
         mu.tt = matrix(preds.aux$mean, ncol = 1)
         preds.tt = saveResults(preds.aux, L.tt, saveUQ)
+        msg = NULL
         #logweight = loglik + getWeight(p, sampling.d, l)   
     },
     error = function(c) {
-        errMsg = conditionMessage(c)
-        if (errMsg == "Derivative of the loglikehood is infinite. Try different parameter values") {
-            logweight <<- -Inf
-            loglik <<- -Inf
-        } else {
-            stop(errMsg)
-        }
+        msg = conditionMessage(c)
+        logweight <<- -Inf
+        loglik <<- -Inf
+        ## if (errMsg == "Derivative of the loglikehood is infinite. Try different parameter values") {
+        ##     logweight <<- -Inf
+        ##     loglik <<- -Inf
+        ## } else if (errMsg == "Posterior estimation did not converge") {
+        ##     logweight <<- -Inf
+        ##     loglik <<- -Inf
+        ## } else {
+        ##     stop(errMsg)
+        ## }
     })
 
-    return(list(preds = preds.tt, loglik = loglik))
+    return(list(preds = preds.tt, loglik = loglik, msg = msg))
 }
 
 
@@ -150,12 +164,13 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
     # prior covariance models
     covfun.d = function(D) GPvecchia::MaternFun(D, prior_covparms)
     prior_covmodel = getL00(appr, covfun.d)
-
+    
     for (t in 1:Tmax) {
 
         cat(sprintf("+++ Filtering for t = %d +++\n", t))
 
         particles = sample.particles( Np, sampling.d )
+        print(particles)
 
         results = list();
         for (l in 1:Np) {
@@ -167,17 +182,23 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
             Qcovparms = p[c("sig2", "range", "nu")]
             if (t > 1) {
                 previous_ind = indices[[t-1]][l]
-                prior_mean = preds[[previous_ind]]$state
+                X = appr$locsord[order(appr$ord),]
+                X[1, ] = 1
+                prior_mean = preds[[previous_ind]]$state #+ (p["c"] - 1) * X %*% t(MEAN_COEFS[t, , drop = FALSE])
                 prior_covmodel = preds[[previous_ind]]$L
             }
 
             evolFun = function(X) as.numeric(p["c"]) * X
             forecasted = forecastStep(appr, prior_mean, prior_covmodel, Qcovparms, evolFun)
 
-            lik.params[["alpha"]] = as.numeric(p["a"])
+            #lik.params[["alpha"]] = as.numeric(p["a"])
+            lik.params[["alpha"]] = ALPHAS[t]
 
             updated = updateStep(Y[[t]], appr, forecasted$mean, forecasted$covmodel, lik.params, saveUQ)
 
+            if (!is.null(updated$msg)) {
+                cat(sprintf("\t\tparticle %d: %s\n", l, msg))
+            }
             # We do not include the weight from the previous step because the particles
             # were resampled so weights are the same.
             logweight = updated$loglik + getWeight(p, sampling.d, l)   
@@ -190,10 +211,9 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
             print(which(is.null(results)))
             warning("Parallelization error. Computations for certain particles failed")
             browser()
-        }
-
+        }       
+        
         preds = lapply(results, `[[`, 3)
-
         
         logliks[[t]] = sapply(results, `[[`, 2, simplify=TRUE)        
         logweights = sapply(results, `[[`, 1)
@@ -201,15 +221,15 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         # we need this because for some particles the likelihood is so small or has not been computed
         infinite.weights = which(!is.finite(logweights))
         logweights[infinite.weights] = 10*min(logweights[is.finite(logweights)])
-        
-        logweights = logweights - mean(logweights, na.rm=TRUE)
+
+        logweights = logweights - max(logweights, na.rm=TRUE)
         weights = exp(logweights) / sum(exp(logweights))
         resampled.indices = resample(weights)
         indices[[t]] = resampled.indices
         
         no.unique = length(unique(resampled.indices))
         cat(sprintf("\tNo. of unique particles after resampling: %d\n", no.unique))
-
+        
         if( no.unique == 1 ){
             warning( "Only one unique particles is left." )
             #return(list(particles = particles, logliks = logliks, preds = preds, resampled.indices = indices))
@@ -220,14 +240,10 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         ## this commented out line is for testing only
         #preds = preds[rep(which.max(weights), Np)]
         #preds = preds[ resampled.indices ]
-     
+        
         particles.all[[t]] = particles
         # these two might ultimately be swapped but this is easier for testing
         particles = particles[resampled.indices, , drop = FALSE]
-
-        
-
-        
         sampling.d = update.sampling(particles, PROP)
 
         #}
