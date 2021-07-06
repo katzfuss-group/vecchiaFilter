@@ -1,7 +1,7 @@
 ## requires: settings.r, particle-sampling.r and doParallel
 
 ## Imports -----------------------------------------
-source('~/vecchiaFilter/data-application/particle-sampling.r')
+source('/home/marcin/vecchiaFilter/data-application/particle-sampling.r')
 
 
 # Systematic resampling scheme; this is generally better than multinomial
@@ -99,7 +99,6 @@ updateStep = function(y, appr, forecast_mean, forecast_covmodel, lik.params, sav
         if (!preds.aux$cnvgd) {
             warning("Posterior estimation did not converge")
         }
-        browser()
         cat(sprintf("\t\tCalculating likelihood\n"))
         loglik = GPvecchia::vecchia_laplace_likelihood_from_posterior( y, preds.aux, appr, prior_mean = forecast_mean, covmodel = forecast_covmodel)
         if (abs(loglik) > 1e8){
@@ -108,6 +107,8 @@ updateStep = function(y, appr, forecast_mean, forecast_covmodel, lik.params, sav
         cat(sprintf("\t\titer: %d, loglik = %f\n", preds.aux$iter, loglik))
 
         L.tt = getLtt(appr, preds.aux)
+        U = Matrix::t(L.tt)
+        vars = as.numeric(sapply(split(U@x, cut(1:length(U@x), U@p, labels=FALSE)), function(v) sum(v**2)))
         mu.tt = matrix(preds.aux$mean, ncol = 1)
         preds.tt = saveResults(preds.aux, L.tt, saveUQ)
         msg = NULL
@@ -117,6 +118,7 @@ updateStep = function(y, appr, forecast_mean, forecast_covmodel, lik.params, sav
         msg = conditionMessage(c)
         logweight <<- -Inf
         loglik <<- -Inf
+        cat(sprintf("%s\n", msg))
         ## if (errMsg == "Derivative of the loglikehood is infinite. Try different parameter values") {
         ##     logweight <<- -Inf
         ##     loglik <<- -Inf
@@ -128,7 +130,7 @@ updateStep = function(y, appr, forecast_mean, forecast_covmodel, lik.params, sav
         ## }
     })
 
-    return(list(preds = preds.tt, loglik = loglik, msg = msg))
+    return(list(preds = preds.tt, loglik = loglik, msg = msg, vars = vars))
 }
 
 
@@ -159,6 +161,7 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
     preds = list()
     logliks = list()
     indices = list()
+    vars.all = list()
     
     # this can be modified to accomodate sampling particles for unknown
     # prior covariance models
@@ -170,14 +173,13 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         cat(sprintf("+++ Filtering for t = %d +++\n", t))
 
         particles = sample.particles( Np, sampling.d )
-        print(particles)
 
         results = list();
         for (l in 1:Np) {
         #results = foreach(l = 1:Np) %dopar% {
             
             p = particles[l, ]
-            cat(sprintf("\tWorking on particle %d, %f\n", l, p["c"]))
+            #cat(sprintf("\tWorking on particle %d, %f\n", l, p["c"]))
             
             Qcovparms = p[c("sig2", "range", "nu")]
             if (t > 1) {
@@ -188,12 +190,13 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
                 prior_covmodel = preds[[previous_ind]]$L
             }
 
-            evolFun = function(X) as.numeric(p["c"]) * X
+            #evolFun = function(X) as.numeric(p["c"]) * X
             forecasted = forecastStep(appr, prior_mean, prior_covmodel, Qcovparms, evolFun)
 
             #lik.params[["alpha"]] = as.numeric(p["a"])
             lik.params[["alpha"]] = ALPHAS[t]
-
+            lik.params[["mu"]] = MEAN_COEFS[t, 1] + MEAN_COEFS[t, 2] * mean(appr$locsord[, 2])
+            #print(lik.params[["mu"]])
             updated = updateStep(Y[[t]], appr, forecasted$mean, forecasted$covmodel, lik.params, saveUQ)
 
             if (!is.null(updated$msg)) {
@@ -203,7 +206,7 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
             # were resampled so weights are the same.
             logweight = updated$loglik + getWeight(p, sampling.d, l)   
             #list(logweight, updated$loglik, updated$preds)
-            results[[l]] = list(logweight, updated$loglik, updated$preds)
+            results[[l]] = list(logweight, updated$loglik, updated$preds, updated$vars)
         }
         
         if (any(sapply(results, is.null))) {
@@ -214,7 +217,7 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         }       
         
         preds = lapply(results, `[[`, 3)
-        
+        vars = lapply(results, `[[`, 4)
         logliks[[t]] = sapply(results, `[[`, 2, simplify=TRUE)        
         logweights = sapply(results, `[[`, 1)
         
@@ -240,7 +243,8 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         ## this commented out line is for testing only
         #preds = preds[rep(which.max(weights), Np)]
         #preds = preds[ resampled.indices ]
-        
+
+        vars.all[[t]] = vars[resampled.indices]
         particles.all[[t]] = particles
         # these two might ultimately be swapped but this is easier for testing
         particles = particles[resampled.indices, , drop = FALSE]
@@ -249,5 +253,5 @@ filter = function(appr, Y, Np, lik.params, prior_covparms, prior_mean = NULL, sa
         #}
     }
 
-    return(list(particles = particles.all, logliks = logliks, preds = preds.all, resampled.indices = indices))
+    return(list(particles = particles.all, logliks = logliks, preds = preds.all, resampled.indices = indices, vars = vars.all))
 }

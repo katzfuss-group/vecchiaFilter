@@ -45,6 +45,66 @@ getConfInt = function(preds, alpha){
 
 
 
+evolDiff = function(state, adv = 0, alpha = 0, diff = 1/alpha){
+  # we assume that there is the same number of grid points
+  # along each dimension
+    if(is.null(dim(state))) {
+        N = length(state)
+    } else {
+        N = dim(state)[1]
+    }
+    
+    Ny = Nx = sqrt(N)
+  
+    dx = dy = 1/Nx
+    omega = 4*diff/(dx ** 2)
+    max.diff = dx**2/4
+    
+    if (omega > 1) {
+        stop(sprintf("diff coef. is too big. max diff can be %f", max.diff))
+    }
+
+    c1 = 1 - omega - adv
+    c2 = 0.25 * omega
+    c3 = 0.25 * omega + adv
+
+    ## Let's consider the following layout on the grid
+    ## . . . . .
+    ## . . c . .
+    ## . a x b .
+    ## . . d . .
+    ## . . . . .
+    ## where the values "x" are given by d3, "d" - by d1,
+    ## "a" - by d2, "b" - by d4 and "c" by d5.
+    d = rep(c2, N-Nx)
+    a = rep(c2, N-1)
+    x = rep(c1, N)
+    b = rep(c3, N-1)
+    c = rep(c3,N-Nx)
+
+    # Now notice that for k = 1:n, in each kn-th row there should
+    # be no b and for every kn+1-st row there should be no a
+    inds.b = Nx*(1:(Ny-1))
+    inds.a = Nx*(1:(Ny-1))
+    b[inds.b] = 0
+    a[inds.a] = 0
+    
+    diags = list(d, a, x, b, c)
+    E = Matrix::bandSparse(N, k=c(-Nx, -1, 0, 1, Nx), diag=diags)
+
+    #browser()
+    
+    if (class(state) == 'matrix' || methods::is(state, 'sparseMatrix')){
+        return( E %*% state )
+    } else {
+        return( as.numeric(E %*% as.matrix(state)) )
+    }
+}
+
+    
+
+
+
 
 ######### simulate and plot the data #########
 ## define the temporal evolution function

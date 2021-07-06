@@ -1,4 +1,4 @@
-Rcpp::sourceCpp('~/vecchiaFilter/src/getMatCovFromFactor.cpp')
+Rcpp::sourceCpp('/home/marcin/vecchiaFilter/src/getMatCovFromFactor.cpp')
 
 getMatCov = function(V, covariances, factor=FALSE){
   

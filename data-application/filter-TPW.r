@@ -1,4 +1,4 @@
-setwd("~/vecchiaFilter")
+setwd("/home/marcin/vecchiaFilter")
 source("getMatCov.r")
 source("data-application/settings.r")
 #source("data-application/particle-filtering-recompute.r")
