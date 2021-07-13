@@ -5,7 +5,7 @@ source("../data/process-data.r")
 
 
 ndays = 15
-m = 50
+m = 80
 n_sample = 100000
 SMOOTH = 2.5
 ## these are the values fot the data from the Dorit paper
@@ -18,13 +18,13 @@ X_UPPER_LIMIT = Inf
 maxiter = 20
 set.seed(1996)
 niter.mean = 40
-params.names = c("a", "sig2", "range", "nu", "beta0", "beta1")
+params.names = c("a", "sig2", "range", "nu", "mu")
 params = matrix(rep(0, ndays*length(params.names)), ncol=length(params.names))
 colnames(params) = params.names
+params.file = sprintf("params_1_%d.csv", ndays)
 
-
-
-for( day.no in 1:ndays ){
+mus = rep(NA, ndays)
+for (day.no in 1:ndays) {
 
     cat(sprintf("============== day %d =====================\n", day.no))
     TPW = read_day_MIRS( day.no ) %>%
@@ -34,6 +34,7 @@ for( day.no in 1:ndays ){
     #TPW = readr::read_csv("../../TPW_10k.csv")
 
     n = nrow(TPW)
+    if (n < 100) next
     
     z = matrix( dplyr::select(TPW, value) %>% filter( !is.na(value) ) %>% pull(value), ncol=1 )
     x = TPW %>% filter( !is.na(value) ) %>% pull(x)
@@ -48,36 +49,56 @@ for( day.no in 1:ndays ){
     locs = locs[sub_idx,]
     obs = z[sub_idx]   
 
-    #### trend estimation ####
-    cat("Estimating mean\n")
-    X = locs
-    X[,1]= 1
-
-
-    ## # Glm: IRLS method from taking deriv of llh
-    beta = c(1,0)
+    mu = 0
     for(i in c(1:niter.mean)){
-        XB = X %*% beta
-        W  = -Matrix::Diagonal(x = as.numeric(exp(-XB)*obs) )
-        A  = exp(-XB)*obs-1
-        U  = W %*% XB - A
-        beta = solve( t(X) %*% W %*% X , t(X) %*% U)
+        MU = matrix(rep(mu, nrow(locs)), ncol = 1)
+        W  = -Matrix::Diagonal(x = as.numeric(exp(-MU)*obs) )
+        A  = exp(-MU)*obs-1
+        U  = W %*% MU - A
+        muold = mu
+        mu = solve( sum(W), sum(U))
+        if (abs(muold - mu) < 1e-5) break
     }
-    cat(sprintf("Mean coefficients: %f, %f\n", beta[1], beta[2]))
-    XB = as.numeric(X %*% beta)
+    cat(sprintf("Mean: %f\n", mu))
+    mus[day.no] = mu
+}
+
+mu = mean(mus, na.rm = TRUE)
+cat(sprintf("Mean is: %f\n", mu))
+
+
+for( day.no in 1:ndays ){
+
+    cat(sprintf("============== day %d =====================\n", day.no))
+    TPW = read_day_MIRS( day.no ) %>%
+        dplyr::filter( x < X_UPPER_LIMIT ) #%>%
+
+    n = nrow(TPW)
+
+    if (n < 100) next
     
+    z = matrix( dplyr::select(TPW, value) %>% filter( !is.na(value) ) %>% pull(value), ncol=1 )
+    x = TPW %>% filter( !is.na(value) ) %>% pull(x)
+    y = TPW %>% filter( !is.na(value) ) %>% pull(y)
+    locs = matrix(c(x, y), ncol=2, byrow=FALSE)
+
+    # test on subset
+    sub_idx = sample(length(z), min(nrow(z), min(n, n_sample)), replace = FALSE)
+    locs = locs[sub_idx,]
+    obs = z[sub_idx]   
+
+    XB = rep(mu, nrow(locs))    
     ## Do parameter estimation for multiple m values
     cat(sprintf("Estimating parameters for m = %d\n", m))
 
     cat("Step 1, generating vecchia approximations\n")
-    vecchia.approx = GPvecchia::vecchia_specify(locs, conditioning = 'mra', m = m)#, cond.yz = "zy")
-    #vecchia.approx.IW = GPvecchia::vecchia_specify(sub_locs, m = m, conditioning = 'mra')
+    vecchia.approx = GPvecchia::vecchia_specify(locs, conditioning = 'mra', m = m)
 
     ## Iterative method:  estimate a, then covparms, then a again
     cat("Step 2, optimizing parameters\n")
-    a = a_prev = (mean(obs)/sd(obs))**2
+    a = a_prev = 0.5#(mean(obs)/sd(obs)**2)
     #covparms_prev = c(0.055376, 0.048875)#c(2, 0.1)
-    covparms_prev = c(0.05, 0.1)#c(2, 0.1)
+    covparms_prev = c(0.3, 3)#c(2, 0.1)
 
     cat("\tInitial parameter values:\n")
     cat(sprintf("\t\ta: %f\n", a_prev))
@@ -113,9 +134,6 @@ for( day.no in 1:ndays ){
     cat(sprintf("a = %f, sig = %f, range = %f, smoothness = %f\n", a, covparms[1], covparms[2], SMOOTH))
     cat(sprintf("m = %d, time = %.2f, Niter = %d\n", m, time_dur, iter_count))
 
-    params[ day.no, ] = c(a, covparms, SMOOTH, as.numeric(beta))
-    
+    params[ day.no, ] = c(a, covparms, SMOOTH, mu)
+    readr::write_csv(as.data.frame(params), file = params.file)
 }
-
-params.file = sprintf("params_1_%d.csv", ndays)
-readr::write_csv(as.data.frame(params), file = params.file)

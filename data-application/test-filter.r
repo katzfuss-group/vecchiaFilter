@@ -17,6 +17,9 @@ lik.params = list(data.model = DATA_MODEL, alpha = ALPHA, sigma = sqrt(ME_VAR))
 ## simulate data --------------------------------
 grid.oneside = seq(0, 0.9282838, length = round(sqrt(N)))
 locs = as.matrix(expand.grid(grid.oneside, grid.oneside))
+`%>%` = dplyr::`%>%`
+locs = readr::read_csv("locs.csv", col_types = readr::cols()) %>% data.matrix()
+N = nrow(locs)
 mu0 = matrix(rep(0, N), ncol = 1)
 mu0 = diffAdvVec2d(sqrt(N), ny=sqrt(N), height=1, rnge=10)
 XY = simulate.xy(mu0, SIG_02, RANGE, SMOOTH, evolFun, NULL, FRAC_OBS, lik.params, TMAX, sig2 = SIG2, smooth = SMOOTH, range = RANGE, locs = locs)

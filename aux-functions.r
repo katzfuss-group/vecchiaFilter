@@ -45,7 +45,7 @@ getConfInt = function(preds, alpha){
 
 
 
-evolDiff = function(state, adv = 0, alpha = 0, diff = 1/alpha){
+evolDiff = function(state, adv = 0, alpha = 0, diff = 1/alpha, nsteps = 1, c = 1){
   # we assume that there is the same number of grid points
   # along each dimension
     if(is.null(dim(state))) {
@@ -92,13 +92,15 @@ evolDiff = function(state, adv = 0, alpha = 0, diff = 1/alpha){
     diags = list(d, a, x, b, c)
     E = Matrix::bandSparse(N, k=c(-Nx, -1, 0, 1, Nx), diag=diags)
 
-    #browser()
-    
-    if (class(state) == 'matrix' || methods::is(state, 'sparseMatrix')){
-        return( E %*% state )
-    } else {
-        return( as.numeric(E %*% as.matrix(state)) )
+    for (i in 1:nsteps) {
+        if (class(state) == 'matrix' || methods::is(state, 'sparseMatrix')){
+            state = E %*% state
+        } else {
+            state = as.numeric(E %*% as.matrix(state))
+        }
     }
+
+    return(c * state)
 }
 
     
