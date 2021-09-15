@@ -7,7 +7,7 @@ source("../data/process-data.r")
 ndays = 15
 m = 80
 n_sample = 100000
-SMOOTH = 2.5
+SMOOTH = 0.5
 ## these are the values fot the data from the Dorit paper
 LOC_QUANTILE = 1
 X_UPPER_LIMIT = Inf

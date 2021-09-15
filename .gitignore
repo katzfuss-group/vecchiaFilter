@@ -1,7 +1,9 @@
+data/*
 slides/*
 .Rhistory
 .RData
 /documents/*
+simulations-linear/EnKF-*
 simulations-lorenz/Lorenz*
 simulations-lorenz/init_Lorenz*
 poisson/

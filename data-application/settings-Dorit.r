@@ -3,27 +3,28 @@
 
 
 ## settings -----------------------------------
-COND_SET_SIZE = 80 
-TMAX = 11
-NSTEPS = 1
-FRAC_OBS = 1.0
+COND_SET_SIZE = 20
+TMAX = 2
+NSTEPS = 4
+FRAC_OBS = 0.99
 FILENAME = "~/vecchiaFilter/data-application/data/katzfuss-dorit-data/MIRS.csv"
 
 #MRA_OPTIONS = list(r = c(100, 50, 50, 10, 1), J = c(2, 4, 8, 256), M = 4)
-MRA_OPTIONS = NULL#list(r = c(20, 10, 10, 5, 5, 5, 3), J = 4, M = 7)
+MRA_OPTIONS = list(r = c(25, 15, 15, 5, 5, 5, 3), J = 4, M = 7)
 
 
 ## evolution function -----------------------
 C = 0.99
-DIFFUSION = 0.000002
+DIFFUSION = 0.000003
 evolFun = function(X) {
-    X = C * X#evolDiff(X, diff = DIFFUSION, nsteps = NSTEPS, c = C)
+    X = evolDiff(X, diff = DIFFUSION, nsteps = NSTEPS, rho = C)
     return(X)
 }
 
 
 ## covariance parameters -------------------
-params = readr::read_csv("/home/marcin/vecchiaFilter/data-application/static-estimation/params_MIRS_1_5.csv", col_types = readr::cols())
+params = readr::read_csv("/home/marcin/vecchiaFilter/data-application/static-estimation/MIRS-Gaussian-params-smooth-1_5.csv", col_types = readr::cols())
+#params = readr::read_csv("/home/marcin/vecchiaFilter/data-application/static-estimation/params_MIRS_0_5.csv", col_types = readr::cols())
 #params = readr::read_csv("~/vecchiaFilter/data-application/static-estimation/params_1_11.csv", col_types = readr::cols())
 
 SIG_02 = params %>% dplyr::select(sig2) %>% dplyr::filter(sig2 > 0) %>% dplyr::summarize(mean(sig2)) %>% dplyr::pull()
@@ -33,11 +34,14 @@ SMOOTH = 1.5
 
 
 ## likelihood parameters -------------------
-MEAN_COEFS = matrix(c(rep(2.56, TMAX), rep(0, TMAX)), ncol = 2, byrow = FALSE)
+MEAN_COEFS = dplyr::select(params, mu) %>% data.matrix()
+MEAN_COEFS[10,1] = sum(MEAN_COEFS[-10,1])/10
 
-ALPHAS = dplyr::select(params, a) %>% dplyr::pull()
-DATA_MODEL = "gamma_mean"
-
+#ALPHAS = dplyr::select(params, a) %>% dplyr::pull()
+ME_VAR = 4.5 ** 2
+#DATA_MODEL = "gamma_mean"
+DATA_MODEL = "gauss"
+lik.params = list(data.model = DATA_MODEL, sigma = sqrt(ME_VAR))
 
 
 ## ## other

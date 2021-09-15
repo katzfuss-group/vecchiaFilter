@@ -45,7 +45,7 @@ getConfInt = function(preds, alpha){
 
 
 
-evolDiff = function(state, adv = 0, alpha = 0, diff = 1/alpha, nsteps = 1, c = 1){
+evolDiff = function(state, adv = 0, alpha = 0, diff = 1/alpha, nsteps = 1, rho = 1){
   # we assume that there is the same number of grid points
   # along each dimension
     if(is.null(dim(state))) {
@@ -100,7 +100,7 @@ evolDiff = function(state, adv = 0, alpha = 0, diff = 1/alpha, nsteps = 1, c = 1
         }
     }
 
-    return(c * state)
+    return(rho * state)
 }
 
     
