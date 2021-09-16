@@ -44,10 +44,9 @@ calculateRRMSPE = function(predsMRA, predsLR, predsE, x){
 
 
 LogS = function(preds, y){
-  
   Tmax = length(preds)
-  LS = rep(0, Tmax-1)
-  for( t in 1:Tmax ){
+  LS = rep(0, Tmax)
+  for(t in 1:Tmax) {
     LS[t] = -dposterior(y[[t]], preds[[t]])
   }
   return(LS)
