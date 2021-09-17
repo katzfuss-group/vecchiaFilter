@@ -1,0 +1,9 @@
+In order to replicate the results from the paper make sure that all the variables in the run-filtering-simulations.r file are the same as in the paper. Then run the file using the following command:
+Rscript run-filtering-simulations.r famiy
+where family is one of the following four strings: gauss, poisson, logistic, gamma.
+
+For a quick test make sure to set the number of iterations to 1.
+
+This set of simulations requires the VEnKF package which can be found in the folder with the same name. In order to install this package go to its folder and then run
+
+R CMD INSTALL .

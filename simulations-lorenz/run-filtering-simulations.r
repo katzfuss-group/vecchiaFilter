@@ -28,7 +28,7 @@ Tmax = 2
 
 ## evolution function ##
 Force = 10
-K = 10
+K = 32
 dt = 0.005
 M = 5
 b = 0.1
@@ -106,40 +106,34 @@ low.rank = GPvecchia::vecchia_specify(locs, ncol(mra$U.prep$revNNarray) - 1, ord
 approximations = list(mra = mra, low.rank = low.rank, exact = exact)
 
 
-#scores = foreach( iter=1:max.iter) %dopar% {
-for (iter in 1:max.iter) {
+scores = foreach( iter=1:max.iter) %dopar% {
+#for (iter in 1:max.iter) {
 
     cat("Simulating data\n")
     XY = simulate.xy(x0, evolFun, Sigt, frac.obs, lik.params, Tmax)
 
     cat(paste("iteration: ", iter, ", MRA", "\n", sep = ""))
     start = proc.time()
-    predsMRA = filter('mra', XY)
+    predsMRA = filterLorenz('mra', XY)
     d = as.numeric(proc.time() - start)
     cat(paste("MRA filtering took ", d[3], "s\n", sep = ""))
     
     cat(paste("iteration: ", iter, ", exact", "\n", sep = ""))
     start = proc.time()
-    predsE = filter('exact', XY)
+    predsE = filterLorenz('exact', XY)
     d = as.numeric(proc.time() - start)
     cat(paste("Exact filtering took ", d[3], "s\n", sep = ""))
 
-    #cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
-    #start = proc.time()
-    #predsLR  = filter('low.rank', XY)
-    #d = as.numeric(proc.time() - start)
-    #cat(paste("Low-rank filtering took ", d[3], "s\n", sep = ""))
-
     cat(paste("iteration: ", iter, ", LR", "\n", sep = ""))
     start = proc.time()
-    predsLR  = filter('low.rank', XY)
+    predsLR  = filterLorenz('low.rank', XY)
     d = as.numeric(proc.time() - start)
     cat(paste("Low-rank filtering took ", d[3], "s\n", sep = ""))
 
     RRMSPE = calculateRRMSPE(predsMRA, predsLR, predsE, XY$x)
     LogSc = calculateLSs(predsMRA, predsLR, predsE, XY$x)
-    write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
-    write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
+    #write.csv(RRMSPE, file = paste(resultsDir, "/", data.model, "/RRMSPE.", iter, sep = ""))
+    #write.csv(LogSc, file = paste(resultsDir, "/", data.model, "/LogSc.", iter, sep = ""))
 
     if (iter == 1) {
       plotResults(XY, predsE, predsMRA, predsLR, resultsDir)
@@ -158,4 +152,4 @@ resultsAsString = c(resultsAsString, "\n")
 resultsAsString = paste(resultsAsString, collapse="\n")
 cat(resultsAsString)
 output = paste(c(AllParamsAsString, resultsAsString), sep="\n")
-writeLines(output, paste(resultsDir, "/logs/", hash, sep=""))
+#writeLines(output, paste(resultsDir, "/logs/", hash, sep=""))

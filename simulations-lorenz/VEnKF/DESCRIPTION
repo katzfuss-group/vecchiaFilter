@@ -1,0 +1,20 @@
+Package: VEnKF
+Type: Package
+Title: Ensemble Kalman Filter update step with Vecchia Covariance Regularization
+Version: 0.9.1
+Date: 2019-12-7
+Authors@R: c(person("Will", "Boyles", email = "will@stat.tamu.edu", role = c("aut", "cre")), person("Matthias", "Katzfuss", role = "aut"), person("Brian", "Kidd", role = "ctb"))
+Description: The main purpose of this package will instead be focused upon the 
+    update function based on implementing all of these Vecchia functions to 
+    calculate the EnKF update step. The package will also contain several other 
+    update functions to compare these update steps with example graphical 
+    representations of possible simulations. Finally, there will be an 
+    implementation of a Lorenz Chaos Model to run numerical simulations of the 
+    update functions.
+License: GPL-2
+Imports: Rcpp (>= 1.0.1), fields, MASS, GpGp, Matrix
+LinkingTo: Rcpp, RcppArmadillo
+Suggests: knitr, rmarkdown, testthat
+VignetteBuilder: knitr
+Encoding: UTF-8
+RoxygenNote: 6.1.1
