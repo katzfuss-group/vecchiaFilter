@@ -1,0 +1,3 @@
+In order to replicate the results from the paper make sure that the FILENAME variable points to the correct data file and that the variables in the settings.r file have the same values as in the paper. Then run
+Rscript predict-TPW.r
+to generate the predictions. This might potentially take several hours. 
