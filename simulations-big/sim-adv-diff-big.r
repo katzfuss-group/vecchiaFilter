@@ -1,5 +1,5 @@
 setwd("~/vecchiaFilter")
-source("filtering.r")
+source("simulations-linear/filtering.r")
 source('aux-functions.r')
 source('getMatCov.r')
 source('plotting.r')
