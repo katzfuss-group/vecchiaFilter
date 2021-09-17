@@ -1,0 +1,6 @@
+In order to replicate the results from the paper run the simulations as
+. run-simulations.sh
+
+Keep in mind that this might take a long time (several hours). Once the results are ready, run
+python generate-plot.py
+to recreate the plot from the paper.

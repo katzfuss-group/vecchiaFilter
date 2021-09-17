@@ -1,0 +1,7 @@
+In order to replicate the results from the paper make sure that all the variables in the sim-adv-diff.r file are the same as in the paper. Then run the file using the following command:
+Rscript sim-adv-diff.r family
+where family is one of the following four strings: gauss, poisson, logistic, gamma.
+
+For a quick test make sure to set the number of iterations to 1. Once the results for all four families were generated run
+python plot-scores.py
+to recreate the plot from the paper.
