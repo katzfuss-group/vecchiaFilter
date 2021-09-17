@@ -1,7 +1,7 @@
 ## requires: settings.r, particle-sampling.r and doParallel
 
 ## Imports -----------------------------------------
-source('/home/marcin/vecchiaFilter/data-application/particle-sampling.r')
+#source('/home/marcin/vecchiaFilter/data-application/particle-sampling.r')
 
  
 

@@ -3,8 +3,8 @@ cat(sprintf("%s Script started\n", date()))
 setwd("/home/marcin/vecchiaFilter")
 source("getMatCov.r")
 source("data-application/aux-functions.r")
-source("data-application/settings.r")
-source("data-application/filtering.r")
+source("data-application/settings-Katzfuss-Hammerling.r")
+source("data-application/only-filtering.r")
 suppressPackageStartupMessages(library(tidyverse))
 
 
@@ -35,7 +35,7 @@ for (p in unique(TPW$day)) {
 nx = length(unique(locs$lon))
 ny = length(unique(locs$lat))
 
-
+      
 ## filter ---------------------------------------
 mra = GPvecchia::vecchia_specify(locs %>% data.matrix(), COND_SET_SIZE, conditioning = 'mra', mra.options = MRA_OPTIONS, verbose = TRUE)
 predsMRA = filter(mra, Y, lik.params, init_covparms)

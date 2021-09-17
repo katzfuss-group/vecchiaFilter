@@ -3,19 +3,14 @@
 
 
 ## settings -----------------------------------
-MRA_OPTIONS = NULL#list(r = c(25, 15, 15, 5, 5, 5, 3), J = 4, M = 7)
-if (!(is.null(MRA_OPTIONS))) {
-    COND_SET_SIZE = 20
-} else {
-    COND_SET_SIZE = sum(MRA_OPTIONS["r"])
-}
+COND_SET_SIZE = 15
 TMAX = 2
 NSTEPS = 1
 FRAC_OBS = 0.99
 FILENAME = "~/vecchiaFilter/data-application/data/katzfuss-dorit-data/MIRS.csv"
 
 
-
+MRA_OPTIONS = NULL#list(r = c(25, 15, 15, 5, 5, 5, 3), J = 4, M = 7)
 
 
 ## evolution function -----------------------
